@@ -9,7 +9,11 @@
         #editor { width: 300px; padding: 20px; background: white; border-right: 1px solid #ccc; z-index: 10; }
 
         /* EL VISOR */
-        model-viewer { flex-grow: 1; background: #eee; --hotspot-color: #1a73e8; }
+        model-viewer { flex-grow: 1; background: #eee; --hotspot-color: #1a73e8; width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;}
 
         /* ESTILO DEL PUNTO (HOTSPOT) */
         .hotspot {
@@ -59,22 +63,31 @@
             return {
                 hotspots: [],
                 manejarClic(event) {
-                    const viewer = document.querySelector('#visor');
+    const viewer = document.querySelector('#visor');
 
-                    // Solo detecta clic sobre el objeto 3D
-                    const hit = viewer.positionAndNormalFromPoint(event.offsetX, event.offsetY);
+    // 1. Calculamos la posición exacta del visor en la pantalla
+    const rect = viewer.getBoundingClientRect();
 
-                    if (hit) {
-                        console.log("¡Punto detectado!"); // Esto aparecerá en la consola (F12)
-                        this.hotspots.push({
-                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
-                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
-                            texto: "Punto " + (this.hotspots.length + 1)
-                        });
-                    } else {
-                        console.log("Clic fuera del modelo");
-                    }
-                }
+    // 2. Restamos la posición del visor a la posición del clic
+    // Esto nos da la coordenada "0,0" justo en la esquina del modelo
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    // 3. Consultamos al modelo si hay algo en esas coordenadas
+    const hit = viewer.positionAndNormalFromPoint(x, y);
+
+    if (hit) {
+        console.log("¡DIANA! Tocado en:", hit.position);
+        this.hotspots.push({
+            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+            texto: "Nota " + (this.hotspots.length + 1)
+        });
+    } else {
+        // Si falla, esto te dirá en qué coordenadas está buscando
+        console.warn(`Clic fallido en X: ${Math.round(x)}, Y: ${Math.round(y)}. Intenta clicar más al centro del objeto.`);
+    }
+}
             }
         }
     </script>
