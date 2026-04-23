@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador para Moodle 3D</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
+        #editor { width: 350px; padding: 25px; background: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .card { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0; }
+        h2, h3 { margin-top: 0; color: #1a73e8; }
+        model-viewer { flex-grow: 1; height: 100%; background: radial-gradient(#ffffff, #d7d7d7); }
+        textarea { width: 100%; height: 80px; font-family: monospace; font-size: 11px; margin-top: 10px; resize: none; }
+        .btn-copy { background: #1a73e8; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-copy:hover { background: #1557b0; }
+    </style>
+</head>
+
+<body x-data="editor3D()" x-init="cargarConfiguracion()">
+
+    <div id="editor">
+        <h2>Panel Docente</h2>
+        
+        <div class="card">
+            <h3>1. Cargar Modelo</h3>
+            <input type="file" accept=".glb" @change="subirArchivo">
+            <p style="font-size: 0.8em; color: #666;">Nota: Para Moodle, usa modelos que ya estén en internet.</p>
+        </div>
+
+        <div class="card">
+            <h3>2. Color de Base</h3>
+            <input type="color" x-model="color" @input="aplicarColor">
+        </div>
+
+        <div class="card">
+            <h3>3. Llevar a Moodle</h3>
+            <button class="btn-copy" @click="generarCodigo">Generar Código</button>
+            
+            <div x-show="codigoMoodle">
+                <p style="font-size: 0.8em; margin-top:10px;">Copia este código en Moodle (Editor HTML):</p>
+                <textarea x-model="codigoMoodle" readonly onclick="this.select()"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <model-viewer id="visor" 
+        :src="modeloUrl" 
+        ar 
+        camera-controls 
+        shadow-intensity="1" 
+        auto-rotate>
+    </model-viewer>
+
+    <script>
+        function editor3D() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                color: '#ffffff',
+                codigoMoodle: '',
+
+                subirArchivo(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.modeloUrl = URL.createObjectURL(file);
+                    }
+                },
+
+                aplicarColor() {
+                    const mv = document.querySelector('#visor');
+                    if (mv.model && mv.model.materials.length > 0) {
+                        mv.model.materials[0].pbrMetallicRoughness.setBaseColorFactor(this.color);
+                    }
+                },
+
+                // Esta función lee la URL para ver si hay un color guardado
+                cargarConfiguracion() {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('color')) {
+                        this.color = params.get('color');
+                        // Esperamos un segundo a que el modelo cargue para aplicar el color
+                        setTimeout(() => this.aplicarColor(), 1000);
+                    }
+                },
+
+                generarCodigo() {
+                    // Obtenemos la dirección de tu página web actual
+                    const urlBase = window.location.href.split('?')[0];
+                    // Creamos el enlace con el color elegido
+                    const urlConParams = `${urlBase}?color=${encodeURIComponent(this.color)}`;
+                    // Creamos el iframe para Moodle
+                    this.codigoMoodle = `<iframe src="${urlConParams}" width="100%" height="500px" style="border:none;" allow="xr-spatial-tracking; clipboard-write; fullscreen"></iframe>`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
