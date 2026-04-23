@@ -2,158 +2,197 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Creador de Lecciones 3D Perfectas</title>
+    <title>Creador Didáctico 3D</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; background: #f0f2f5; }
-        #editor { width: 320px; padding: 25px; background: white; border-right: 1px solid #ddd; z-index: 10; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e0e0e0; }
-        h2 { margin-top: 0; color: #1a73e8; font-size: 1.4em; }
+        :root { --primary: #1a73e8; --danger: #d93025; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
 
-        /* EL VISOR 3D */
+        /* EL VISOR: Pantalla completa para que X=0 sea el borde real */
         model-viewer {
-            flex-grow: 1;
-            height: 100%;
-            background: radial-gradient(#ffffff, #d7d7d7);
-            cursor: crosshair; /* Cursor para apuntar */
-        }
-
-        /* 💥 ESTILO DEL HOTSPOT (EL PUNTO AZUL) CON EL ARREGLO DE CENTRADO 💥 */
-        .hotspot {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background-color: #1a73e8;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            cursor: pointer;
-            pointer-events: auto; /* Asegura que el punto capture el clic */
-
-            /* --- ESTO ES LO QUE ARREGLA EL DESPLAZAMIENTO --- */
-            /* Mueve el botón la mitad de su ancho y alto hacia arriba y a la izquierda */
-            transform: translate(-50%, -50%);
-            /* ----------------------------------------------- */
-        }
-
-        /* ESTILO DE LA ANOTACIÓN DE TEXTO */
-        .annotation {
-            background: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f2f5;
             position: absolute;
-            /* Posicionamos el texto relativo al centro del punto */
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%); /* Centra el texto bajo el punto */
-            width: 140px;
-            font-size: 12px;
-            color: #333;
-            display: none; /* Oculto por defecto */
-            text-align: center;
+            top: 0;
+            left: 0;
         }
 
-        /* Mostrar texto al hacer clic en el punto (añadiremos lógica JS) */
-        .hotspot.active .annotation {
-            display: block;
+        /* DASHBOARD FLOTANTE */
+        #dashboard {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 340px;
+            max-height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
-        .btn { background: #1a73e8; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
-        input[type="text"] { width: 85%; padding: 5px; font-size: 12px; border: 1px solid #ddd; border-radius: 4px; }
+        .header { padding: 15px; background: var(--primary); color: white; border-radius: 15px 15px 0 0; }
+        .scroll-area { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+
+        .card { background: #f8f9fa; border: 1px solid #e0e0e0; padding: 12px; border-radius: 10px; }
+        .card h3 { margin: 0 0 10px 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* BOTONES */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-modo { background: #eee; color: #333; }
+        .btn-modo.active { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(217, 48, 37, 0.3); }
+        .btn-export { background: var(--primary); color: white; margin-top: 10px; }
+
+        /* HOTSPOTS (PUNTOS) */
+        .hotspot {
+            width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff;
+            background: var(--primary); cursor: pointer; transform: translate(-50%, -50%);
+        }
+        .visor-editando .hotspot { pointer-events: none; opacity: 0.5; }
+
+        .annotation {
+            background: white; padding: 8px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
+            width: 130px; font-size: 12px; display: none; color: #333;
+        }
+        .hotspot.active .annotation { display: block; }
+
+        textarea { width: 100%; height: 70px; font-size: 10px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; background: #fff; }
     </style>
 </head>
-
-<body x-data="editor3D()">
-
-    <div id="editor">
-        <h2>Panel Docente</h2>
-
-        <div class="card">
-            <strong>1. Color de Base</strong>
-            <input type="color" x-model="color" @input="aplicarColor" style="width:100%; height:40px; cursor:pointer; border:none;">
-        </div>
-
-        <div class="card">
-            <strong>2. Anotaciones</strong>
-            <p style="font-size: 0.85em; color: #666; margin: 5px 0 10px 0;">Haz clics rápidos sobre el modelo para añadir puntos informativos.</p>
-
-            <template x-for="(h, index) in hotspots" :key="index">
-                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                    <span x-text="'P' + (index+1)" style="font-weight:bold; color:#1a73e8; font-size:12px;"></span>
-                    <input type="text" x-model="h.texto" placeholder="¿Qué es esto?">
-                    <button @click="hotspots.splice(index, 1)" style="color:#d93025; background:none; border:none; cursor:pointer; font-size:18px;">&times;</button>
-                </div>
-            </template>
-        </div>
-
-        <div style="margin-top:auto">
-            <button class="btn" @click="console.log(JSON.stringify(hotspots))">Guardar (ver consola)</button>
-        </div>
-    </div>
+<body x-data="editor3D()" x-init="inicializar()">
 
     <model-viewer id="visor"
-        src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-        ar ar-modes="scene-viewer webxr"
-        camera-controls
-        @click="manejarClic($event)">
+        :class="editando ? 'visor-editando' : ''"
+        :src="modeloUrl"
+        :camera-controls="!editando"
+        ar shadow-intensity="1"
+        @click="colocarPunto($event)">
 
-        <template x-for="(h, index) in hotspots" :key="index">
+        <template x-for="(h, i) in hotspots" :key="i">
             <button class="hotspot"
-                :slot="'hotspot-' + index"
+                :slot="'hotspot-' + i"
                 :data-position="h.pos"
                 :data-normal="h.norm"
-                @click.stop="toggleAnotacion($event.target)">
+                @click.stop="toggleNota($event)">
                 <div class="annotation" x-text="h.texto"></div>
             </button>
         </template>
-
     </model-viewer>
+
+    <div id="dashboard">
+        <div class="header">
+            <h2 style="margin:0; font-size: 1.1em;">Configurador Didáctico</h2>
+        </div>
+
+        <div class="scroll-area">
+            <div class="card">
+                <h3>1. Cargar Modelo (.glb)</h3>
+                <input type="file" accept=".glb" @change="subirLocal" style="width:100%; font-size:11px;">
+            </div>
+
+            <div class="card">
+                <h3>2. Color de Superficie</h3>
+                <input type="color" x-model="color" @input="cambiarColor" style="width:100%; height:35px; border:none; cursor:pointer;">
+            </div>
+
+            <div class="card">
+                <h3>3. Anotaciones</h3>
+                <button class="btn btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
+                    <span x-text="editando ? '📍 MODO: MARCANDO' : '🔍 MODO: GIRAR'"></span>
+                </button>
+
+                <div style="max-height: 150px; overflow-y: auto; margin-top:10px;">
+                    <template x-for="(h, i) in hotspots" :key="i">
+                        <div style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
+                            <input type="text" x-model="h.texto" style="flex-grow:1; font-size:11px; padding:4px;">
+                            <button @click="hotspots.splice(i, 1)" style="color:red; background:none; border:none; cursor:pointer;">✕</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>4. Moodle / Compartir</h3>
+                <button class="btn btn-export" @click="generarIframe">Generar Código</button>
+                <div x-show="iframeCode">
+                    <textarea x-model="iframeCode" readonly onclick="this.select()"></textarea>
+                    <p style="font-size:9px; color:#888;">Copia y pega en un bloque HTML de Moodle.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         function editor3D() {
             return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
                 color: '#ffffff',
+                editando: false,
                 hotspots: [],
+                iframeCode: '',
 
-                manejarClic(event) {
-                    const viewer = document.querySelector('#visor');
-                    const rect = viewer.getBoundingClientRect();
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) this.modeloUrl = URL.createObjectURL(file);
+                },
 
-                    // Cálculo de puntería perfecta (cliente - borde)
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
+                cambiarColor() {
+                    const mv = document.querySelector('#visor');
+                    if (mv.model && mv.model.materials[0]) {
+                        mv.model.materials[0].pbrMetallicRoughness.setBaseColorFactor(this.color);
+                    }
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+
+                    const viewer = document.getElementById('visor');
+
+                    // Al ser pantalla completa, clientX es la coordenada exacta.
+                    const x = event.clientX;
+                    const y = event.clientY;
 
                     const hit = viewer.positionAndNormalFromPoint(x, y);
-
                     if (hit) {
                         this.hotspots.push({
                             pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
                             norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
-                            texto: "Nueva explicación..."
+                            texto: "Nueva etiqueta"
                         });
                     }
                 },
 
-                // Lógica para mostrar/ocultar el texto al tocar el punto
-                toggleAnotacion(elementoPunto) {
-                    // Si clicamos en el texto, el target es el div, no el botón. Buscamos el botón.
-                    const hotspot = elementoPunto.closest('.hotspot');
-
-                    // Cerramos los otros
-                    document.querySelectorAll('.hotspot').forEach(el => {
-                        if(el !== hotspot) el.classList.remove('active');
-                    });
-
-                    // Activamos/desactivamos este
-                    hotspot.classList.toggle('active');
+                toggleNota(e) {
+                    if (this.editando) return;
+                    const btn = e.target.closest('.hotspot');
+                    btn.classList.toggle('active');
                 },
 
-                aplicarColor() {
-                    const mv = document.querySelector('#visor');
-                    if (mv.model && mv.model.materials.length > 0) {
-                        mv.model.materials[0].pbrMetallicRoughness.setBaseColorFactor(this.color);
+                generarIframe() {
+                    const base = window.location.href.split('?')[0];
+                    const data = encodeURIComponent(JSON.stringify({
+                        c: this.color,
+                        h: this.hotspots,
+                        m: this.modeloUrl.startsWith('blob') ? '' : this.modeloUrl
+                    }));
+                    const finalUrl = `${base}?data=${data}`;
+                    this.iframeCode = `<iframe src="${finalUrl}" width="100%" height="500px" style="border:none;" allow="xr-spatial-tracking; camera;"></iframe>`;
+                },
+
+                inicializar() {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('data')) {
+                        const config = JSON.parse(decodeURIComponent(params.get('data')));
+                        this.color = config.c;
+                        this.hotspots = config.h;
+                        if(config.m) this.modeloUrl = config.m;
+                        setTimeout(() => this.cambiarColor(), 1000);
                     }
                 }
             }
