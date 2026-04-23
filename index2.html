@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+        #editor { width: 300px; padding: 20px; background: white; border-right: 1px solid #ccc; z-index: 10; }
+
+        /* EL VISOR */
+        model-viewer { flex-grow: 1; background: #eee; --hotspot-color: #1a73e8; }
+
+        /* ESTILO DEL PUNTO (HOTSPOT) */
+        .hotspot {
+            width: 20px; height: 20px; border-radius: 10px;
+            border: none; background-color: var(--hotspot-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25); cursor: pointer;
+        }
+
+        .annotation {
+            background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            padding: 6px; position: absolute; top: 25px; left: 10px; width: 100px;
+        }
+    </style>
+</head>
+<body x-data="app()">
+
+    <div id="editor">
+        <h2>Anotaciones 3D</h2>
+        <p style="font-size: 0.9em; color: #555;">
+            <strong>Instrucciones:</strong><br>
+            1. Haz un clic rápido sobre el modelo.<br>
+            2. Si funciona, aparecerá una fila abajo.
+        </p>
+        <hr>
+        <template x-for="(h, i) in hotspots" :key="i">
+            <div style="margin-bottom: 10px;">
+                <input type="text" x-model="h.texto" placeholder="Texto del punto..." style="width: 80%;">
+                <button @click="hotspots.splice(i, 1)" style="color:red;">&times;</button>
+            </div>
+        </template>
+    </div>
+
+    <model-viewer id="visor"
+        src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+        ar camera-controls
+        @click="manejarClic($event)">
+
+        <template x-for="(h, i) in hotspots" :key="i">
+            <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :data-normal="h.norm">
+                <div class="annotation" x-text="h.texto"></div>
+            </button>
+        </template>
+    </model-viewer>
+
+    <script>
+        function app() {
+            return {
+                hotspots: [],
+                manejarClic(event) {
+                    const viewer = document.querySelector('#visor');
+
+                    // Solo detecta clic sobre el objeto 3D
+                    const hit = viewer.positionAndNormalFromPoint(event.offsetX, event.offsetY);
+
+                    if (hit) {
+                        console.log("¡Punto detectado!"); // Esto aparecerá en la consola (F12)
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+                            texto: "Punto " + (this.hotspots.length + 1)
+                        });
+                    } else {
+                        console.log("Clic fuera del modelo");
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
