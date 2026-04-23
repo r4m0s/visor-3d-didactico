@@ -46,11 +46,18 @@
     </div>
 
     <model-viewer id="visor" 
-        :src="modeloUrl" 
-        ar 
-        camera-controls 
-        shadow-intensity="1" 
-        auto-rotate>
+        id="visor" 
+    	:src="modeloUrl" 
+   	 ar 
+    	ar-modes="webxr scene-viewer quick-look" 
+    	camera-controls 
+    	touch-action="none"
+    	shadow-intensity="1" 
+    	auto-rotate>
+    
+    <button slot="ar-button" style="background-color: white; border-radius: 8px; border: none; position: absolute; bottom: 16px; right: 16px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.25);">
+      👋 Ver en mi clase (AR)
+    </button>
     </model-viewer>
 
     <script>
