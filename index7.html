@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma 3D Pro - Master Config</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; --bg: #f1f3f4; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: var(--bg); }
+
+        /* VISOR 3D */
+        #contenedor-visor { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        model-viewer { width: 100%; height: 100%; }
+
+        /* TÍTULO EN VISOR */
+        #visor-titulo {
+            position: fixed; top: 25px; right: 25px; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px); padding: 12px 24px; border-radius: 14px;
+            font-weight: bold; font-size: 1.3em; color: #202124; z-index: 50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* 📍 MARCADOR DE POSICIONAMIENTO (Círculo Rojo Discontinuo) 📍 */
+        #marcador-guia {
+            position: fixed; width: 40px; height: 40px; 
+            border: 3px dashed var(--danger); border-radius: 50%;
+            pointer-events: none; z-index: 99999; /* Z-index máximo */
+            transform: translate(-50%, -50%); display: none;
+            box-shadow: 0 0 10px rgba(217, 48, 37, 0.3);
+        }
+
+        /* DASHBOARD */
+        #dashboard {
+            position: fixed; top: 20px; left: 20px; width: 360px; max-height: 94vh;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
+            box-shadow: 0 12px 45px rgba(0,0,0,0.15); z-index: 100; display: flex; flex-direction: column;
+        }
+        .header { padding: 18px; background: var(--primary); color: white; border-radius: 18px 18px 0 0; text-align: center; font-weight: bold; }
+        .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+
+        /* TARJETAS Y ACORDEÓN */
+        .card-ui { background: white; border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
+        .acordeon-item { border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 4px; }
+        .acordeon-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        .acordeon-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #eee; }
+
+        /* SELECTOR DE COLOR (CÍRCULO PERFECTO) */
+        .color-row { display: flex; align-items: center; gap: 10px; }
+        .color-picker-circle {
+            -webkit-appearance: none; border: none; width: 32px; height: 32px; min-width: 32px;
+            border-radius: 50%; cursor: pointer; padding: 0; background: none; overflow: hidden;
+        }
+        .color-picker-circle::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-circle::-webkit-color-swatch { border-radius: 50%; border: 2px solid #eee; }
+
+        /* BOTONES */
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-modo.active { background: var(--danger); color: white; box-shadow: 0 0 15px rgba(217,48,37,0.3); }
+        .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
+
+        /* HOTSPOTS */
+        .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 3px 12px rgba(0,0,0,0.2); }
+        .hotspot-label {
+            position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #ddd; pointer-events: none;
+        }
+
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        textarea { height: 60px; resize: none; }
+
+        #custom-ar-button { position: fixed; bottom: 30px; right: 30px; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; z-index: 500; display: flex; align-items: center; gap: 8px; }
+    </style>
+</head>
+<body x-data="editorPro()" @mousemove="actualizarMouseGlobal($event)">
+
+    <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px` text-align: center; "></div>
+
+    <div id="visor-titulo" x-show="tituloLeccion" x-text="tituloLeccion"></div>
+
+    <div id="contenedor-visor">
+        <model-viewer id="visor" 
+            :src="modeloUrl" 
+            :camera-controls="!editando" 
+            ar ar-modes="webxr scene-viewer quick-look" 
+            ar-placement="floor"
+            shadow-intensity="1.5" 
+            @click="colocarPunto($event)">
+            
+            <template x-for="(h, i) in hotspots" :key="i">
+                <button class="hotspot" 
+                    :slot="'hotspot-' + i" 
+                    :data-position="h.pos" 
+                    :data-normal="h.norm" 
+                    :style="`background-color: ${h.color}`"
+                    @click.stop="abrirModal(h)">
+                    <div class="hotspot-label" x-text="h.titulo || 'Punto '+(i+1)"></div>
+                </button>
+            </template>
+        </model-viewer>
+    </div>
+
+    <button id="custom-ar-button" @click="intentarAR()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2H7zm0 2h10v16H7V4zm5 11c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3z"/></svg>
+        <span>Ver en AR</span>
+    </button>
+
+    <div id="dashboard">
+        <div class="header">CONFIGURADOR DIDÁCTICO 3D</div>
+        <div class="scroll-area">
+            
+            <div class="card-ui" style="background: #f0f7ff; border-color: var(--primary);">
+                <label style="font-size: 10px; font-weight: bold; color: var(--primary); text-transform: uppercase;">Título de la Lección</label>
+                <input type="text" x-model="tituloLeccion" placeholder="Nombre de la lección..." style="margin-top:5px;">
+                <div style="display:flex; gap:5px; margin-top:8px;">
+                    <button class="btn-mini" style="background:var(--primary); color:white; flex:2;" @click="guardarFeedback($event)">✓ Guardar Título</button>
+                    <button class="btn-mini" style="background:#fce8e6; color:var(--danger); flex:1;" @click="tituloLeccion = ''">✕ Borrar</button>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <label style="font-size: 10px; font-weight: bold; color: #999;">MODELO 3D (.GLB)</label>
+                <input type="file" @change="subirLocal" style="font-size: 11px; margin-top:5px;">
+            </div>
+
+            <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
+                <span x-text="editando ? '📍 MODO: MARCANDO PUNTOS' : '🔍 MODO: EXPLORACIÓN'"></span>
+            </button>
+            
+            <template x-for="(h, i) in hotspots" :key="i">
+                <div class="acordeon-item">
+                    <div class="acordeon-header" @click="h.abierto = !h.abierto" :style="h.abierto ? 'background:#fafafa' : ''">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div :style="`width:14px; height:14px; border-radius:50%; background:${h.color}; border: 1px solid #fff; shadow: 0 0 3px rgba(0,0,0,0.2)`"></div>
+                            <strong style="font-size:12px; color:#444;" x-text="h.titulo || 'Punto #' + (i+1)"></strong>
+                        </div>
+                        <span x-text="h.abierto ? '▲' : '▼'" style="font-size:9px; color:#ccc;"></span>
+                    </div>
+                    
+                    <div class="acordeon-body" x-show="h.abierto">
+                        <input type="text" x-model="h.titulo" placeholder="Título...">
+                        <textarea x-model="h.descripcion" placeholder="Explicación..."></textarea>
+                        
+                        <div style="display:flex; gap:10px; align-items: center;">
+                            <select x-model="h.tipo" style="flex:2;">
+                                <option value="texto">Texto</option>
+                                <option value="imagen">Imagen</option>
+                                <option value="youtube">YouTube</option>
+                            </select>
+                            <div class="color-row">
+                                <span style="font-size:11px; font-weight:bold; color:#666;">Color:</span>
+                                <input type="color" x-model="h.color" class="color-picker-circle">
+                            </div>
+                        </div>
+                        
+                        <input type="text" x-model="h.url" placeholder="URL recurso...">
+                        
+                        <div style="display:flex; gap:5px; margin-top:5px;">
+                            <button class="btn-mini" style="background:var(--success); color:white; flex:1;" @click="guardarFeedback($event)">✓ Guardar</button>
+                            <button class="btn-mini" style="background:#fce8e6; color:var(--danger); flex:1;" @click="hotspots.splice(i, 1)">✕ Borrar</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div style="margin-top:auto; padding-top:10px; border-top: 1px solid #eee;">
+                <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson">💾 DESCARGAR PROYECTO</button>
+                <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe">IFRAME PARA MOODLE</button>
+                <textarea x-show="iframeCode" x-model="iframeCode" readonly style="font-size:9px; height:40px; margin-top:5px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <template x-if="modalAbierto">
+        <div style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:2000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);" @click.self="modalAbierto = false">
+            <div style="background:white; width:700px; max-width:90vw; border-radius:22px; padding:35px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <button @click="modalAbierto = false" style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:32px; cursor:pointer; color:#bbb;">&times;</button>
+                <h1 x-text="puntoActivo.titulo" :style="`color: ${puntoActivo.color}`" style="margin:0 0 12px 0; font-size:2em;"></h1>
+                <p x-text="puntoActivo.descripcion" style="line-height:1.7; color:#444; font-size:1.1em;"></p>
+                <div style="background:#000; border-radius:14px; overflow:hidden; margin-top:25px;" x-show="puntoActivo.url">
+                    <template x-if="puntoActivo.tipo === 'imagen'"><img :src="puntoActivo.url" style="width:100%; display:block;"></template>
+                    <template x-if="puntoActivo.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" style="width:100%; height:390px; border:none;" allowfullscreen></iframe></template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function editorPro() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                tituloLeccion: 'Lección sin nombre',
+                editando: false,
+                hotspots: [],
+                modalAbierto: false,
+                puntoActivo: null,
+                mouseX: 0, mouseY: 0,
+                iframeCode: '',
+
+                actualizarMouseGlobal(e) { 
+                    this.mouseX = e.clientX; 
+                    this.mouseY = e.clientY; 
+                },
+
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) this.modeloUrl = URL.createObjectURL(file);
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+                    const viewer = document.getElementById('visor');
+                    const hit = viewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+                    if (hit) {
+                        this.hotspots.forEach(h => h.abierto = false);
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+                            titulo: "Nuevo Punto", descripcion: "", tipo: "texto", url: "",
+                            color: "#1a73e8", abierto: true
+                        });
+                    }
+                },
+
+                guardarFeedback(e) {
+                    const btn = e.target;
+                    const oldTxt = btn.innerText;
+                    btn.innerText = "¡Guardado!";
+                    btn.style.background = "#2d7d46";
+                    setTimeout(() => { btn.innerText = oldTxt; btn.style.background = ""; }, 1200);
+                },
+
+                intentarAR() {
+                    const viewer = document.getElementById('visor');
+                    if (viewer.canActivateAR) { viewer.activateAR(); } 
+                    else { alert("AR no disponible en este dispositivo. Prueba con un móvil compatible."); }
+                },
+
+                abrirModal(h) {
+                    if (this.editando) return;
+                    this.puntoActivo = h;
+                    this.modalAbierto = true;
+                },
+
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
+                    return `https://www.youtube.com/embed/${id}`;
+                },
+
+                descargarJson() {
+                    const data = JSON.stringify({ titulo: this.tituloLeccion, hotspots: this.hotspots, modelo: this.modeloUrl.startsWith('blob') ? '' : this.modeloUrl }, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = this.tituloLeccion + '.json'; a.click();
+                },
+
+                generarIframe() {
+                    const base = window.location.href.split('?')[0];
+                    const data = encodeURIComponent(JSON.stringify({ t: this.tituloLeccion, h: this.hotspots, m: this.modeloUrl.startsWith('blob') ? '' : this.modeloUrl }));
+                    this.iframeCode = `<iframe src="${base}?data=${data}" width="100%" height="600px" style="border:none;" allow="xr-spatial-tracking; camera;"></iframe>`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
