@@ -2,58 +2,67 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D Pro - Versión Corregida</title>
+    <title>Plataforma 3D Pro - Configuración Maestra</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; }
+        
+        /* 1. CORRECCIÓN DE CAJAS (BOX-SIZING) */
+        *, *::before, *::after { box-sizing: border-box; }
+        
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #eee; }
 
         /* VISOR 3D */
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; --poster-color: transparent; }
 
-        /* 1. MARCADOR GUÍA (FIJADO CON Z-INDEX MÁXIMO) */
+        /* 2. MARCADOR GUÍA (Círculo Rojo Discontinuo) */
         #marcador-guia {
             position: fixed; width: 45px; height: 45px; 
             border: 3px dashed var(--danger); border-radius: 50%;
-            pointer-events: none; z-index: 10000; /* Por encima de todo */
+            pointer-events: none; z-index: 10000;
             transform: translate(-50%, -50%); display: none;
-            box-shadow: 0 0 10px rgba(217, 48, 37, 0.4);
         }
 
-        /* 2. TÍTULO EN EL VISOR (ARRIBA DERECHA) */
+        /* 3. TÍTULO EN EL VISOR (FIJO ARRIBA DERECHA) */
         #visor-titulo-display {
-            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px); padding: 12px 24px; border-radius: 14px;
-            font-weight: bold; font-size: 1.3em; color: #333; z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.1);
+            position: fixed; top: 20px; right: 20px; 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 12px 24px; border-radius: 14px;
+            font-weight: bold; font-size: 1.3em; color: #202124; z-index: 500; /* Z-index alto para que no lo tape nada */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05);
+            pointer-events: none;
         }
 
         /* DASHBOARD */
         #dashboard {
             position: fixed; top: 20px; left: 20px; width: 350px; max-height: 94vh;
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; display: flex; flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1000; display: flex; flex-direction: column;
         }
         .header { padding: 15px; background: var(--primary); color: white; border-radius: 18px 18px 0 0; text-align: center; font-weight: bold; }
         .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
 
-        /* ACORDEÓN */
+        /* ACORDEONES */
         .acordeon-item { border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: white; margin-bottom: 5px; }
-        .acordeon-header { padding: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .acordeon-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #eee; }
+        .acordeon-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .acordeon-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #eee; }
 
-        /* 3. SELECTOR COLOR CIRCULAR (FORZADO) */
+        /* 4. SELECTOR COLOR CIRCULAR PERFECTO */
         .color-picker-container { display: flex; align-items: center; gap: 8px; }
         .color-input-circle {
-            -webkit-appearance: none; border: none; width: 32px; height: 32px;
+            -webkit-appearance: none; border: none; width: 30px; height: 30px;
             border-radius: 50%; cursor: pointer; background: none; padding: 0;
-            display: block; overflow: hidden;
+            overflow: hidden; flex-shrink: 0;
         }
         .color-input-circle::-webkit-color-swatch-wrapper { padding: 0; }
         .color-input-circle::-webkit-color-swatch { border-radius: 50%; border: 2px solid #ddd; }
+
+        /* INPUTS */
+        input[type="text"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        textarea { height: 70px; resize: none; }
 
         /* HOTSPOTS */
         .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); }
@@ -63,30 +72,37 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; pointer-events: none;
         }
 
-        /* 4. MODAL PARA AR (INTERFAZ WEBXR) */
-        .modal-overlay-ar {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 5000;
+        /* MODALES */
+        .overlay-general {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 5000;
             display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);
         }
-        .modal-ar {
-            background: white; width: 600px; max-width: 85%; max-height: 80%;
-            border-radius: 20px; padding: 25px; position: relative; overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); color: #333;
+        .modal-ar-content {
+            background: white; width: 600px; max-width: 90%; max-height: 85%;
+            border-radius: 24px; padding: 30px; position: relative; overflow-y: auto;
         }
 
-        .btn-main { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-modo.active { background: var(--danger); color: white; box-shadow: 0 0 15px rgba(217, 48, 37, 0.4); }
+        /* BOTÓN AR UNIVERSAL */
+        #custom-ar-button {
+            position: fixed; bottom: 30px; right: 30px;
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 12px 24px; border-radius: 30px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 600; transition: 0.3s;
+        }
+        #custom-ar-button:hover { background: var(--primary); color: white; }
 
-        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
-        textarea { height: 60px; resize: none; }
-
-        #custom-ar-button { position: absolute; bottom: 25px; right: 25px; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; z-index: 100; }
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modo.active { background: var(--danger); color: white; }
+        .btn-mini { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
     </style>
 </head>
 <body x-data="editorPro()" @mousemove="actualizarMouse($event)">
 
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;` text-align: center; "></div>
+
+    <div id="visor-titulo-display" x-show="tituloLeccion" x-text="tituloLeccion"></div>
 
     <div id="contenedor-principal">
         <model-viewer id="visor" 
@@ -97,10 +113,6 @@
             shadow-intensity="1.5" 
             @click="colocarPunto($event)">
             
-            <div id="visor-titulo-display" slot="ui" x-show="tituloLeccion" x-text="tituloLeccion"></div>
-
-            <button slot="ar-button" id="custom-ar-button">🚀 Realidad Aumentada</button>
-
             <template x-for="(h, i) in hotspots" :key="i">
                 <button class="hotspot" 
                     :slot="'hotspot-' + i" 
@@ -111,37 +123,30 @@
                     <div class="hotspot-label" x-text="h.titulo || 'Punto '+(i+1)"></div>
                 </button>
             </template>
-
-            <div class="modal-overlay-ar" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
-                <div class="modal-ar">
-                    <button @click="modalAbierto = false" style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:30px; cursor:pointer;">&times;</button>
-                    <h1 x-text="puntoActivo?.titulo" :style="`color: ${puntoActivo?.color}`" style="margin:0 0 10px 0;"></h1>
-                    <p x-text="puntoActivo?.descripcion" style="line-height:1.6; color:#444;"></p>
-                    <div style="background:#000; border-radius:12px; overflow:hidden; margin-top:20px;" x-show="puntoActivo?.url">
-                        <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url" style="width:100%; display:block;"></template>
-                        <template x-if="puntoActivo?.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" style="width:100%; height:300px; border:none;" allowfullscreen></iframe></template>
-                    </div>
-                </div>
-            </div>
         </model-viewer>
     </div>
 
+    <button id="custom-ar-button" @click="intentarAR()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2H7zm0 2h10v16H7V4zm5 11c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3z"/></svg>
+        <span>Activar AR</span>
+    </button>
+
     <div id="dashboard">
-        <div class="header">DISEÑO EDUCATIVO 3D</div>
+        <div class="header">DISEÑO DOCENTE 3D</div>
         <div class="scroll-area">
             
-            <div class="acordeon-item" style="padding:12px; background:#f0f7ff; border:1px solid var(--primary);">
-                <label style="font-size:10px; font-weight:bold; color:var(--primary);">NOMBRE DE LA LECCIÓN</label>
-                <input type="text" x-model="tituloLeccion" placeholder="Escribe el título aquí...">
+            <div class="acordeon-item" style="padding:12px; background:#f0f7ff; border:1.5px solid var(--primary);">
+                <label style="font-size:10px; font-weight:bold; color:var(--primary); text-transform:uppercase;">Título de la Lección</label>
+                <input type="text" x-model="tituloLeccion" placeholder="Escribe el título...">
                 <div style="display:flex; gap:5px; margin-top:8px;">
-                    <button class="btn-main" style="background:var(--primary); color:white; padding:8px; font-size:11px;" @click="feedbackAccion($event)">✓ Guardar</button>
-                    <button class="btn-main" style="background:#fce8e6; color:var(--danger); padding:8px; font-size:11px;" @click="tituloLeccion = ''">✕ Borrar</button>
+                    <button class="btn-mini" style="background:var(--primary); color:white;" @click="feedbackAccion($event)">✓ Guardar</button>
+                    <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="tituloLeccion = ''">✕ Borrar</button>
                 </div>
             </div>
 
             <div class="acordeon-item" style="padding:10px;">
-                <label style="font-size:10px; color:#999; font-weight:bold;">ARCHIVO .GLB</label>
-                <input type="file" @change="subirLocal" style="font-size:11px; margin-top:5px;">
+                <label style="font-size:10px; color:#999; font-weight:bold;">ARCHIVO 3D (.GLB)</label>
+                <input type="file" @change="subirLocal" style="font-size:11px; margin-top:5px; width: 100%;">
             </div>
 
             <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
@@ -161,7 +166,6 @@
                     <div class="acordeon-body" x-show="h.abierto">
                         <input type="text" x-model="h.titulo" placeholder="Título...">
                         <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
-                        
                         <div style="display:flex; gap:10px; align-items: center;">
                             <select x-model="h.tipo" style="flex:2;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="youtube">YouTube</option></select>
                             <div class="color-picker-container">
@@ -169,34 +173,58 @@
                                 <input type="color" x-model="h.color" class="color-input-circle">
                             </div>
                         </div>
-                        
                         <input type="text" x-model="h.url" placeholder="URL recurso...">
-                        
                         <div style="display:flex; gap:5px; margin-top:5px;">
-                            <button class="btn-main" style="background:var(--success); color:white; padding:8px; font-size:11px;" @click="feedbackAccion($event)">✓ Guardar</button>
-                            <button class="btn-main" style="background:#fce8e6; color:var(--danger); padding:8px; font-size:11px;" @click="hotspots.splice(i, 1)">✕ Borrar</button>
+                            <button class="btn-mini" style="background:var(--success); color:white;" @click="feedbackAccion($event)">✓ Guardar</button>
+                            <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕ Borrar</button>
                         </div>
                     </div>
                 </div>
             </template>
 
             <div style="margin-top:auto; padding-top:10px; border-top:1px solid #eee;">
-                <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson">💾 DESCARGAR PROYECTO</button>
+                <button class="btn-main" style="background:var(--success); color:white; margin-bottom:8px;" @click="descargarJson">💾 DESCARGAR JSON</button>
                 <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe">GENERAR IFRAME MOODLE</button>
             </div>
         </div>
     </div>
 
+    <template x-if="modalAbierto">
+        <div class="overlay-general" @click.self="modalAbierto = false">
+            <div class="modal-ar-content">
+                <button @click="modalAbierto = false" style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:30px; cursor:pointer;">&times;</button>
+                <h1 x-text="puntoActivo?.titulo" :style="`color: ${puntoActivo?.color}`" style="margin:0 0 10px 0;"></h1>
+                <p x-text="puntoActivo?.descripcion" style="line-height:1.6; color:#444;"></p>
+                <div style="background:#000; border-radius:12px; overflow:hidden; margin-top:20px;" x-show="puntoActivo?.url">
+                    <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url" style="width:100%; display:block;"></template>
+                    <template x-if="puntoActivo?.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" style="width:100%; height:350px; border:none;" allowfullscreen></iframe></template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="mostrarQR">
+        <div class="overlay-general" @click.self="mostrarQR = false">
+            <div style="background:white; padding:30px; border-radius:24px; text-align:center;">
+                <h2 style="margin:0; color:var(--primary);">Ver en Móvil</h2>
+                <div id="qrcode" style="margin:20px auto; display:flex; justify-content:center;"></div>
+                <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
+            </div>
+        </div>
+    </template>
+
     <script>
         function editorPro() {
             return {
                 modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                tituloLeccion: '',
+                tituloLeccion: 'Nueva Lección 3D',
                 editando: false,
                 hotspots: [],
                 modalAbierto: false,
                 puntoActivo: null,
+                mostrarQR: false,
                 mouseX: 0, mouseY: 0,
+                iframeCode: '',
 
                 actualizarMouse(e) { this.mouseX = e.clientX; this.mouseY = e.clientY; },
 
@@ -227,6 +255,18 @@
                     setTimeout(() => btn.innerText = original, 1200);
                 },
 
+                intentarAR() {
+                    const viewer = document.getElementById('visor');
+                    if (viewer.canActivateAR) { viewer.activateAR(); } 
+                    else { 
+                        this.mostrarQR = true;
+                        this.$nextTick(() => {
+                            document.getElementById('qrcode').innerHTML = "";
+                            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 });
+                        });
+                    }
+                },
+
                 abrirModal(h) {
                     if (this.editando) return;
                     this.puntoActivo = h;
@@ -243,14 +283,14 @@
                     const data = JSON.stringify({ t: this.tituloLeccion, h: this.hotspots });
                     const blob = new Blob([data], { type: 'application/json' });
                     const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob); a.download = (this.tituloLeccion || 'proyecto') + '.json'; a.click();
+                    a.href = URL.createObjectURL(blob); a.download = this.tituloLeccion + '.json'; a.click();
                 },
 
                 generarIframe() {
                     const base = window.location.href.split('?')[0];
                     const data = encodeURIComponent(JSON.stringify({ t: this.tituloLeccion, h: this.hotspots }));
-                    alert("Iframe generado (ver consola)");
-                    console.log(`<iframe src="${base}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`);
+                    console.log(`<iframe src="${base}?data=${data}" width="100%" height="600px"></iframe>`);
+                    alert("Código generado en la consola.");
                 }
             }
         }
