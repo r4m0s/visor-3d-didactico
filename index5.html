@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Visor AR Educativo - Carga por URL</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --bg-glass: rgba(255, 255, 255, 0.95); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+
+        model-viewer { width: 100vw; height: 100vh; background-color: #f0f2f5; }
+
+        /* PANEL DE CARGA FLOTANTE */
+        #loader-panel {
+            position: fixed; top: 20px; left: 20px; width: 320px; z-index: 1000;
+            background: var(--bg-glass); backdrop-filter: blur(10px);
+            padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        .btn-load { 
+            width: 100%; padding: 12px; background: var(--primary); color: white; 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-load:hover { background: #1557b0; }
+
+        /* HOTSPOTS */
+        .hotspot {
+            width: 26px; height: 26px; border-radius: 50%; border: 3px solid #fff;
+            background: var(--primary); cursor: pointer; transform: translate(-50%, -50%);
+        }
+
+        /* MODAL CENTRADO */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); z-index: 2000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+        }
+        .modal {
+            background: white; width: 700px; max-width: 92vw; max-height: 85vh;
+            border-radius: 20px; overflow: hidden; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .modal-content { padding: 30px; overflow-y: auto; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 35px; cursor: pointer; border: none; background: none; color: #aaa; }
+
+        .media-box { width: 100%; border-radius: 12px; overflow: hidden; background: #000; margin: 15px 0; }
+        .media-box iframe { width: 100%; height: 380px; border: none; display: block; }
+        .media-box img, .media-box video { width: 100%; display: block; }
+
+        #ar-button {
+            position: absolute; bottom: 20px; right: 20px; padding: 12px 24px;
+            background: white; border: 1px solid #ccc; border-radius: 30px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body x-data="visorAR()">
+
+    <div id="loader-panel" x-show="!proyectoCargado">
+        <h3 style="margin:0 0 15px 0; color:var(--primary); font-size: 1.1em;">Importar Lección 3D</h3>
+        
+        <div class="input-group">
+            <label>Enlace al archivo .json</label>
+            <input type="text" x-model="urlJson" placeholder="https://raw.githubusercontent.com/...">
+            <button class="btn-load" style="margin-top:10px" @click="cargarDesdeUrl">Cargar desde Enlace</button>
+        </div>
+
+        <div style="text-align:center; margin: 10px 0; color:#ccc; font-size: 12px;">— O —</div>
+
+        <div class="input-group">
+            <label>Archivo local</label>
+            <input type="file" accept=".json" @change="cargarDesdeArchivo" style="font-size: 11px;">
+        </div>
+        
+        <p x-text="mensaje" style="font-size: 11px; color: #d93025; margin-top: 5px;"></p>
+    </div>
+
+    <model-viewer id="main-visor"
+        :src="modeloUrl"
+        ar ar-modes="webxr scene-viewer quick-look"
+        camera-controls shadow-intensity="1">
+        
+        <button slot="ar-button" id="ar-button">🚀 Ver en Realidad Aumentada</button>
+
+        <template x-for="(h, i) in hotspots" :key="i">
+            <button class="hotspot" 
+                :slot="'hotspot-' + i" 
+                :data-position="h.pos" 
+                :data-normal="h.norm" 
+                @click="abrirDetalle(h)">
+            </button>
+        </template>
+    </model-viewer>
+
+    <template x-if="modalAbierto">
+        <div id="overlay" @click.self="modalAbierto = false">
+            <div class="modal">
+                <button class="close-btn" @click="modalAbierto = false">&times;</button>
+                <div class="modal-content">
+                    <h1 x-text="puntoActivo.titulo" style="margin:0; color:var(--primary);"></h1>
+                    <p x-text="puntoActivo.descripcion" style="color:#555; line-height:1.6; font-size: 1.1em;"></p>
+
+                    <div class="media-box" x-show="puntoActivo.url">
+                        <template x-if="puntoActivo.tipo === 'imagen'"><img :src="puntoActivo.url"></template>
+                        <template x-if="puntoActivo.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" allowfullscreen></iframe></template>
+                        <template x-if="puntoActivo.tipo === 'video'"><video :src="puntoActivo.url" controls></video></template>
+                        <template x-if="puntoActivo.tipo === 'audio'"><div style="padding:30px; background:#f8f9fa;"><audio :src="puntoActivo.url" controls style="width:100%"></audio></div></template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function visorAR() {
+            return {
+                proyectoCargado: false,
+                urlJson: '',
+                modeloUrl: '',
+                hotspots: [],
+                modalAbierto: false,
+                puntoActivo: null,
+                mensaje: '',
+
+                async cargarDesdeUrl() {
+                    if (!this.urlJson) return;
+                    this.mensaje = "Cargando...";
+                    try {
+                        const response = await fetch(this.urlJson);
+                        if (!response.ok) throw new Error("No se pudo obtener el archivo");
+                        const data = await response.json();
+                        this.procesarData(data);
+                    } catch (err) {
+                        this.mensaje = "Error: Verifica el enlace o los permisos CORS.";
+                        console.error(err);
+                    }
+                },
+
+                cargarDesdeArchivo(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.procesarData(JSON.parse(event.target.result));
+                    };
+                    reader.readAsText(file);
+                },
+
+                procesarData(data) {
+                    this.hotspots = data.hotspots || [];
+                    this.modeloUrl = data.modelo || 'https://modelviewer.dev/shared-assets/models/Astronaut.glb';
+                    this.proyectoCargado = true;
+                },
+
+                abrirDetalle(h) {
+                    this.puntoActivo = h;
+                    this.modalAbierto = true;
+                },
+
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
+                    return `https://www.youtube.com/embed/${id}`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

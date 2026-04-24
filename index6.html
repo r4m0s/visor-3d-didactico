@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurador 3D AR - Multimedia Pro</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #f1f3f4; }
+
+        /* VISOR 3D */
+        model-viewer { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
+
+        /* DASHBOARD FLOTANTE */
+        #dashboard {
+            position: fixed; top: 20px; left: 20px; width: 350px; max-height: 90vh;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 100;
+            display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .header { padding: 15px; background: var(--primary); color: white; border-radius: 16px 16px 0 0; text-align: center; }
+        .scroll-area { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        
+        .card { background: #fff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 10px; }
+        .card h3 { margin: 0 0 8px 0; font-size: 11px; color: #888; text-transform: uppercase; }
+
+        /* BOTÓN AR UNIVERSAL */
+        #custom-ar-button {
+            position: fixed; bottom: 30px; right: 30px;
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 12px 24px; border-radius: 30px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 500; transition: 0.3s;
+        }
+        #custom-ar-button:hover { background: var(--primary); color: white; }
+
+        /* MODALES (CENTRADO Y AVISO AR) */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); z-index: 2000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white; width: 700px; max-width: 90vw; max-height: 85vh;
+            border-radius: 20px; overflow: hidden; position: relative;
+            display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal-body { padding: 25px; overflow-y: auto; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #555; border: none; background: none; }
+
+        /* AVISO DISPOSITIVO NO COMPATIBLE */
+        .warning-box {
+            background: white; padding: 30px; border-radius: 20px; text-align: center;
+            max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        /* HOTSPOTS */
+        .hotspot {
+            width: 25px; height: 25px; border-radius: 50%; border: 3px solid #fff;
+            background: var(--primary); cursor: pointer; transform: translate(-50%, -50%);
+        }
+
+        .media-box { width: 100%; background: #000; border-radius: 12px; overflow: hidden; margin: 15px 0; }
+        .media-box img, .media-box video { width: 100%; display: block; }
+        .media-box iframe { width: 100%; height: 390px; border: none; display: block; }
+
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 5px; }
+        .btn-save { background: var(--success); color: white; margin-top: 10px; }
+        .btn-modo.active { background: var(--danger); color: white; }
+        
+        input, select, textarea { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+    </style>
+</head>
+<body x-data="editorPro()" x-init="inicializar()">
+
+    <model-viewer id="visor" 
+        :src="modeloUrl" 
+        :camera-controls="!editando" 
+        ar ar-modes="webxr scene-viewer quick-look" 
+        shadow-intensity="1" 
+        @click="colocarPunto($event)">
+        
+        <template x-for="(h, i) in hotspots" :key="i">
+            <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :data-normal="h.norm" @click.stop="abrirModal(h)"></button>
+        </template>
+    </model-viewer>
+
+    <button id="custom-ar-button" @click="intentarAR()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2H7zm0 2h10v16H7V4zm5 11c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3z"/></svg>
+        <span>Activar Realidad Aumentada</span>
+    </button>
+
+    <div id="dashboard">
+        <div class="header"><strong>Plataforma 3D Pro</strong></div>
+        <div class="scroll-area">
+            
+            <div class="card">
+                <h3>1. Cargar Modelo (.glb)</h3>
+                <input type="file" @change="subirLocal" style="font-size:11px;">
+            </div>
+
+            <div class="card">
+                <h3>2. Editor de Contenido</h3>
+                <button class="btn btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
+                    <span x-text="editando ? '📍 MODO: MARCANDO' : '🔍 MODO: GIRAR'"></span>
+                </button>
+                
+                <div style="max-height: 250px; overflow-y: auto;">
+                    <template x-for="(h, i) in hotspots" :key="i">
+                        <div style="background:#f8f9fa; border: 1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:10px; position:relative;">
+                            <input type="text" x-model="h.titulo" placeholder="Título...">
+                            <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
+                            <select x-model="h.tipo">
+                                <option value="texto">Texto</option>
+                                <option value="imagen">Imagen</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="video">Vídeo MP4</option>
+                                <option value="audio">Audio MP3</option>
+                            </select>
+                            <input type="text" x-model="h.url" placeholder="URL recurso...">
+                            <button @click="hotspots.splice(i, 1)" style="position:absolute; top:-5px; right:-5px; width:22px; height:22px; background:red; color:white; border:none; border-radius:50%; cursor:pointer;">✕</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3. Guardar / Exportar</h3>
+                <button class="btn btn-save" @click="guardarProyecto">💾 Descargar .json</button>
+                <button class="btn" style="background:var(--primary); color:white;" @click="generarIframe">Generar para Moodle</button>
+                <textarea x-show="iframeCode" x-model="iframeCode" readonly style="height:50px; font-size:9px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <template x-if="modalAbierto">
+        <div class="overlay" @click.self="modalAbierto = false">
+            <div class="modal-content">
+                <button class="close-btn" @click="modalAbierto = false">&times;</button>
+                <div class="modal-body">
+                    <h1 x-text="puntoActivo.titulo"></h1>
+                    <p x-text="puntoActivo.descripcion"></p>
+                    <div class="media-box" x-show="puntoActivo.url">
+                        <template x-if="puntoActivo.tipo === 'imagen'"><img :src="puntoActivo.url"></template>
+                        <template x-if="puntoActivo.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" allowfullscreen></iframe></template>
+                        <template x-if="puntoActivo.tipo === 'video'"><video :src="puntoActivo.url" controls></video></template>
+                        <template x-if="puntoActivo.tipo === 'audio'"><div style="padding:30px;"><audio :src="puntoActivo.url" controls style="width:100%"></audio></div></template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="mostrarAvisoAR">
+        <div class="overlay" @click.self="mostrarAvisoAR = false">
+            <div class="warning-box">
+                <div style="font-size: 50px; margin-bottom: 15px;">💻</div>
+                <h2 style="margin:0 0 10px 0; color: var(--danger);">AR No Disponible</h2>
+                <p style="color: #666;">Este dispositivo no permite la visualización con realidad aumentada.</p>
+                <p style="font-size: 13px; color: #888;">Para usar esta función, abre este enlace en un dispositivo móvil (Android/iOS) compatible.</p>
+                <button class="btn" style="background:var(--primary); color:white; margin-top:15px;" @click="mostrarAvisoAR = false">Entendido</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function editorPro() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                editando: false,
+                hotspots: [],
+                modalAbierto: false,
+                mostrarAvisoAR: false,
+                puntoActivo: null,
+                iframeCode: '',
+
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) this.modeloUrl = URL.createObjectURL(file);
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+                    const viewer = document.getElementById('visor');
+                    const hit = viewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+                    if (hit) {
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+                            titulo: "Nuevo Punto",
+                            descripcion: "Explicación...",
+                            tipo: "texto",
+                            url: ""
+                        });
+                    }
+                },
+
+                abrirModal(h) {
+                    if (this.editando) return;
+                    this.puntoActivo = h;
+                    this.modalAbierto = true;
+                },
+
+                intentarAR() {
+                    const viewer = document.getElementById('visor');
+                    // Comprobamos si el navegador realmente puede activar AR
+                    if (viewer.canActivateAR) {
+                        viewer.activateAR();
+                    } else {
+                        // Si no puede (como en PC), mostramos nuestro panel informativo
+                        this.mostrarAvisoAR = true;
+                    }
+                },
+
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
+                    return `https://www.youtube.com/embed/${id}`;
+                },
+
+                guardarProyecto() {
+                    const data = JSON.stringify({ hotspots: this.hotspots, modelo: this.modeloUrl }, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'leccion_3d.json'; a.click();
+                },
+
+                generarIframe() {
+                    const base = window.location.href.split('?')[0];
+                    const data = encodeURIComponent(JSON.stringify({ h: this.hotspots, m: this.modeloUrl.startsWith('blob') ? '' : this.modeloUrl }));
+                    this.iframeCode = `<iframe src="${base}?data=${data}" width="100%" height="600px" style="border:none;" allow="xr-spatial-tracking; camera; encrypted-media"></iframe>`;
+                },
+
+                inicializar() {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('data')) {
+                        const config = JSON.parse(decodeURIComponent(params.get('data')));
+                        this.hotspots = config.h;
+                        if(config.m) this.modeloUrl = config.m;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
