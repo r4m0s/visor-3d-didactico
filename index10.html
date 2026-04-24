@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma 3D - v28 Precisión Eje Único</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #eee; }
+
+        /* VISOR 3D */
+        #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        model-viewer { width: 100%; height: 100%; background: #f5f5f5; }
+
+        /* 📍 MARCADOR LÁSER (Z-INDEX MÁXIMO) */
+        #marcador-guia {
+            position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%;
+            pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%); display: none;
+        }
+
+        /* 🏷️ TÍTULO VISOR */
+        #visor-titulo-v28 {
+            position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); padding: 12px 24px; border-radius: 14px;
+            font-weight: bold; font-size: 1.3em; color: #202124; z-index: 2000;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* 📏 ESTILOS DE COTAS SIMPLIFICADAS */
+        .dot { display: none; }
+        .dim {
+            background: #fff; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            color: var(--primary); font-weight: bold; font-size: 12px; padding: 4px 8px;
+            position: absolute; pointer-events: none; white-space: nowrap; transform: translate(-50%, -50%);
+        }
+        .dimensionLineContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .dimensionLine { stroke: var(--primary); stroke-width: 2; stroke-dasharray: 4; }
+        .hide { display: none !important; }
+
+        /* DASHBOARD REESTRUCTURADO */
+        #dashboard {
+            position: fixed; top: 20px; left: 20px; width: 360px; max-height: 94vh;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 3000; display: flex; flex-direction: column;
+        }
+        .header { padding: 18px; background: var(--primary); color: white; text-align: center; font-weight: bold; font-size: 1.2em; border-radius: 18px 18px 0 0; }
+        .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .section-title { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+        .card-ui { border: 1px solid #eee; border-radius: 12px; background: white; padding: 15px; width: 100%; }
+
+        /* INPUTS Y BOTONES */
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-modo.active { background: var(--danger); color: white; }
+        .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
+
+        .color-circle { -webkit-appearance: none; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; aspect-ratio: 1/1; overflow: hidden; }
+        .color-circle::-webkit-color-swatch { border-radius: 50%; border: 1px solid #ddd; }
+
+        /* HOTSPOTS MULTIMEDIA */
+        .hotspot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .hotspot-label { position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #ddd; white-space: nowrap; }
+
+        /* MODAL AR */
+        .overlay-ar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .modal-ar { background: white; width: 600px; max-width: 90%; max-height: 85%; border-radius: 24px; padding: 30px; position: relative; overflow-y: auto; }
+        
+        #custom-ar-button { position: fixed; bottom: 30px; right: 30px; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; z-index: 1000; }
+    </style>
+</head>
+<body x-data="editorPro()" @mousemove="mouseX = $event.clientX; mouseY = $event.clientY">
+
+    <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;` text-align: center; "></div>
+    <div id="visor-titulo-v28" x-show="tituloGuardado" x-text="tituloGuardado"></div>
+
+    <div id="contenedor-principal">
+        <model-viewer id="visor" :src="modeloUrl" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="initDimensiones()">
+            
+            <button slot="hotspot-dot-origin" class="dot" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-width" class="dot" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-height" class="dot" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-depth" class="dot" data-position="0 0 0"></button>
+
+            <button slot="hotspot-dim-width" class="dim hide" data-position="0 0 0"></button>
+            <button slot="hotspot-dim-height" class="dim hide" data-position="0 0 0"></button>
+            <button slot="hotspot-dim-depth" class="dim hide" data-position="0 0 0"></button>
+
+            <svg id="dimLines" class="dimensionLineContainer hide" xmlns="http://www.w3.org/2000/svg">
+                <line class="dimensionLine"></line>
+                <line class="dimensionLine"></line>
+                <line class="dimensionLine"></line>
+            </svg>
+
+            <template x-for="(h, i) in hotspots" :key="i">
+                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click.stop="abrirModal(h)">
+                    <div class="hotspot-label" x-text="h.tituloVisor"></div>
+                </button>
+            </template>
+
+            <div slot="ui" class="overlay-ar" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
+                <div class="modal-ar">
+                    <button @click="modalAbierto = false" style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:30px; cursor:pointer;">&times;</button>
+                    <h1 x-text="puntoActivo?.tituloVisor" :style="`color: ${puntoActivo?.color}`"></h1>
+                    <p x-text="puntoActivo?.descripcion" style="line-height:1.6;"></p>
+                    <div style="background:#000; border-radius:14px; overflow:hidden; margin-top:20px;" x-show="puntoActivo?.url">
+                        <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url" style="width:100%"></template>
+                        <template x-if="puntoActivo?.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" style="width:100%; height:350px; border:none;" allowfullscreen></iframe></template>
+                    </div>
+                </div>
+            </div>
+        </model-viewer>
+    </div>
+
+    <button id="custom-ar-button" @click="intentarAR()">🚀 Realidad Aumentada</button>
+
+    <div id="dashboard">
+        <div class="header">Plataforma 3d</div>
+        <div class="scroll-area">
+            
+            <div class="card-ui">
+                <div class="section-title">Sección 1: Título de la Lección</div>
+                <input type="text" x-model="inputTitulo" placeholder="Ej: Motor V8">
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button class="btn-mini" style="background:var(--primary); color:white; flex:2;" @click="tituloGuardado = inputTitulo">✓ Guardar</button>
+                    <button class="btn-mini" style="background:#fce8e6; color:var(--danger); flex:1;" @click="inputTitulo = ''; tituloGuardado = ''">✕</button>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-title">Sección 2: Carga del Modelo</div>
+                <input type="file" @change="subirLocal">
+            </div>
+
+            <div class="card-ui">
+                <div class="section-title">Sección 3: Cotas y Dimensiones</div>
+                <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()">
+                    <span x-text="verCotas ? '📏 Ocultar Dimensiones' : '📏 Mostrar Dimensiones'"></span>
+                </button>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-title">Sección 4: Marcación de Puntos</div>
+                <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:12px;">
+                    <span x-text="editando ? '📍 MODO: MARCANDO' : '🔍 MODO: EXPLORACIÓN'"></span>
+                </button>
+                
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <template x-for="(h, i) in hotspots" :key="i">
+                        <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                            <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:#f9f9f9;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}`"></div>
+                                    <strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto #' + (i+1)"></strong>
+                                </div>
+                                <span x-text="h.abierto ? '▲' : '▼'"></span>
+                            </div>
+                            <div x-show="h.abierto" style="padding:10px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;">
+                                <input type="text" x-model="h.tempTitulo" placeholder="Nombre...">
+                                <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <select x-model="h.tipo" style="flex:2;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="youtube">YouTube</option></select>
+                                    <input type="color" x-model="h.color" class="color-circle">
+                                </div>
+                                <input type="text" x-model="h.url" placeholder="URL...">
+                                <div style="display:flex; gap:5px;">
+                                    <button class="btn-mini" style="background:var(--success); color:white;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button>
+                                    <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-title">Sección 5: Exportación</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson()">💾 Descargar JSON</button>
+                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Iframe Moodle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template x-if="mostrarQR">
+        <div class="overlay-ar" style="z-index:10000;" @click.self="mostrarQR = false">
+            <div style="background:white; padding:30px; border-radius:24px; text-align:center;">
+                <h2 style="margin:0; color:var(--primary);">Ver en el móvil</h2>
+                <div id="qrcode" style="margin:20px auto; display:flex; justify-content:center;"></div>
+                <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function editorPro() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                inputTitulo: 'Nueva Lección', tituloGuardado: '',
+                editando: false, verCotas: false,
+                hotspots: [], modalAbierto: false, puntoActivo: null,
+                mostrarQR: false, mouseX: 0, mouseY: 0,
+
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) { this.modeloUrl = URL.createObjectURL(file); this.verCotas = false; }
+                },
+
+                toggleCotas() {
+                    this.verCotas = !this.verCotas;
+                    const mv = document.querySelector('#visor');
+                    const elements = [...mv.querySelectorAll('.dim'), mv.querySelector('#dimLines')];
+                    elements.forEach(el => this.verCotas ? el.classList.remove('hide') : el.classList.add('hide'));
+                    if (this.verCotas) this.renderSVG();
+                },
+
+                initDimensiones() {
+                    const mv = document.querySelector('#visor');
+                    const center = mv.getBoundingBoxCenter();
+                    const size = mv.getDimensions();
+                    const x2 = size.x / 2; const y2 = size.y / 2; const z2 = size.z / 2;
+
+                    // Puntos esquina principal y extremos de ejes
+                    mv.updateHotspot({ name: 'hotspot-dot-origin', position: `${center.x + x2} ${center.y - y2} ${center.z - z2}` }); // Esquina frontal
+                    mv.updateHotspot({ name: 'hotspot-dot-width', position: `${center.x - x2} ${center.y - y2} ${center.z - z2}` }); // Eje X
+                    mv.updateHotspot({ name: 'hotspot-dot-height', position: `${center.x + x2} ${center.y + y2} ${center.z - z2}` }); // Eje Y
+                    mv.updateHotspot({ name: 'hotspot-dot-depth', position: `${center.x + x2} ${center.y - y2} ${center.z + z2}` }); // Eje Z
+
+                    // Etiquetas en el punto medio de cada eje
+                    const updateDim = (name, pos, val) => {
+                        mv.updateHotspot({ name, position: pos });
+                        mv.querySelector(`button[slot="${name}"]`).textContent = `${(val * 100).toFixed(0)} cm`;
+                    };
+
+                    updateDim('hotspot-dim-width', `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}`, size.x);
+                    updateDim('hotspot-dim-height', `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}`, size.y);
+                    updateDim('hotspot-dim-depth', `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}`, size.z);
+
+                    mv.addEventListener('camera-change', () => this.renderSVG());
+                },
+
+                renderSVG() {
+                    if (!this.verCotas) return;
+                    const mv = document.querySelector('#visor');
+                    const lines = mv.querySelectorAll('line');
+                    
+                    const draw = (line, h1, h2) => {
+                        const p1 = mv.queryHotspot(h1);
+                        const p2 = mv.queryHotspot(h2);
+                        if (p1 && p2) {
+                            line.setAttribute('x1', p1.canvasPosition.x);
+                            line.setAttribute('y1', p1.canvasPosition.y);
+                            line.setAttribute('x2', p2.canvasPosition.x);
+                            line.setAttribute('y2', p2.canvasPosition.y);
+                        }
+                    };
+
+                    draw(lines[0], 'hotspot-dot-origin', 'hotspot-dot-width');  // Ancho
+                    draw(lines[1], 'hotspot-dot-origin', 'hotspot-dot-height'); // Alto
+                    draw(lines[2], 'hotspot-dot-origin', 'hotspot-dot-depth');  // Fondo
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+                    const viewer = document.getElementById('visor');
+                    const hit = viewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+                    if (hit) {
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            tempTitulo: "Nuevo Punto", tituloVisor: "",
+                            descripcion: "", tipo: "texto", url: "", color: "#1a73e8", abierto: true
+                        });
+                    }
+                },
+
+                intentarAR() {
+                    const viewer = document.getElementById('visor');
+                    if (viewer.canActivateAR) viewer.activateAR();
+                    else {
+                        this.mostrarQR = true;
+                        this.$nextTick(() => {
+                            document.getElementById('qrcode').innerHTML = "";
+                            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 });
+                        });
+                    }
+                },
+
+                abrirModal(h) { if (!this.editando) { this.puntoActivo = h; this.modalAbierto = true; } },
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
+                    return `https://www.youtube.com/embed/${id}`;
+                },
+                descargarJson() {
+                    const data = JSON.stringify({ t: this.tituloGuardado, h: this.hotspots });
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'proyecto.json'; a.click();
+                },
+                generarIframe() {
+                    const data = encodeURIComponent(JSON.stringify({ t: this.tituloGuardado, h: this.hotspots }));
+                    prompt("Copia este Iframe:", `<iframe src="${window.location.href.split('?')[0]}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
