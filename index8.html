@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma 3D Pro - AR Interactiva</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #eee; }
+
+        /* VISOR 3D */
+        #contenedor-visor { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        model-viewer { width: 100%; height: 100%; --poster-color: transparent; }
+
+        /* TÍTULO EN VISOR */
+        #visor-titulo {
+            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 12px;
+            font-weight: bold; font-size: 1.1em; color: #333; z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); pointer-events: none;
+        }
+
+        /* MARCADOR GUÍA */
+        #marcador-guia {
+            position: fixed; width: 38px; height: 38px; 
+            border: 3px dashed var(--danger); border-radius: 50%;
+            pointer-events: none; z-index: 99999;
+            transform: translate(-50%, -50%); display: none;
+        }
+
+        /* DASHBOARD */
+        #dashboard {
+            position: fixed; top: 20px; left: 20px; width: 350px; max-height: 94vh;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; display: flex; flex-direction: column;
+        }
+        .header { padding: 15px; background: var(--primary); color: white; border-radius: 18px 18px 0 0; text-align: center; font-weight: bold; }
+        .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        /* ACORDEÓN */
+        .acordeon-item { border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: white; }
+        .acordeon-header { padding: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .acordeon-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #eee; }
+
+        /* COLOR PICKER CIRCULAR */
+        .color-picker-circle {
+            -webkit-appearance: none; border: none; width: 28px; height: 28px;
+            border-radius: 50%; cursor: pointer; padding: 0; background: none;
+        }
+        .color-picker-circle::-webkit-color-swatch { border-radius: 50%; border: 2px solid #ddd; }
+
+        /* HOTSPOTS Y ETIQUETAS */
+        .hotspot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); }
+        .hotspot-label {
+            position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+            background: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; pointer-events: none;
+        }
+
+        /* MODAL MULTIMEDIA (DISEÑADO PARA AR) */
+        .overlay-ar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 3000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+        }
+        .modal-ar {
+            background: white; width: 600px; max-width: 85%; max-height: 80%;
+            border-radius: 20px; padding: 25px; position: relative; overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .btn-main { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modo.active { background: var(--danger); color: white; }
+
+        #custom-ar-button { position: absolute; bottom: 20px; right: 20px; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; z-index: 100; display: flex; align-items: center; gap: 8px; }
+
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+    </style>
+</head>
+<body x-data="editorPro()">
+
+    <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px` text-align: center; "></div>
+
+    <div id="contenedor-visor" @mousemove="actualizarMouse($event)">
+        <model-viewer id="visor" 
+            :src="modeloUrl" 
+            :camera-controls="!editando" 
+            ar ar-modes="webxr scene-viewer quick-look" 
+            ar-placement="floor"
+            shadow-intensity="1.5" 
+            @click="colocarPunto($event)">
+            
+            <div id="visor-titulo" slot="ui" x-show="tituloLeccion" x-text="tituloLeccion"></div>
+
+            <button slot="ar-button" id="custom-ar-button">
+                🚀 Ver en Realidad Aumentada
+            </button>
+
+            <template x-for="(h, i) in hotspots" :key="i">
+                <button class="hotspot" 
+                    :slot="'hotspot-' + i" 
+                    :data-position="h.pos" 
+                    :data-normal="h.norm" 
+                    :style="`background-color: ${h.color}`"
+                    @click.stop="abrirModal(h)">
+                    <div class="hotspot-label" x-text="h.titulo || 'Punto '+(i+1)"></div>
+                </button>
+            </template>
+
+            <div class="overlay-ar" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
+                <div class="modal-ar">
+                    <button @click="modalAbierto = false" style="position:absolute; top:10px; right:15px; border:none; background:none; font-size:25px; cursor:pointer;">&times;</button>
+                    <h2 x-text="puntoActivo?.titulo" :style="`color: ${puntoActivo?.color}`" style="margin-top:0;"></h2>
+                    <p x-text="puntoActivo?.descripcion" style="line-height:1.5; color:#444;"></p>
+                    
+                    <div style="background:#000; border-radius:12px; overflow:hidden; margin-top:15px;" x-show="puntoActivo?.url">
+                        <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url" style="width:100%; display:block;"></template>
+                        <template x-if="puntoActivo?.tipo === 'youtube'"><iframe :src="obtenerYoutubeUrl(puntoActivo.url)" style="width:100%; height:250px; border:none;" allowfullscreen></iframe></template>
+                    </div>
+                </div>
+            </div>
+        </model-viewer>
+    </div>
+
+    <div id="dashboard" x-show="!arActivo">
+        <div class="header">DISEÑO DOCENTE 3D</div>
+        <div class="scroll-area">
+            
+            <div class="card-ui" style="padding:10px; background:#f0f7ff; border-radius:10px;">
+                <label style="font-size:10px; font-weight:bold; color:var(--primary);">TÍTULO DE LA LECCIÓN</label>
+                <input type="text" x-model="tituloLeccion" style="margin-top:5px;">
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <button class="btn-main" style="background:var(--success); color:white; font-size:11px; padding:5px;" @click="guardarFeedback($event)">Guardar</button>
+                    <button class="btn-main" style="background:#fce8e6; color:var(--danger); font-size:11px; padding:5px;" @click="tituloLeccion = ''">Borrar</button>
+                </div>
+            </div>
+
+            <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
+                <span x-text="editando ? '📍 MODO: MARCANDO' : '🔍 MODO: EXPLORAR'"></span>
+            </button>
+            
+            <template x-for="(h, i) in hotspots" :key="i">
+                <div class="acordeon-item">
+                    <div class="acordeon-header" @click="h.abierto = !h.abierto">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}`"></div>
+                            <strong x-text="h.titulo || 'Punto '+(i+1)"></strong>
+                        </div>
+                        <span x-text="h.abierto ? '▲' : '▼'"></span>
+                    </div>
+                    <div class="acordeon-body" x-show="h.abierto">
+                        <input type="text" x-model="h.titulo" placeholder="Título...">
+                        <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <select x-model="h.tipo" style="flex:2;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="youtube">YouTube</option></select>
+                            <input type="color" x-model="h.color" class="color-picker-circle">
+                        </div>
+                        <input type="text" x-model="h.url" placeholder="URL...">
+                        <button class="btn-main" style="background:#fce8e6; color:var(--danger); font-size:11px;" @click="hotspots.splice(i, 1)">Eliminar</button>
+                    </div>
+                </div>
+            </template>
+
+            <button class="btn-main" style="background:var(--success); color:white; margin-top:10px;" @click="descargarJson">💾 DESCARGAR JSON</button>
+        </div>
+    </div>
+
+    <script>
+        function editorPro() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                tituloLeccion: 'Lección Anatomía',
+                editando: false,
+                hotspots: [],
+                modalAbierto: false,
+                puntoActivo: null,
+                mouseX: 0, mouseY: 0,
+                arActivo: false,
+
+                actualizarMouse(e) { this.mouseX = e.clientX; this.mouseY = e.clientY; },
+                
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) this.modeloUrl = URL.createObjectURL(file);
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+                    const viewer = document.getElementById('visor');
+                    const hit = viewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+                    if (hit) {
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+                            titulo: "", descripcion: "", tipo: "texto", url: "",
+                            color: "#1a73e8", abierto: true
+                        });
+                    }
+                },
+
+                abrirModal(h) {
+                    if (this.editando) return;
+                    this.puntoActivo = h;
+                    this.modalAbierto = true;
+                },
+
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
+                    return `https://www.youtube.com/embed/${id}`;
+                },
+
+                guardarFeedback(e) {
+                    const btn = e.target;
+                    const old = btn.innerText;
+                    btn.innerText = "¡OK!";
+                    setTimeout(() => btn.innerText = old, 1000);
+                },
+
+                descargarJson() {
+                    const data = JSON.stringify({ t: this.tituloLeccion, h: this.hotspots });
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = 'proyecto.json'; a.click();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
