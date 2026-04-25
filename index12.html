@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v32 Seguridad</title>
+    <title>Plataforma 3D - v33 Ingeniería</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; --dark: #202124; }
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; --dark: #202124; --warn: #f9ab00; }
         *, *::before, *::after { box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #eee; }
 
@@ -47,18 +47,16 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 3000; display: flex; flex-direction: column;
         }
         .header { padding: 18px; background: var(--primary); color: white; text-align: center; font-weight: bold; font-size: 1.2em; border-radius: 18px 18px 0 0; }
-        .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
-        .section-title { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+        .scroll-area { padding: 15px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+        .section-title { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 6px; }
         .card-ui { border: 1px solid #eee; border-radius: 12px; background: white; padding: 15px; width: 100%; }
 
         /* INPUTS */
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; margin-bottom: 5px; }
-        textarea { height: 60px; resize: none; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; margin-bottom: 5px; font-size: 13px; }
 
         .color-circle {
-            -webkit-appearance: none; border: 2px solid #ddd; width: 32px; height: 32px;
+            -webkit-appearance: none; border: 2px solid #ddd; width: 28px; height: 28px;
             border-radius: 50%; cursor: pointer; padding: 0; overflow: hidden;
-            background: none; flex-shrink: 0;
         }
         .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
 
@@ -76,15 +74,11 @@
             display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal-panel {
-            background: white; width: 600px; max-width: 90%; max-height: 85vh;
-            border-radius: 24px; padding: 0; position: relative; overflow: hidden;
+            background: white; width: 600px; max-width: 90%; border-radius: 24px; overflow: hidden;
             display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
         .modal-header { padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; flex-grow: 1; }
-        .media-container { margin-top: 15px; border-radius: 12px; overflow: hidden; background: #000; display: flex; justify-content: center; }
-        .media-container img { max-width: 100%; height: auto; display: block; }
-        .media-container iframe { width: 100%; aspect-ratio: 16/9; border: none; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 70vh; }
 
         #custom-ar-button { position: fixed; bottom: 30px; right: 30px; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 12px 24px; border-radius: 30px; cursor: pointer; font-weight: bold; z-index: 1000; }
     </style>
@@ -102,7 +96,7 @@
             shadow-intensity="1.5"
             @click="colocarPunto($event)"
             @load="onModelLoad()"
-            @error="manejarErrorCarga($event)">
+            @error="abrirModalError('La dirección introducida para el modelo seleccionado no funciona o el modelo 3D es incorrecto')">
 
             <button slot="hotspot-dot-origin" class="dot" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" class="dot" data-position="0 0 0"></button>
@@ -123,15 +117,13 @@
         </model-viewer>
     </div>
 
-    <button id="custom-ar-button" @click="intentarAR()">🚀 Realidad Aumentada</button>
-
     <div id="dashboard">
         <div class="header">Plataforma 3d</div>
         <div class="scroll-area">
 
             <div class="card-ui">
                 <div class="section-title">Sección 1: Título de la Lección</div>
-                <input type="text" x-model="inputTitulo" placeholder="Ej: Motor de combustión">
+                <input type="text" x-model="inputTitulo" placeholder="Ej: Mecánica Automotriz">
                 <div style="display:flex; gap:8px;">
                     <button class="btn-mini" style="background:var(--primary); color:white; flex:2;" @click="tituloGuardado = inputTitulo">✓ Guardar</button>
                     <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button>
@@ -140,16 +132,15 @@
 
             <div class="card-ui">
                 <div class="section-title">Sección 2: Carga del Modelo</div>
-                <label style="font-size:11px; color:#666;">Archivo local (.glb únicamente):</label>
+                <label style="font-size:10px; color:#888;">1. ARCHIVO LOCAL (.GLB):</label>
                 <input type="file" accept=".glb" @change="subirLocal">
-
-                <div style="margin-top:10px;">
-                    <label style="font-size:11px; color:#666;">URL externa (.glb):</label>
-                    <div style="display:flex; gap:5px; margin-top:5px;">
-                        <input type="text" x-model="inputUrlModelo" placeholder="https://.../modelo.glb" style="flex:1; font-size:12px; margin-bottom:0;">
-                        <button class="btn-mini" style="background:var(--primary); color:white;" @click="cargarDesdeUrl()">Cargar</button>
-                    </div>
-                </div>
+                <label style="font-size:10px; color:#888; margin-top:5px; display:block;">2. URL EXTERNA:</label>
+                <div style="display:flex; gap:5px;"><input type="text" x-model="inputUrlModelo" placeholder="https://..." style="margin:0;"><button class="btn-mini" style="background:#eee;" @click="cargarDesdeUrl()">Ok</button></div>
+                <label style="font-size:10px; color:#888; margin-top:10px; display:block;">3. MODELOS PRECARGADOS:</label>
+                <select @change="cargarPrecargado($event.target.value)">
+                    <option value="">Seleccionar...</option>
+                    <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche</option>
+                </select>
             </div>
 
             <div class="card-ui">
@@ -157,6 +148,14 @@
                 <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()">
                     <span x-text="verCotas ? '📏 Ocultar Dimensiones' : '📏 Mostrar Dimensiones'"></span>
                 </button>
+                <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+                    <label style="font-size:11px; font-weight:bold;">Unidades:</label>
+                    <select x-model="unidad" @change="cambiarUnidades()" style="margin:0; padding:5px;">
+                        <option value="mm">mm.</option>
+                        <option value="cm">cm.</option>
+                        <option value="m">m.</option>
+                    </select>
+                </div>
             </div>
 
             <div class="card-ui">
@@ -164,7 +163,6 @@
                 <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:12px;">
                     <span x-text="editando ? '📍 MODO: MARCANDO' : '🔍 MODO: EXPLORACIÓN'"></span>
                 </button>
-
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <template x-for="(h, i) in hotspots" :key="i">
                         <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white;">
@@ -173,25 +171,17 @@
                                     <div :style="`width:14px; height:14px; border-radius:50%; background:${h.color}; border:1px solid #ccc;`"></div>
                                     <strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto #' + (i+1)"></strong>
                                 </div>
-                                <span x-text="h.abierto ? '▲' : '▼'"></span>
+                                <span>▲</span>
                             </div>
                             <div x-show="h.abierto" style="padding:10px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;">
                                 <input type="text" x-model="h.tempTitulo" placeholder="Título...">
                                 <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
                                 <div style="display:flex; gap:8px; align-items:center;">
-                                    <select x-model="h.tipo" style="flex:2;">
-                                        <option value="texto">Texto</option>
-                                        <option value="imagen">Imagen (URL)</option>
-                                        <option value="video">YouTube (URL)</option>
-                                        <option value="enlace">Enlace Web</option>
-                                    </select>
+                                    <select x-model="h.tipo" style="flex:2;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select>
                                     <input type="color" x-model="h.color" class="color-circle">
                                 </div>
                                 <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL...">
-                                <div style="display:flex; gap:5px;">
-                                    <button class="btn-mini" style="background:var(--success); color:white;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button>
-                                    <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button>
-                                </div>
+                                <div style="display:flex; gap:5px;"><button class="btn-mini" style="background:var(--success); color:white;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div>
                             </div>
                         </div>
                     </template>
@@ -201,84 +191,73 @@
             <div class="card-ui">
                 <div class="section-title">Sección 5: Exportación</div>
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson()">💾 Descargar JSON</button>
-                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Iframe Moodle</button>
+                    <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson()">💾 JSON</button>
+                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Iframe</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="overlay-multimedia" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
+    <div class="overlay-multimedia" x-show="modalAbierto || modalError" x-cloak @click.self="cerrarModales()">
         <div class="modal-panel">
             <div class="modal-header">
-                <h3 x-text="puntoActivo?.tituloVisor || 'Detalle'" style="margin:0; color:var(--primary);"></h3>
-                <button @click="modalAbierto = false" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+                <h3 x-text="modalError ? 'Aviso del Sistema' : (puntoActivo?.tituloVisor || 'Detalle')" :style="modalError ? 'color:var(--danger)' : 'color:var(--primary)'" style="margin:0;"></h3>
+                <button @click="cerrarModales()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="modal-body">
-                <p x-text="puntoActivo?.descripcion" style="white-space: pre-wrap; line-height: 1.6; color: #444; margin-bottom: 10px;"></p>
-                <div class="media-container" x-show="puntoActivo?.url">
-                    <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url"></template>
-                    <template x-if="puntoActivo?.tipo === 'video'"><iframe :src="prepararYoutube(puntoActivo.url)" allowfullscreen></iframe></template>
-                    <template x-if="puntoActivo?.tipo === 'enlace'"><a :href="puntoActivo.url" target="_blank" class="btn-main" style="background:var(--primary); color:white; text-decoration:none; text-align:center;">Abrir enlace ↗</a></template>
+                <p x-text="modalError ? mensajeError : puntoActivo?.descripcion" style="white-space: pre-wrap; line-height: 1.6; color: #444;"></p>
+                <div style="margin-top:15px; border-radius:12px; overflow:hidden; background:#000; display:flex;" x-show="!modalError && puntoActivo?.url">
+                    <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url" style="max-width:100%"></template>
+                    <template x-if="puntoActivo?.tipo === 'video'"><iframe :src="prepararYoutube(puntoActivo.url)" style="width:100%; aspect-ratio:16/9; border:none;" allowfullscreen></iframe></template>
+                </div>
+                <div x-show="modalError" style="text-align:center; margin-top:20px;">
+                    <button class="btn-main" style="background:var(--danger); color:white; width:auto; padding:10px 30px;" @click="modalError = false">Entendido</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <template x-if="mostrarQR">
-        <div class="overlay-multimedia" @click.self="mostrarQR = false">
-            <div style="background:white; padding:30px; border-radius:24px; text-align:center;">
-                <h2 style="margin:0; color:var(--primary);">Escanea para Móvil</h2>
-                <div id="qrcode" style="margin:20px auto; display:flex; justify-content:center;"></div>
-                <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
-            </div>
-        </div>
-    </template>
 
     <script>
         function editorPro() {
             return {
                 modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-                inputUrlModelo: '',
-                inputTitulo: 'Nueva Lección', tituloGuardado: '',
+                inputUrlModelo: '', inputTitulo: 'Nueva Lección', tituloGuardado: '',
                 editando: false, verCotas: false,
-                hotspots: [], modalAbierto: false, puntoActivo: null,
-                mostrarQR: false, mouseX: 0, mouseY: 0,
+                unidad: 'cm', factorUnidad: 100,
+                hotspots: [], modalAbierto: false, modalError: false, mensajeError: '', puntoActivo: null,
+                mouseX: 0, mouseY: 0,
 
                 subirLocal(e) {
                     const file = e.target.files[0];
-                    if (!file) return;
-
-                    // Validación de extensión .glb
-                    if (!file.name.toLowerCase().endsWith('.glb')) {
-                        alert("Error: Solo se permiten archivos con extensión .glb");
-                        e.target.value = ""; // Limpiar input
-                        return;
-                    }
-
-                    this.modeloUrl = URL.createObjectURL(file);
-                    this.verCotas = false;
-                    this.inputUrlModelo = '';
+                    if (file && file.name.toLowerCase().endsWith('.glb')) {
+                        this.modeloUrl = URL.createObjectURL(file);
+                        this.verCotas = false;
+                    } else { this.abrirModalError("Solo se permiten archivos .glb"); e.target.value = ""; }
                 },
 
                 cargarDesdeUrl() {
-                    const url = this.inputUrlModelo.trim();
-                    if (url !== '') {
-                        // Guardamos la URL anterior por si hay que revertir
+                    if (this.inputUrlModelo.trim()) {
+                        this.urlPrevia = this.modeloUrl;
+                        this.modeloUrl = this.inputUrlModelo;
+                        this.verCotas = false;
+                    }
+                },
+
+                cargarPrecargado(url) {
+                    if (url) {
                         this.urlPrevia = this.modeloUrl;
                         this.modeloUrl = url;
                         this.verCotas = false;
                     }
                 },
 
-                manejarErrorCarga(event) {
-                    // El evento 'error' de model-viewer detecta fallos de red o de parseo
-                    alert("La dirección introducida para el modelo seleccionado no funciona o el modelo 3D es incorrecto");
+                abrirModalError(msg) { this.mensajeError = msg; this.modalError = true; this.modeloUrl = this.urlPrevia || this.modeloUrl; },
+                cerrarModales() { this.modalAbierto = false; this.modalError = false; },
 
-                    // Si tenemos una URL previa, intentamos volver a ella para no dejar el visor roto
-                    if (this.urlPrevia) {
-                        this.modeloUrl = this.urlPrevia;
-                    }
+                cambiarUnidades() {
+                    const factores = { 'mm': 1000, 'cm': 100, 'm': 1 };
+                    this.factorUnidad = factores[this.unidad];
+                    if (this.verCotas) this.initDimensiones();
                 },
 
                 onModelLoad() { if (this.verCotas) this.initDimensiones(); },
@@ -296,17 +275,21 @@
                     const center = mv.getBoundingBoxCenter();
                     const size = mv.getDimensions();
                     const x2 = size.x / 2; const y2 = size.y / 2; const z2 = size.z / 2;
+
                     mv.updateHotspot({ name: 'hotspot-dot-origin', position: `${center.x + x2} ${center.y - y2} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dot-width', position: `${center.x - x2} ${center.y - y2} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dot-height', position: `${center.x + x2} ${center.y + y2} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dot-depth', position: `${center.x + x2} ${center.y - y2} ${center.z + z2}` });
-                    const updateDim = (name, pos, val) => {
-                        mv.updateHotspot({ name, position: pos });
-                        mv.querySelector(`button[slot="${name}"]`).textContent = `${(val * 100).toFixed(0)} cm`;
-                    };
-                    updateDim('hotspot-dim-width', `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}`, size.x);
-                    updateDim('hotspot-dim-height', `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}`, size.y);
-                    updateDim('hotspot-dim-depth', `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}`, size.z);
+
+                    const format = (val) => `${(val * this.factorUnidad).toFixed(this.unidad === 'm' ? 2 : 0)} ${this.unidad}`;
+                    mv.querySelector('button[slot="hotspot-dim-width"]').textContent = format(size.x);
+                    mv.querySelector('button[slot="hotspot-dim-height"]').textContent = format(size.y);
+                    mv.querySelector('button[slot="hotspot-dim-depth"]').textContent = format(size.z);
+
+                    mv.updateHotspot({ name: 'hotspot-dim-width', position: `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-height', position: `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-depth', position: `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}` });
+
                     mv.addEventListener('camera-change', () => this.renderSVG());
                 },
 
@@ -329,13 +312,7 @@
                 colocarPunto(event) {
                     if (!this.editando) return;
                     const hit = document.getElementById('visor').positionAndNormalFromPoint(event.clientX, event.clientY);
-                    if (hit) {
-                        this.hotspots.push({
-                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
-                            tempTitulo: "", tituloVisor: "", color: "#1a73e8",
-                            descripcion: "", tipo: "texto", url: "", abierto: true
-                        });
-                    }
+                    if (hit) this.hotspots.push({ pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`, tempTitulo: "", tituloVisor: "", color: "#1a73e8", descripcion: "", tipo: "texto", url: "", abierto: true });
                 },
 
                 abrirModal(h) { if (!this.editando) { this.puntoActivo = h; this.modalAbierto = true; } },
@@ -347,13 +324,7 @@
                 intentarAR() {
                     const viewer = document.getElementById('visor');
                     if (viewer.canActivateAR) viewer.activateAR();
-                    else {
-                        this.mostrarQR = true;
-                        this.$nextTick(() => {
-                            document.getElementById('qrcode').innerHTML = "";
-                            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 });
-                        });
-                    }
+                    else { this.mostrarQR = true; this.$nextTick(() => { document.getElementById('qrcode').innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 }); }); }
                 },
                 descargarJson() {
                     const data = JSON.stringify({ t: this.tituloGuardado, h: this.hotspots });
@@ -361,7 +332,7 @@
                 },
                 generarIframe() {
                     const data = encodeURIComponent(JSON.stringify({ t: this.tituloGuardado, h: this.hotspots }));
-                    prompt("Copia este Iframe:", `<iframe src="${window.location.href.split('?')[0]}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`);
+                    prompt("Iframe Moodle:", `<iframe src="${window.location.href.split('?')[0]}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`);
                 }
             }
         }
