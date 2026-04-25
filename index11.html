@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v29 Multimedia</title>
+    <title>Plataforma 3D - v30 Estable</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -13,7 +13,7 @@
 
         /* VISOR 3D */
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-        model-viewer { width: 100%; height: 100%; background: #f5f5f5; }
+        model-viewer { width: 100%; height: 100%; background: #f5f5f5; --poster-color: transparent; }
 
         /* MARCADOR LÁSER */
         #marcador-guia {
@@ -51,20 +51,28 @@
         .section-title { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; margin-bottom: 8px; }
         .card-ui { border: 1px solid #eee; border-radius: 12px; background: white; padding: 15px; width: 100%; }
 
-        /* INTERFAZ */
+        /* INPUTS */
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; margin-bottom: 5px; }
         textarea { height: 60px; resize: none; }
+
+        /* SELECTOR COLOR CIRCULAR CORREGIDO */
+        .color-circle {
+            -webkit-appearance: none; border: 2px solid #ddd; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; padding: 0; overflow: hidden;
+            background: none; flex-shrink: 0;
+        }
+        .color-circle::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
+
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-modo.active { background: var(--danger); color: white; }
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; }
-        .color-circle { -webkit-appearance: none; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; aspect-ratio: 1/1; overflow: hidden; }
-        .color-circle::-webkit-color-swatch { border-radius: 50%; border: 1px solid #ddd; }
 
         /* HOTSPOTS */
         .hotspot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         .hotspot-label { position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #ddd; white-space: nowrap; }
 
-        /* MODAL MULTIMEDIA INTERACTIVO */
+        /* MODAL MULTIMEDIA */
         .overlay-multimedia {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 5000;
@@ -90,12 +98,19 @@
     <div id="visor-titulo-display" x-show="tituloGuardado" x-text="tituloGuardado"></div>
 
     <div id="contenedor-principal">
-        <model-viewer id="visor" src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="initDimensiones()">
+        <model-viewer id="visor"
+            :src="modeloUrl"
+            :camera-controls="!editando"
+            ar ar-modes="webxr scene-viewer quick-look"
+            shadow-intensity="1.5"
+            @click="colocarPunto($event)"
+            @load="onModelLoad()">
 
             <button slot="hotspot-dot-origin" class="dot" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" class="dot" data-position="0 0 0"></button>
             <button slot="hotspot-dot-height" class="dot" data-position="0 0 0"></button>
             <button slot="hotspot-dot-depth" class="dot" data-position="0 0 0"></button>
+
             <button slot="hotspot-dim-width" class="dim hide" data-position="0 0 0"></button>
             <button slot="hotspot-dim-height" class="dim hide" data-position="0 0 0"></button>
             <button slot="hotspot-dim-depth" class="dim hide" data-position="0 0 0"></button>
@@ -120,7 +135,7 @@
 
             <div class="card-ui">
                 <div class="section-title">Sección 1: Título de la Lección</div>
-                <input type="text" x-model="inputTitulo" placeholder="Ej: Anatomía del Ojo">
+                <input type="text" x-model="inputTitulo" placeholder="Ej: Anatomía 3D">
                 <div style="display:flex; gap:8px;">
                     <button class="btn-mini" style="background:var(--primary); color:white; flex:2;" @click="tituloGuardado = inputTitulo">✓ Guardar</button>
                     <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button>
@@ -128,8 +143,8 @@
             </div>
 
             <div class="card-ui">
-                <div class="section-title">Sección 2: Carga del Modelo</div>
-                <input type="file" @change="subirLocal">
+                <div class="section-title">Sección 2: Carga del Modelo (.glb)</div>
+                <input type="file" accept=".glb" @change="subirLocal">
             </div>
 
             <div class="card-ui">
@@ -150,18 +165,18 @@
                         <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white;">
                             <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:#f9f9f9;">
                                 <div style="display:flex; align-items:center; gap:8px;">
-                                    <div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}`"></div>
+                                    <div :style="`width:14px; height:14px; border-radius:50%; background:${h.color}; border:1px solid #ccc;`"></div>
                                     <strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto #' + (i+1)"></strong>
                                 </div>
                                 <span x-text="h.abierto ? '▲' : '▼'"></span>
                             </div>
                             <div x-show="h.abierto" style="padding:10px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;">
-                                <input type="text" x-model="h.tempTitulo" placeholder="Título en visor">
-                                <textarea x-model="h.descripcion" placeholder="Descripción o texto..."></textarea>
+                                <input type="text" x-model="h.tempTitulo" placeholder="Título...">
+                                <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
 
-                                <div style="display:flex; gap:5px; align-items: center;">
+                                <div style="display:flex; gap:8px; align-items:center;">
                                     <select x-model="h.tipo" style="flex:2;">
-                                        <option value="texto">Solo Texto</option>
+                                        <option value="texto">Texto</option>
                                         <option value="imagen">Imagen (URL)</option>
                                         <option value="video">YouTube (URL)</option>
                                         <option value="enlace">Enlace Web</option>
@@ -169,9 +184,9 @@
                                     <input type="color" x-model="h.color" class="color-circle">
                                 </div>
 
-                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" :placeholder="h.tipo === 'enlace' ? 'https://...' : 'Pegar URL del recurso...'">
+                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL...">
 
-                                <div style="display:flex; gap:5px; margin-top:5px;">
+                                <div style="display:flex; gap:5px;">
                                     <button class="btn-mini" style="background:var(--success); color:white;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button>
                                     <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button>
                                 </div>
@@ -194,24 +209,15 @@
     <div class="overlay-multimedia" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
         <div class="modal-panel">
             <div class="modal-header">
-                <h3 x-text="puntoActivo?.tituloVisor || 'Información'" style="margin:0; color:var(--primary);"></h3>
+                <h3 x-text="puntoActivo?.tituloVisor || 'Detalle'" style="margin:0; color:var(--primary);"></h3>
                 <button @click="modalAbierto = false" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="modal-body">
                 <p x-text="puntoActivo?.descripcion" style="white-space: pre-wrap; line-height: 1.6; color: #444; margin-bottom: 10px;"></p>
-
                 <div class="media-container" x-show="puntoActivo?.url">
-                    <template x-if="puntoActivo?.tipo === 'imagen'">
-                        <img :src="puntoActivo.url" alt="Recurso 3D">
-                    </template>
-
-                    <template x-if="puntoActivo?.tipo === 'video'">
-                        <iframe :src="prepararYoutube(puntoActivo.url)" allowfullscreen></iframe>
-                    </template>
-
-                    <template x-if="puntoActivo?.tipo === 'enlace'">
-                        <a :href="puntoActivo.url" target="_blank" class="btn-main" style="background:var(--primary); color:white; text-decoration:none; text-align:center;">Abrir enlace externo ↗</a>
-                    </template>
+                    <template x-if="puntoActivo?.tipo === 'imagen'"><img :src="puntoActivo.url"></template>
+                    <template x-if="puntoActivo?.tipo === 'video'"><iframe :src="prepararYoutube(puntoActivo.url)" allowfullscreen></iframe></template>
+                    <template x-if="puntoActivo?.tipo === 'enlace'"><a :href="puntoActivo.url" target="_blank" class="btn-main" style="background:var(--primary); color:white; text-decoration:none; text-align:center;">Abrir enlace externo ↗</a></template>
                 </div>
             </div>
         </div>
@@ -220,7 +226,7 @@
     <template x-if="mostrarQR">
         <div class="overlay-multimedia" @click.self="mostrarQR = false">
             <div style="background:white; padding:30px; border-radius:24px; text-align:center;">
-                <h2 style="margin:0; color:var(--primary);">Escanea para el móvil</h2>
+                <h2 style="margin:0; color:var(--primary);">Escanear para Móvil</h2>
                 <div id="qrcode" style="margin:20px auto; display:flex; justify-content:center;"></div>
                 <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
             </div>
@@ -238,7 +244,15 @@
 
                 subirLocal(e) {
                     const file = e.target.files[0];
-                    if (file) { this.modeloUrl = URL.createObjectURL(file); this.verCotas = false; }
+                    if (file) {
+                        this.modeloUrl = URL.createObjectURL(file);
+                        this.verCotas = false;
+                        // Forzamos reinicio de cotas en el próximo load
+                    }
+                },
+
+                onModelLoad() {
+                    if (this.verCotas) this.initDimensiones();
                 },
 
                 toggleCotas() {
@@ -246,7 +260,7 @@
                     const mv = document.querySelector('#visor');
                     const elements = [...mv.querySelectorAll('.dim'), mv.querySelector('#dimLines')];
                     elements.forEach(el => this.verCotas ? el.classList.remove('hide') : el.classList.add('hide'));
-                    if (this.verCotas) this.renderSVG();
+                    if (this.verCotas) this.initDimensiones();
                 },
 
                 initDimensiones() {
@@ -294,23 +308,17 @@
                     if (hit) {
                         this.hotspots.push({
                             pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
-                            tempTitulo: "Punto Nuevo", tituloVisor: "",
-                            descripcion: "", tipo: "texto", url: "", color: "#1a73e8", abierto: true
+                            tempTitulo: "", tituloVisor: "", color: "#1a73e8",
+                            descripcion: "", tipo: "texto", url: "", abierto: true
                         });
                     }
                 },
 
-                abrirModal(h) {
-                    if (this.editando) return;
-                    this.puntoActivo = h;
-                    this.modalAbierto = true;
-                },
+                abrirModal(h) { if (!this.editando) { this.puntoActivo = h; this.modalAbierto = true; } },
 
                 prepararYoutube(url) {
                     if (!url) return '';
-                    let id = '';
-                    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
-                    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1];
+                    let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1];
                     return `https://www.youtube.com/embed/${id}`;
                 },
 
@@ -328,8 +336,7 @@
 
                 descargarJson() {
                     const data = JSON.stringify({ t: this.tituloGuardado, h: this.hotspots });
-                    const blob = new Blob([data], { type: 'application/json' });
-                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'leccion.json'; a.click();
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'})); a.download = 'leccion.json'; a.click();
                 },
 
                 generarIframe() {
