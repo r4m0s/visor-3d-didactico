@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v36 AR Portrait Fixed</title>
+    <title>Plataforma 3D - v37 AR Universal</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -15,15 +15,15 @@
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: #f5f5f5; }
 
-        /* 🚀 BOTÓN AR CORREGIDO (Visible siempre) */
-        #ar-button {
-            background-color: white; border-radius: 30px; border: 2px solid var(--primary);
-            color: var(--primary); padding: 10px 20px; font-weight: bold;
-            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
-            cursor: pointer; display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            font-size: 14px;
+        /* 🚀 BOTÓN AR UNIVERSAL (Fuera del slot para que no se oculte en PC) */
+        #btn-ar-universal {
+            position: fixed; bottom: 25px; right: 25px; z-index: 9999;
+            background-color: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 12px 24px; border-radius: 30px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background-color 0.2s;
         }
+        #btn-ar-universal:hover { background-color: #f8f9fa; transform: scale(1.05); }
 
         /* DASHBOARD RESPONSIVO */
         #dashboard {
@@ -31,41 +31,37 @@
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 4000; display: flex; flex-direction: column;
         }
-
-        /* Ajuste para móviles muy estrechos */
-        @media (max-width: 400px) {
-            #dashboard { width: 280px; left: 10px; top: 10px; }
-            #ar-button { padding: 8px 16px; font-size: 12px; bottom: 15px; right: 15px; }
-        }
+        @media (max-width: 450px) { #dashboard { width: calc(100% - 30px); max-height: 70vh; } }
 
         .header { padding: 15px; background: var(--primary); color: white; text-align: center; font-weight: bold; border-radius: 18px 18px 0 0; }
         .scroll-area { padding: 10px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
 
+        /* ACORDEÓN */
         .section-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; background: #f8f9fa; border-radius: 10px;
             cursor: pointer; border: 1px solid #eee;
         }
         .section-title { font-size: 10px; font-weight: bold; color: #5f6368; text-transform: uppercase; }
-        .section-content { padding: 10px 5px; }
+        .card-ui { border-radius: 12px; background: white; border-bottom: 1px solid #eee; }
 
         /* TÍTULO VISOR */
         #visor-titulo-display {
             position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
             padding: 10px 20px; border-radius: 12px; font-weight: bold; z-index: 2000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05);
+            max-width: calc(100% - 400px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        @media (max-width: 600px) { #visor-titulo-display { top: auto; bottom: 85px; right: 20px; font-size: 14px; } }
 
         /* INPUTS Y BOTONES */
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 5px; font-size: 13px; }
-        .btn-mini { padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; transition: 0.2s; }
+        .btn-mini { padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; }
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-modo.active { background: var(--danger); color: white; }
 
-        .color-circle { -webkit-appearance: none; border: 2px solid #ddd; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
-        .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
-
-        /* COTAS */
+        /* MARCADOR LÁSER Y COTAS */
+        #marcador-guia { position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%); display: none; }
         .dot { display: none; }
         .dim { background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); color: var(--primary); font-weight: bold; font-size: 12px; padding: 4px 8px; position: absolute; pointer-events: none; transform: translate(-50%, -50%); }
         .dimensionLineContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
@@ -74,19 +70,23 @@
 
         /* HOTSPOTS */
         .hotspot { width: 20px; height: 20px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); }
-        .hotspot-label { position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; border: 1px solid #ddd; }
+        .hotspot-label { position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; border: 1px solid #ddd; white-space: nowrap; }
 
         /* MODALES */
-        .overlay-multimedia { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 5000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .overlay-multimedia { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-panel { background: white; width: 600px; max-width: 90%; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         .modal-header { padding: 15px 20px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
-        .modal-body { padding: 20px; overflow-y: auto; max-height: 70vh; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 70vh; text-align: center; }
     </style>
 </head>
 <body x-data="editorPro()" @mousemove="mouseX = $event.clientX; mouseY = $event.clientY">
 
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;` text-align: center; "></div>
     <div id="visor-titulo-display" x-show="tituloGuardado" x-text="tituloGuardado"></div>
+
+    <button id="btn-ar-universal" @click="activarAR()">
+        <span>🚀 Realidad Aumentada</span>
+    </button>
 
     <div id="contenedor-principal">
         <model-viewer id="visor"
@@ -95,12 +95,7 @@
             ar ar-modes="webxr scene-viewer quick-look"
             shadow-intensity="1.5"
             @click="colocarPunto($event)"
-            @load="onModelLoad()"
-            @error="abrirModalError('La dirección introducida no funciona o el modelo es incorrecto')">
-
-            <button slot="ar-button" id="ar-button" @click="detectarDesktop()">
-                <span>🚀 AR / Móvil</span>
-            </button>
+            @load="onModelLoad()">
 
             <button slot="hotspot-dot-origin" class="dot" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" class="dot" data-position="0 0 0"></button>
@@ -122,16 +117,16 @@
     </div>
 
     <div id="dashboard">
-        <div class="header">Plataforma 3D</div>
+        <div class="header">Editor 3D Pro</div>
         <div class="scroll-area">
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s1 = !menu.s1">
-                    <span class="section-title">1. Título</span>
+                    <span class="section-title">1. Título de Lección</span>
                     <span x-text="menu.s1 ? '▲' : '▼'"></span>
                 </div>
-                <div class="section-content" x-show="menu.s1">
-                    <input type="text" x-model="inputTitulo" placeholder="Nombre de la lección...">
+                <div class="section-content" x-show="menu.s1" style="padding:10px;">
+                    <input type="text" x-model="inputTitulo" placeholder="Ej: Anatomía del Motor">
                     <div style="display:flex; gap:5px;">
                         <button class="btn-mini" style="background:var(--primary); color:white; flex:3;" @click="tituloGuardado = inputTitulo">✓ Guardar</button>
                         <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button>
@@ -141,18 +136,18 @@
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s2 = !menu.s2">
-                    <span class="section-title">2. Modelo</span>
+                    <span class="section-title">2. Carga de Modelo</span>
                     <span x-text="menu.s2 ? '▲' : '▼'"></span>
                 </div>
-                <div class="section-content" x-show="menu.s2">
+                <div class="section-content" x-show="menu.s2" style="padding:10px;">
                     <label style="font-size:10px; color:#888;">LOCAL (.GLB):</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <label style="font-size:10px; color:#888;">URL EXTERNA:</label>
                     <div style="display:flex; gap:5px;"><input type="text" x-model="inputUrlModelo" placeholder="https://..." style="margin:0;"><button class="btn-mini" style="background:#eee;" @click="cargarDesdeUrl()">Ok</button></div>
                     <label style="font-size:10px; color:#888; margin-top:5px; display:block;">BIBLIOTECA:</label>
                     <select @change="cargarPrecargado($event.target.value)">
-                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Original)</option>
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche</option>
+                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option>
                     </select>
                 </div>
             </div>
@@ -162,7 +157,7 @@
                     <span class="section-title">3. Dimensiones</span>
                     <span x-text="menu.s3 ? '▲' : '▼'"></span>
                 </div>
-                <div class="section-content" x-show="menu.s3">
+                <div class="section-content" x-show="menu.s3" style="padding:10px;">
                     <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()">
                         <span x-text="verCotas ? '📏 Ocultar' : '📏 Mostrar'"></span>
                     </button>
@@ -176,10 +171,10 @@
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s4 = !menu.s4">
-                    <span class="section-title">4. Marcación</span>
+                    <span class="section-title">4. Marcadores</span>
                     <span x-text="menu.s4 ? '▲' : '▼'"></span>
                 </div>
-                <div class="section-content" x-show="menu.s4">
+                <div class="section-content" x-show="menu.s4" style="padding:10px;">
                     <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:8px;">
                         <span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORANDO'"></span>
                     </button>
@@ -193,12 +188,13 @@
                                 <span style="font-size:8px;">▼</span>
                             </div>
                             <div x-show="h.abierto" style="padding:8px; border-top:1px solid #eee;">
-                                <input type="text" x-model="h.tempTitulo" placeholder="Título...">
-                                <textarea x-model="h.descripcion" placeholder="Info..."></textarea>
+                                <input type="text" x-model="h.tempTitulo" placeholder="Etiqueta...">
+                                <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
                                 <div style="display:flex; gap:4px; align-items:center;">
                                     <select x-model="h.tipo" style="flex:2;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select>
                                     <input type="color" x-model="h.color" class="color-circle">
                                 </div>
+                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL...">
                                 <div style="display:flex; gap:4px; margin-top:4px;">
                                     <button class="btn-mini" style="background:var(--success); color:white;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓</button>
                                     <button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button>
@@ -214,11 +210,9 @@
                     <span class="section-title">5. Exportar</span>
                     <span x-text="menu.s5 ? '▲' : '▼'"></span>
                 </div>
-                <div class="section-content" x-show="menu.s5">
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-mini" style="background:var(--success); color:white;" @click="descargarJson()">JSON</button>
-                        <button class="btn-mini" style="background:var(--primary); color:white;" @click="generarIframe()">Iframe</button>
-                    </div>
+                <div class="section-content" x-show="menu.s5" style="padding:10px; display:flex; gap:5px;">
+                    <button class="btn-mini" style="background:var(--success); color:white;" @click="descargarJson()">JSON</button>
+                    <button class="btn-mini" style="background:var(--primary); color:white;" @click="generarIframe()">Iframe</button>
                 </div>
             </div>
         </div>
@@ -227,7 +221,7 @@
     <div class="overlay-multimedia" x-show="modalAbierto || modalError" x-cloak @click.self="cerrarModales()">
         <div class="modal-panel">
             <div class="modal-header">
-                <h3 x-text="modalError ? 'Aviso' : puntoActivo?.tituloVisor" :style="modalError ? 'color:var(--danger)' : ''" style="margin:0;"></h3>
+                <h3 x-text="modalError ? 'Aviso del Sistema' : puntoActivo?.tituloVisor" :style="modalError ? 'color:var(--danger)' : ''" style="margin:0;"></h3>
                 <button @click="cerrarModales()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="modal-body">
@@ -244,8 +238,9 @@
         <div class="overlay-multimedia" @click.self="mostrarQR = false">
             <div style="background:white; padding:30px; border-radius:20px; text-align:center;">
                 <h3 style="margin:0; color:var(--primary);">Realidad Aumentada</h3>
+                <p style="font-size:13px; color:#666; margin:10px 0;">Escanea con tu móvil para proyectar:</p>
                 <div id="qrcode" style="margin:15px auto; display:flex; justify-content:center;"></div>
-                <button class="btn-mini" @click="mostrarQR = false" style="background:#eee; padding:10px 20px;">Cerrar</button>
+                <button class="btn-mini" @click="mostrarQR = false" style="background:#eee; padding:10px 20px; margin-top:10px;">Cerrar</button>
             </div>
         </div>
     </template>
@@ -265,7 +260,7 @@
                     if (file && file.name.toLowerCase().endsWith('.glb')) {
                         this.modeloUrl = URL.createObjectURL(file);
                         this.verCotas = false;
-                    } else { this.abrirModalError("Solo archivos .glb"); }
+                    } else { this.abrirModalError("Solo se permiten archivos .glb"); }
                 },
 
                 cargarDesdeUrl() { if (this.inputUrlModelo.trim()) { this.urlPrevia = this.modeloUrl; this.modeloUrl = this.inputUrlModelo; this.verCotas = false; } },
@@ -273,13 +268,16 @@
                 abrirModalError(msg) { this.mensajeError = msg; this.modalError = true; this.modeloUrl = this.urlPrevia || this.modeloUrl; },
                 cerrarModales() { this.modalAbierto = false; this.modalError = false; },
 
-                detectarDesktop() {
+                activarAR() {
                     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    if (!isMobile) {
+                    if (isMobile) {
+                        const mv = document.getElementById('visor');
+                        mv.activateAR();
+                    } else {
                         this.mostrarQR = true;
                         this.$nextTick(() => {
                             document.getElementById('qrcode').innerHTML = "";
-                            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 180, height: 180 });
+                            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 });
                         });
                     }
                 },
@@ -308,17 +306,14 @@
                     mv.updateHotspot({ name: 'hotspot-dot-width', position: `${center.x - x2} ${center.y - y2} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dot-height', position: `${center.x + x2} ${center.y + y2} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dot-depth', position: `${center.x + x2} ${center.y - y2} ${center.z + z2}` });
-
                     const format = (val) => `${(val * this.factorUnidad).toFixed(this.unidad === 'm' ? 2 : 0)} ${this.unidad}`;
                     mv.querySelector('button[slot="hotspot-dim-width"]').textContent = format(size.x);
                     mv.querySelector('button[slot="hotspot-dim-height"]').textContent = format(size.y);
                     mv.querySelector('button[slot="hotspot-dim-depth"]').textContent = format(size.z);
-
                     mv.updateHotspot({ name: 'hotspot-dim-width', position: `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dim-height', position: `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}` });
                     mv.updateHotspot({ name: 'hotspot-dim-depth', position: `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}` });
                     mv.addEventListener('camera-change', () => this.renderSVG());
-                    this.renderSVG();
                 },
 
                 renderSVG() {
