@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma 3D - v55 Perfeccionada</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --success: #34a853; --dark: #202124; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #eee; }
+
+        :not(:defined) > * { display: none; }
+
+        /* VISOR 3D */
+        #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        model-viewer { width: 100%; height: 100%; background: #f5f5f5; }
+
+        /* DISPLAY INFO VISOR */
+        #visor-info-display {
+            position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px; border-radius: 18px; z-index: 2000;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none;
+        }
+        #visor-info-display h2 { margin: 0; font-size: 1.3em; color: var(--dark); }
+        #visor-info-display p { margin: 0; font-size: 0.85em; color: #666; font-weight: 600; }
+        #visor-info-display img { height: 24px; margin-top: 4px; }
+
+        /* BOTÓN AR UNIVERSAL */
+        #btn-ar-universal {
+            position: fixed; bottom: 25px; right: 25px; z-index: 90000;
+            background-color: white; border: 2px solid var(--primary); color: var(--primary);
+            padding: 14px 28px; border-radius: 40px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.25); transition: 0.2s;
+        }
+
+        /* 🎨 SELECTORES COLOR CIRCULARES PERFECTOS */
+        .color-circle {
+            appearance: none; -webkit-appearance: none;
+            width: 38px !important; height: 38px !important; 
+            border-radius: 50% !important; cursor: pointer; border: 2px solid #ddd;
+            padding: 0; overflow: hidden; background: none; 
+            aspect-ratio: 1/1 !important; flex-shrink: 0;
+        }
+        .color-circle::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+        .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+        /* DASHBOARD */
+        #dashboard {
+            position: fixed; top: 15px; left: 15px; width: 350px; max-height: 94vh;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 4000; display: flex; flex-direction: column;
+        }
+        .header { padding: 18px; background: var(--primary); color: white; text-align: center; font-weight: bold; border-radius: 18px 18px 0 0; }
+        .scroll-area { padding: 10px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 10px; cursor: pointer; border: 1px solid #eee; }
+        .section-title { font-size: 10px; font-weight: bold; color: #5f6368; text-transform: uppercase; }
+        .card-ui { border-radius: 12px; background: white; border-bottom: 1px solid #eee; }
+
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 5px; font-family: inherit; font-size: 13px; }
+        .btn-mini { padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; flex: 1; }
+        .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modo.active { background: var(--danger); color: white; }
+
+        /* MODALES GLOBALES */
+        .global-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 100000;
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .viewer-card { background: white; width: 92%; max-width: 500px; border-radius: 28px; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.5); }
+        .v-header { padding: 20px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .v-body { padding: 25px; overflow-y: auto; max-height: 70vh; }
+
+        /* COTAS */
+        .dim { background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); color: var(--primary); font-weight: bold; font-size: 12px; padding: 4px 8px; position: absolute; pointer-events: none; transform: translate(-50%, -50%); white-space: nowrap; }
+        .dimensionLineContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .dimensionLine { stroke: var(--primary); stroke-width: 2; stroke-dasharray: 4; }
+        .hide { display: none !important; }
+
+        /* HOTSPOTS */
+        .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hotspot-label { position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #ddd; white-space: nowrap; }
+    </style>
+</head>
+<body x-data="editorPro()" @mousemove="mouseX = $event.clientX; mouseY = $event.clientY">
+
+    <div id="visor-info-display" x-show="tituloGuardado || autorGuardado">
+        <h2 x-text="tituloGuardado"></h2>
+        <p x-show="autorGuardado" x-text="'Autor: ' + autorGuardado"></p>
+        <img x-show="licenciaImgGuardada" :src="licenciaImgGuardada">
+    </div>
+
+    <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;`" style="position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%);"></div>
+
+    <button id="btn-ar-universal" @click="activarAR()"><span>🚀 Realidad Aumentada</span></button>
+
+    <div id="contenedor-principal">
+        <model-viewer id="visor" :src="modeloUrl" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="onModelLoad()">
+            
+            <button slot="hotspot-dot-origin" style="display:none;" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-width" style="display:none;" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-height" style="display:none;" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-depth" style="display:none;" data-position="0 0 0"></button>
+            
+            <button slot="hotspot-dim-width" class="dim hide" data-position="0 0 0"></button>
+            <button slot="hotspot-dim-height" class="dim hide" data-position="0 0 0"></button>
+            <button slot="hotspot-dim-depth" class="dim hide" data-position="0 0 0"></button>
+            
+            <svg id="dimLines" class="dimensionLineContainer hide" xmlns="http://www.w3.org/2000/svg"><line class="dimensionLine"></line><line class="dimensionLine"></line><line class="dimensionLine"></line></svg>
+
+            <template x-for="(h, i) in hotspots" :key="i">
+                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click.stop="abrirModal(h)">
+                    <div class="hotspot-label" x-text="h.tituloVisor || 'Punto '+(i+1)"></div>
+                </button>
+            </template>
+        </model-viewer>
+    </div>
+
+    <div id="dashboard">
+        <div class="header">Plataforma 3D Pro</div>
+        <div class="scroll-area">
+            
+            <div class="card-ui">
+                <div class="section-header" @click="menu.s1 = !menu.s1"><span class="section-title">1. Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s1" style="padding:10px;">
+                    <input type="text" x-model="inputTitulo" placeholder="Nombre del proyecto">
+                    <div style="display:flex; gap:5px;"><button class="btn-mini" style="background:var(--primary); color:white; flex:3;" @click="tituloGuardado = inputTitulo">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button></div>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.s2 = !menu.s2"><span class="section-title">2. Modelo</span><span x-text="menu.s2 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s2" style="padding:10px;">
+                    <label style="font-size:10px; color:#888; font-weight:bold;">CARGAR .GLB LOCAL:</label>
+                    <input type="file" accept=".glb" @change="subirLocal">
+                    <label style="font-size:10px; color:#888; font-weight:bold; margin-top:8px; display:block;">BIBLIOTECA:</label>
+                    <select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;">
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option>
+                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.sConfig = !menu.sConfig"><span class="section-title">3. Configuración del modelo</span><span x-text="menu.sConfig ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.sConfig" style="padding:10px;">
+                    <select x-model="materialActivo" @change="sincronizarControlesMaterial()"><option value="">Seleccionar material...</option><template x-for="mat in listaMateriales" :key="mat"><option :value="mat" x-text="mat"></option></template></select>
+                    <div x-show="materialActivo">
+                        <div style="display:flex; align-items:center; gap:12px; background:#f9f9f9; padding:8px; border-radius:8px; margin-bottom:10px;"><span style="font-size:12px; font-weight:bold; flex:1;">Color:</span><input type="color" @input="aplicarColorMaterial($event.target.value)" class="color-circle"></div>
+                        <div style="background:#f9f9f9; padding:10px; border-radius:8px;"><label style="font-size:11px; font-weight:bold;">Reflectividad:</label><input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.s3 = !menu.s3"><span class="section-title">4. Dimensiones</span><span x-text="menu.s3 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s3" style="padding:10px;">
+                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()"><span x-text="verCotas ? '📏 Ocultar dimensiones' : '📏 Mostrar dimensiones'"></span></button>
+                    <select x-model="unidad" @change="cambiarUnidades()" style="margin-top:8px;"><option value="mm">milímetros</option><option value="cm">centímetros</option><option value="m">metros</option></select>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.s4 = !menu.s4"><span class="section-title">5. Marcación</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s4" style="padding:10px;">
+                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORACIÓN'"></span></button>
+                    <template x-for="(h, i) in hotspots" :key="i">
+                        <div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; margin-bottom:5px;">
+                            <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:8px;"><div :style="`width:12px; height:12px; border-radius:50%; background:${h.color};` text-align: center; "></div><strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto ' + (i+1)"></strong></div><span>▼</span>
+                            </div>
+                            <div x-show="h.abierto" style="padding:12px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;">
+                                <input type="text" x-model="h.tempTitulo" placeholder="Etiqueta...">
+                                <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <select x-model="h.tipo" style="flex:1; margin-bottom:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select>
+                                    <input type="color" x-model="h.color" class="color-circle">
+                                </div>
+                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL recurso..." style="margin-top:10px;">
+                                <div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.sLic = !menu.sLic"><span class="section-title">6. Licencia de uso</span><span x-text="menu.sLic ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.sLic" style="padding:10px;">
+                    <input type="text" x-model="inputAutor" placeholder="Nombre del autor...">
+                    <div style="display:flex; gap:10px; align-items:center; margin:10px 0;">
+                        <select x-model="licenciaSel" style="flex:1; margin:0;"><option value="by">CC BY</option><option value="by-sa">CC BY-SA</option><option value="by-nd">CC BY-ND</option><option value="by-nc">CC BY-NC</option><option value="by-nc-sa">CC BY-NC-SA</option><option value="by-nc-nd">CC BY-NC-ND</option><option value="zero">CC0</option></select>
+                        <img :src="`https://mirrors.creativecommons.org/presskit/buttons/88x31/png/${licenciaSel}.png`" style="height:25px; border-radius:4px;">
+                    </div>
+                    <div style="display:flex; gap:5px;"><button class="btn-mini" style="background:var(--primary); color:white; flex:3;" @click="autorGuardado = inputAutor; licenciaImgGuardada = `https://mirrors.creativecommons.org/presskit/buttons/88x31/png/${licenciaSel}.png` ">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputAutor=''; autorGuardado=''; licenciaImgGuardada=''">✕</button></div>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="menu.s5 = !menu.s5"><span class="section-title">7. Exportar</span><span x-text="menu.s5 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s5" style="padding:10px; display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn-main" style="background:var(--success); color:white;" @click="descargarJson()">💾 Exportar proyecto</button>
+                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Exportar a web</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="global-overlay" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
+        <div class="viewer-card">
+            <div class="v-header"><h3 x-text="pointActive?.tituloVisor" style="margin:0; color:var(--primary);"></h3><button @click="modalAbierto = false" style="border:none; background:none; font-size:32px; cursor:pointer; color:#999;">&times;</button></div>
+            <div class="v-body" style="text-align:left;">
+                <p x-text="pointActive?.descripcion" style="white-space: pre-wrap; line-height: 1.6; color:#444; font-size:15px;"></p>
+                <div style="margin-top:15px; border-radius:16px; overflow:hidden; background:#000; display:flex;" x-show="pointActive?.url">
+                    <template x-if="pointActive?.tipo === 'imagen'"><img :src="pointActive.url" style="width:100%"></template>
+                    <template x-if="pointActive?.tipo === 'video'"><iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none;" allowfullscreen></iframe></template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="global-overlay" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
+        <div class="viewer-card" style="max-width:350px;">
+            <div class="v-header"><h3>Ver en móvil</h3><button @click="mostrarQR = false" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button></div>
+            <div class="v-body">
+                <p style="font-size:13px; color:#666; margin-bottom:15px;">Escanea con tu cámara:</p>
+                <div id="qrcode" style="display:flex; justify-content:center; margin-bottom:20px; background:white; padding:10px; border-radius:10px;"></div>
+                <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editorPro() {
+            return {
+                modeloUrl: 'https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb',
+                menu: { s1: false, s2: false, sConfig: false, s3: false, s4: false, sLic: false, s5: false },
+                inputTitulo: '', tituloGuardado: '', inputAutor: '', autorGuardado: '', licenciaSel: 'by', licenciaImgGuardada: '',
+                editando: false, verCotas: false, unidad: 'cm', factorUnidad: 100, hotspots: [], modalAbierto: false, pointActive: null, mostrarQR: false,
+                listaMateriales: [], materialActivo: '', reflectValue: 50, mouseX: 0, mouseY: 0,
+
+                activarAR() {
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        document.getElementById('visor').activateAR();
+                    } else {
+                        this.mostrarQR = true;
+                        this.$nextTick(() => {
+                            const qrDiv = document.getElementById("qrcode");
+                            qrDiv.innerHTML = ""; // 🚀 LIMPIEZA TOTAL PARA EVITAR DUPLICADOS
+                            new QRCode(qrDiv, { text: window.location.href, width: 200, height: 200 });
+                        });
+                    }
+                },
+
+                onModelLoad() { 
+                    const mv = document.querySelector('#visor');
+                    if (mv.model && mv.model.materials) { this.listaMateriales = mv.model.materials.map(m => m.name || 'Material'); }
+                    if (this.verCotas) { requestAnimationFrame(() => { this.initDimensiones(); }); }
+                },
+
+                sincronizarControlesMaterial() {
+                    const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
+                    if (mat) { this.reflectValue = (1 - mat.pbrMetallicRoughness.roughnessFactor) * 100; }
+                },
+                aplicarColorMaterial(hex) {
+                    const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
+                    if (mat) { const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255; mat.pbrMetallicRoughness.setBaseColorFactor([r,g,b,1.0]); }
+                },
+                aplicarReflectividad() {
+                    const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
+                    if (mat) { mat.pbrMetallicRoughness.setRoughnessFactor(1 - (this.reflectValue / 100)); }
+                },
+
+                initDimensiones() {
+                    const mv = document.querySelector('#visor');
+                    const center = mv.getBoundingBoxCenter(); const size = mv.getDimensions();
+                    const x2 = size.x/2, y2 = size.y/2, z2 = size.z/2;
+                    mv.updateHotspot({ name: 'hotspot-dot-origin', position: `${center.x + x2} ${center.y - y2} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dot-width', position: `${center.x - x2} ${center.y - y2} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dot-height', position: `${center.x + x2} ${center.y + y2} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dot-depth', position: `${center.x + x2} ${center.y - y2} ${center.z + z2}` });
+                    const format = (v) => `${(v * this.factorUnidad).toFixed(this.unidad==='m'?2:0)} ${this.unidad}`;
+                    mv.querySelector('button[slot="hotspot-dim-width"]').textContent = format(size.x);
+                    mv.querySelector('button[slot="hotspot-dim-height"]').textContent = format(size.y);
+                    mv.querySelector('button[slot="hotspot-dim-depth"]').textContent = format(size.z);
+                    mv.updateHotspot({ name: 'hotspot-dim-width', position: `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-height', position: `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-depth', position: `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}` });
+                    mv.addEventListener('camera-change', () => this.renderSVG());
+                    this.renderSVG();
+                },
+
+                renderSVG() {
+                    const mv = document.querySelector('#visor'); if (!mv || !this.verCotas) return;
+                    const lines = mv.querySelectorAll('line');
+                    const draw = (line, h1, h2) => {
+                        const p1 = mv.queryHotspot(h1), p2 = mv.queryHotspot(h2);
+                        if (p1 && p2) { line.setAttribute('x1', p1.canvasPosition.x); line.setAttribute('y1', p1.canvasPosition.y); line.setAttribute('x2', p2.canvasPosition.x); line.setAttribute('y2', p2.canvasPosition.y); }
+                    };
+                    draw(lines[0], 'hotspot-dot-origin', 'hotspot-dot-width');
+                    draw(lines[1], 'hotspot-dot-origin', 'hotspot-dot-height');
+                    draw(lines[2], 'hotspot-dot-origin', 'hotspot-dot-depth');
+                },
+
+                toggleCotas() {
+                    this.verCotas = !this.verCotas;
+                    const mv = document.querySelector('#visor');
+                    [...mv.querySelectorAll('.dim'), mv.querySelector('#dimLines')].forEach(el => this.verCotas ? el.classList.remove('hide') : el.classList.add('hide'));
+                    if (this.verCotas) this.initDimensiones();
+                },
+
+                cambiarUnidades() { this.factorUnidad = {'mm':1000,'cm':100,'m':1}[this.unidad]; if(this.verCotas) this.initDimensiones(); },
+                subirLocal(e) { const file = e.target.files[0]; if (file?.name.endsWith('.glb')) { this.modeloUrl = URL.createObjectURL(file); this.listaMateriales=[]; this.materialActivo=''; } },
+                cargarPrecargado(url) { if (url) { this.modeloUrl = url; this.listaMateriales=[]; this.materialActivo=''; } },
+                colocarPunto(event) { if (!this.editando) return; const hit = document.getElementById('visor').positionAndNormalFromPoint(event.clientX, event.clientY); if (hit) this.hotspots.push({ pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`, tempTitulo: "", tituloVisor: "", color: "#1a73e8", descripcion: "", tipo: "texto", url: "", abierto: true }); },
+                abrirModal(h) { if (!this.editando) { this.pointActive = h; this.modalAbierto = true; } },
+                prepararYoutube(url) { if (!url) return ''; let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1]; return `https://www.youtube.com/embed/${id}`; },
+                descargarJson() { const data = JSON.stringify({ t: this.tituloGuardado, a: this.autorGuardado, l: this.licenciaImgGuardada, h: this.hotspots }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'})); a.download = 'proyecto.json'; a.click(); },
+                generarIframe() { const data = encodeURIComponent(JSON.stringify({ t: this.tituloGuardado, h: this.hotspots })); prompt("Iframe:", `<iframe src="${window.location.href.split('?')[0]}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`); }
+            }
+        }
+    </script>
+</body>
+</html>
