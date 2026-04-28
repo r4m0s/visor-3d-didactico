@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v55 Perfeccionada</title>
+    <title>Plataforma 3D - v55 </title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -95,7 +95,7 @@
 
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;`" style="position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%);"></div>
 
-    <button id="btn-ar-universal" @click="activarAR()"><span>🚀 Realidad Aumentada</span></button>
+    <button id="btn-ar-universal" @click="activarAR()"><span>Realidad Aumentada</span></button>
 
     <div id="contenedor-principal">
         <model-viewer id="visor" :src="modeloUrl" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="onModelLoad()">
@@ -120,7 +120,7 @@
     </div>
 
     <div id="dashboard">
-        <div class="header">Plataforma 3D Pro</div>
+        <div class="header">Plataforma 3D</div>
         <div class="scroll-area">
             
             <div class="card-ui">
@@ -134,12 +134,12 @@
             <div class="card-ui">
                 <div class="section-header" @click="menu.s2 = !menu.s2"><span class="section-title">2. Modelo</span><span x-text="menu.s2 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s2" style="padding:10px;">
-                    <label style="font-size:10px; color:#888; font-weight:bold;">CARGAR .GLB LOCAL:</label>
+                    <label style="font-size:10px; color:#888; font-weight:bold;">Cargar .glb local:</label>
                     <input type="file" accept=".glb" @change="subirLocal">
-                    <label style="font-size:10px; color:#888; font-weight:bold; margin-top:8px; display:block;">BIBLIOTECA:</label>
+                    <label style="font-size:10px; color:#888; font-weight:bold; margin-top:8px; display:block;">Biblioteca:</label>
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option>
-                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche</option>
+                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta</option>
                     </select>
                 </div>
             </div>
@@ -166,7 +166,7 @@
             <div class="card-ui">
                 <div class="section-header" @click="menu.s4 = !menu.s4"><span class="section-title">5. Marcación</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s4" style="padding:10px;">
-                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORACIÓN'"></span></button>
+                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '🔍 EXPLORAR' : '📍 EDITAR'"></span></button>
                     <template x-for="(h, i) in hotspots" :key="i">
                         <div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; margin-bottom:5px;">
                             <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;">
