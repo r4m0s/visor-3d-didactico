@@ -85,7 +85,7 @@
     <div id="visor-titulo-display" style="position:fixed; top:20px; right:20px; background:rgba(255,255,255,0.95); padding:10px 20px; border-radius:12px; font-weight:bold; z-index:2000; box-shadow:0 4px 15px rgba(0,0,0,0.1);" x-show="tituloGuardado" x-text="tituloGuardado"></div>
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;`" style="position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%);"></div>
 
-    <button id="btn-ar-universal" @click="activarAR()"><span>🚀 Realidad Aumentada</span></button>
+    <button id="btn-ar-universal" @click="activarAR()"><span>Realidad Aumentada</span></button>
 
     <div id="contenedor-principal">
         <model-viewer id="visor" :src="modeloUrl" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="onModelLoad()">
@@ -124,7 +124,7 @@
     </div>
 
     <div id="dashboard">
-        <div class="header">Plataforma 3D Pro</div>
+        <div class="header">Plataforma 3D</div>
         <div class="scroll-area">
             <div class="card-ui">
                 <div class="section-header" @click="menu.s1 = !menu.s1"><span class="section-title">1. Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
@@ -133,7 +133,7 @@
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s2 = !menu.s2"><span class="section-title">2. Modelo</span><span x-text="menu.s2 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s2" style="padding:10px;"><label style="font-size:10px; color:#888;">CARGAR .GLB:</label><input type="file" accept=".glb" @change="subirLocal"><select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;"><option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option><option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option></select></div>
+                <div class="section-content" x-show="menu.s2" style="padding:10px;"><label style="font-size:10px; color:#888;">Cargar modelo .glb:</label><input type="file" accept=".glb" @change="subirLocal"><select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;"><option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option><option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option></select></div>
             </div>
 
             <div class="card-ui">
@@ -148,7 +148,7 @@
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s4 = !menu.s4"><span class="section-title">5. Marcación</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s4" style="padding:10px;"><button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORACIÓN'"></span></button><template x-for="(h, i) in hotspots" :key="i"><div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: white; margin-bottom:5px;"><div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;"><div style="display:flex; align-items:center; gap:8px;"><div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}; border:1px solid #ddd;` text-align: center; "></div><strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto ' + (i+1)"></strong></div><span>▼</span></div><div x-show="h.abierto" style="padding:12px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;"><input type="text" x-model="h.tempTitulo" placeholder="Etiqueta..."><textarea x-model="h.descripcion" placeholder="Descripción..."></textarea><div style="display:flex; gap:8px; align-items:center;"><select x-model="h.tipo" style="flex:1; margin-bottom:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select><input type="color" x-model="h.color" class="color-circle"></div><input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL..." style="margin-top: 10px;"><div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div></div></div></template></div>
+                <div class="section-content" x-show="menu.s4" style="padding:10px;"><button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '🔍 EXPLORAR' : '📍 EDITAR'"></span></button><template x-for="(h, i) in hotspots" :key="i"><div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: white; margin-bottom:5px;"><div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;"><div style="display:flex; align-items:center; gap:8px;"><div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}; border:1px solid #ddd;` text-align: center; "></div><strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto ' + (i+1)"></strong></div><span>▼</span></div><div x-show="h.abierto" style="padding:12px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;"><input type="text" x-model="h.tempTitulo" placeholder="Etiqueta..."><textarea x-model="h.descripcion" placeholder="Descripción..."></textarea><div style="display:flex; gap:8px; align-items:center;"><select x-model="h.tipo" style="flex:1; margin-bottom:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select><input type="color" x-model="h.color" class="color-circle"></div><input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL..." style="margin-top: 10px;"><div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div></div></div></template></div>
             </div>
 
             <div class="card-ui">
@@ -166,7 +166,7 @@
         function editorPro() {
             return {
                 modeloUrl: 'https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb',
-                // 🚀 TODAS LAS SECCIONES CERRADAS POR DEFECTO
+                // TODAS LAS SECCIONES CERRADAS POR DEFECTO
                 menu: { s1: false, s2: false, sConfig: false, s3: false, s4: false, s5: false },
                 inputTitulo: '', tituloGuardado: '', editando: false, verCotas: false, unidad: 'cm', factorUnidad: 100,
                 hotspots: [], modalAbierto: false, pointActive: null, mostrarQR: false,
