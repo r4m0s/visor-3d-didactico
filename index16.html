@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v50 Multimedia Total</title>
+    <title>Plataforma 3D - v51 Dashboard Compacto</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -28,23 +28,21 @@
         .color-circle::-webkit-color-swatch-wrapper { padding: 0; }
         .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
 
-        /* PANEL MULTIMEDIA GLOBAL (PARA PC) */
+        /* PANEL MULTIMEDIA GLOBAL */
         .multimedia-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 20000; /* Por encima de todo */
+            background: rgba(0,0,0,0.6); z-index: 20000;
             display: flex; align-items: center; justify-content: center;
             backdrop-filter: blur(4px);
         }
         .viewer-multimedia-card {
             background: white; width: 90%; max-width: 500px; border-radius: 28px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.5); 
-            display: flex; flex-direction: column; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden;
         }
         .v-header { padding: 20px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
         .v-body { padding: 25px; overflow-y: auto; max-height: 65vh; }
-        .v-media { margin-top: 20px; border-radius: 16px; overflow: hidden; background: #000; display: flex; line-height: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .v-media img, .v-media iframe { width: 100%; border: none; min-height: 250px; object-fit: contain; }
+        .v-media { margin-top: 20px; border-radius: 16px; overflow: hidden; background: #000; display: flex; }
+        .v-media img, .v-media iframe { width: 100%; border: none; min-height: 250px; }
 
         /* BOTÓN AR UNIVERSAL */
         #btn-ar-universal {
@@ -71,12 +69,11 @@
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-modo.active { background: var(--danger); color: white; }
 
-        /* COTAS */
+        /* DIMENSIONES */
         .dim { background: white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); color: var(--primary); font-weight: bold; font-size: 12px; padding: 4px 8px; position: absolute; pointer-events: none; transform: translate(-50%, -50%); white-space: nowrap; }
         .dimensionLineContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
         .dimensionLine { stroke: var(--primary); stroke-width: 2; stroke-dasharray: 4; }
         .hide { display: none !important; }
-        .dot { display: none; }
 
         /* HOTSPOTS */
         .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 10; }
@@ -86,24 +83,17 @@
 <body x-data="editorPro()" @mousemove="mouseX = $event.clientX; mouseY = $event.clientY">
 
     <div id="visor-titulo-display" style="position:fixed; top:20px; right:20px; background:rgba(255,255,255,0.95); padding:10px 20px; border-radius:12px; font-weight:bold; z-index:2000; box-shadow:0 4px 15px rgba(0,0,0,0.1);" x-show="tituloGuardado" x-text="tituloGuardado"></div>
-    
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;`" style="position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%);"></div>
 
-    <button id="btn-ar-universal" @click="activarAR()"><span>Realidad Aumentada</span></button>
+    <button id="btn-ar-universal" @click="activarAR()"><span>🚀 Realidad Aumentada</span></button>
 
     <div id="contenedor-principal">
-        <model-viewer id="visor" 
-            :src="modeloUrl" 
-            :camera-controls="!editando" 
-            ar ar-modes="webxr scene-viewer quick-look" 
-            shadow-intensity="1.5" 
-            @click="colocarPunto($event)" 
-            @load="onModelLoad()">
+        <model-viewer id="visor" :src="modeloUrl" :camera-controls="!editando" ar ar-modes="webxr scene-viewer quick-look" shadow-intensity="1.5" @click="colocarPunto($event)" @load="onModelLoad()">
             
-            <button slot="hotspot-dot-origin" class="dot" data-position="0 0 0"></button>
-            <button slot="hotspot-dot-width" class="dot" data-position="0 0 0"></button>
-            <button slot="hotspot-dot-height" class="dot" data-position="0 0 0"></button>
-            <button slot="hotspot-dot-depth" class="dot" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-origin" style="display:none" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-width" style="display:none" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-height" style="display:none" data-position="0 0 0"></button>
+            <button slot="hotspot-dot-depth" style="display:none" data-position="0 0 0"></button>
             <button slot="hotspot-dim-width" class="dim hide" data-position="0 0 0"></button>
             <button slot="hotspot-dim-height" class="dim hide" data-position="0 0 0"></button>
             <button slot="hotspot-dim-depth" class="dim hide" data-position="0 0 0"></button>
@@ -134,113 +124,50 @@
     </div>
 
     <div id="dashboard">
-        <div class="header">Plataforma 3D</div>
+        <div class="header">Plataforma 3D Pro</div>
         <div class="scroll-area">
-            
             <div class="card-ui">
                 <div class="section-header" @click="menu.s1 = !menu.s1"><span class="section-title">1. Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s1" style="padding:10px;">
-                    <input type="text" x-model="inputTitulo" placeholder="Nombre del proyecto">
-                    <div style="display:flex; gap:5px;"><button class="btn-mini" style="background:var(--primary); color:white; flex:3;" @click="tituloGuardado = inputTitulo">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button></div>
-                </div>
+                <div class="section-content" x-show="menu.s1" style="padding:10px;"><input type="text" x-model="inputTitulo" placeholder="Nombre del proyecto"><div style="display:flex; gap:5px;"><button class="btn-mini" style="background:var(--primary); color:white; flex:3;" @click="tituloGuardado = inputTitulo">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="inputTitulo = ''; tituloGuardado = ''">✕</button></div></div>
             </div>
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s2 = !menu.s2"><span class="section-title">2. Modelo</span><span x-text="menu.s2 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s2" style="padding:10px;">
-                    <label style="font-size:10px; color:#888;">CARGAR .GLB:</label>
-                    <input type="file" accept=".glb" @change="subirLocal">
-                    <select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche</option>
-                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta</option>
-                    </select>
-                </div>
+                <div class="section-content" x-show="menu.s2" style="padding:10px;"><label style="font-size:10px; color:#888;">CARGAR .GLB:</label><input type="file" accept=".glb" @change="subirLocal"><select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;"><option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option><option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option></select></div>
             </div>
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.sConfig = !menu.sConfig"><span class="section-title">3. Configuración del modelo</span><span x-text="menu.sConfig ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.sConfig" style="padding:10px;">
-                    <label style="font-size:10px; color:#888;">MATERIAL:</label>
-                    <select x-model="materialActivo" @change="sincronizarControlesMaterial()">
-                        <option value="">Selecciona...</option>
-                        <template x-for="mat in listaMateriales" :key="mat"><option :value="mat" x-text="mat"></option></template>
-                    </select>
-                    <div x-show="materialActivo">
-                        <div style="display:flex; align-items:center; gap:12px; background:#f9f9f9; padding:8px; border-radius:8px; margin-bottom:10px;">
-                            <span style="font-size:12px; font-weight:bold; flex:1;">Color:</span>
-                            <input type="color" @input="aplicarColorMaterial($event.target.value)" class="color-circle">
-                        </div>
-                        <div style="background:#f9f9f9; padding:10px; border-radius:8px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:12px; font-weight:bold;">Reflectividad:</span><span style="font-size:10px; color:var(--primary)" x-text="Math.round(reflectValue) + '%'"></span></div>
-                            <input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%; margin:10px 0;">
-                        </div>
-                    </div>
-                </div>
+                <div class="section-content" x-show="menu.sConfig" style="padding:10px;"><label style="font-size:10px; color:#888;">MATERIAL:</label><select x-model="materialActivo" @change="sincronizarControlesMaterial()"><option value="">Selecciona...</option><template x-for="mat in listaMateriales" :key="mat"><option :value="mat" x-text="mat"></option></template></select><div x-show="materialActivo"><div style="display:flex; align-items:center; gap:12px; background:#f9f9f9; padding:8px; border-radius:8px; margin-bottom:10px;"><span style="font-size:12px; font-weight:bold; flex:1;">Color:</span><input type="color" @input="aplicarColorMaterial($event.target.value)" class="color-circle"></div><div style="background:#f9f9f9; padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:12px; font-weight:bold;">Reflectividad:</span><span style="font-size:10px; color:var(--primary)" x-text="Math.round(reflectValue) + '%'"></span></div><input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%; margin:10px 0;"></div></div></div>
             </div>
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s3 = !menu.s3"><span class="section-title">4. Dimensiones</span><span x-text="menu.s3 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s3" style="padding:10px;">
-                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()">
-                        <span x-text="verCotas ? '📏 Ocultar dimensiones' : '📏 Mostrar dimensiones'"></span>
-                    </button>
-                    <select x-model="unidad" @change="cambiarUnidades()" style="margin-top:8px;">
-                        <option value="mm">milímetros</option><option value="cm">centímetros</option><option value="m">metros</option>
-                    </select>
-                </div>
+                <div class="section-content" x-show="menu.s3" style="padding:10px;"><button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:#e8f0fe; color:var(--primary)'" @click="toggleCotas()"><span x-text="verCotas ? '📏 Ocultar dimensiones' : '📏 Mostrar dimensiones'"></span></button><select x-model="unidad" @change="cambiarUnidades()" style="margin-top:8px;"><option value="mm">milímetros</option><option value="cm">centímetros</option><option value="m">metros</option></select></div>
             </div>
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s4 = !menu.s4"><span class="section-title">5. Marcación</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s4" style="padding:10px;">
-                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '🔍 EXPLORACIÓN' : '📍 EDICIÓN'"></span></button>
-                    <template x-for="(h, i) in hotspots" :key="i">
-                        <div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: white; margin-bottom:5px;">
-                            <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;">
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}; border:1px solid #ddd;` text-align: center; "></div>
-                                    <strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto ' + (i+1)"></strong>
-                                </div>
-                                <span>▼</span>
-                            </div>
-                            <div x-show="h.abierto" style="padding:12px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;">
-                                <input type="text" x-model="h.tempTitulo" placeholder="Etiqueta...">
-                                <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
-                                <div style="display:flex; gap:8px; align-items:center;">
-                                    <select x-model="h.tipo" style="flex:1; margin-bottom:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select>
-                                    <input type="color" x-model="h.color" class="color-circle">
-                                </div>
-                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL aquí..." style="margin-top: 10px;">
-                                <div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
+                <div class="section-content" x-show="menu.s4" style="padding:10px;"><button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORACIÓN'"></span></button><template x-for="(h, i) in hotspots" :key="i"><div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: white; margin-bottom:5px;"><div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;"><div style="display:flex; align-items:center; gap:8px;"><div :style="`width:12px; height:12px; border-radius:50%; background:${h.color}; border:1px solid #ddd;` text-align: center; "></div><strong style="font-size:12px;" x-text="h.tituloVisor || 'Punto ' + (i+1)"></strong></div><span>▼</span></div><div x-show="h.abierto" style="padding:12px; border-top:1px solid #eee; display:flex; flex-direction:column; gap:8px;"><input type="text" x-model="h.tempTitulo" placeholder="Etiqueta..."><textarea x-model="h.descripcion" placeholder="Descripción..."></textarea><div style="display:flex; gap:8px; align-items:center;"><select x-model="h.tipo" style="flex:1; margin-bottom:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select><input type="color" x-model="h.color" class="color-circle"></div><input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="Pegar URL..." style="margin-top: 10px;"><div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false">✓ Guardar</button><button class="btn-mini" style="background:#fce8e6; color:var(--danger);" @click="hotspots.splice(i, 1)">✕</button></div></div></div></template></div>
             </div>
 
             <div class="card-ui">
                 <div class="section-header" @click="menu.s5 = !menu.s5"><span class="section-title">6. Exportar</span><span x-text="menu.s5 ? '▲' : '▼'"></span></div>
-                <div class="section-content" x-show="menu.s5" style="padding:10px; display:flex; flex-direction:column;">
-                    <button class="btn-main" style="background:var(--success); color:white; margin-bottom:15px;" @click="descargarJson()">💾 Exportar proyecto</button>
-                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Exportar a web</button>
-                </div>
+                <div class="section-content" x-show="menu.s5" style="padding:10px; display:flex; flex-direction:column;"><button class="btn-main" style="background:var(--success); color:white; margin-bottom:15px;" @click="descargarJson()">💾 Exportar proyecto</button><button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Exportar a web</button></div>
             </div>
         </div>
     </div>
 
     <div class="overlay-qr" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
-        <div class="card-ui" style="width:350px; padding:30px; text-align:center; border-radius:24px;">
-            <h3 style="margin-top:0; color:var(--primary);">Ver en el móvil</h3>
-            <div id="qrcode" style="display:flex; justify-content:center; margin-bottom:20px;"></div>
-            <button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button>
-        </div>
+        <div class="card-ui" style="width:350px; padding:30px; text-align:center; border-radius:24px;"><h3 style="margin-top:0; color:var(--primary);">Ver en el móvil</h3><div id="qrcode" style="display:flex; justify-content:center; margin-bottom:20px;"></div><button class="btn-main" @click="mostrarQR = false" style="background:#eee;">Cerrar</button></div>
     </div>
 
     <script>
         function editorPro() {
             return {
                 modeloUrl: 'https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb',
-                menu: { s1: true, s2: true, sConfig: true, s3: false, s4: true, s5: true },
+                // 🚀 TODAS LAS SECCIONES CERRADAS POR DEFECTO
+                menu: { s1: false, s2: false, sConfig: false, s3: false, s4: false, s5: false },
                 inputTitulo: '', tituloGuardado: '', editando: false, verCotas: false, unidad: 'cm', factorUnidad: 100,
                 hotspots: [], modalAbierto: false, pointActive: null, mostrarQR: false,
                 listaMateriales: [], materialActivo: '', reflectValue: 50, mouseX: 0, mouseY: 0,
@@ -250,31 +177,13 @@
                     if (mv.model && mv.model.materials) { this.listaMateriales = mv.model.materials.map(m => m.name || 'Sin nombre'); }
                     if (this.verCotas) { requestAnimationFrame(() => { this.initDimensiones(); setTimeout(() => this.renderSVG(), 150); }); }
                 },
-
-                sincronizarControlesMaterial() {
-                    if (!this.materialActivo) return;
-                    const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
-                    if (mat) { this.reflectValue = (1 - mat.pbrMetallicRoughness.roughnessFactor) * 100; }
-                },
-
-                aplicarColorMaterial(colorHex) {
-                    const material = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
-                    if (material) {
-                        const r = parseInt(colorHex.slice(1, 3), 16) / 255, g = parseInt(colorHex.slice(3, 5), 16) / 255, b = parseInt(colorHex.slice(5, 7), 16) / 255;
-                        material.pbrMetallicRoughness.setBaseColorFactor([r, g, b, 1.0]);
-                    }
-                },
-
-                aplicarReflectividad() {
-                    const material = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
-                    if (material) { material.pbrMetallicRoughness.setRoughnessFactor(1 - (this.reflectValue / 100)); }
-                },
-
+                sincronizarControlesMaterial() { if (!this.materialActivo) return; const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo); if (mat) { this.reflectValue = (1 - mat.pbrMetallicRoughness.roughnessFactor) * 100; } },
+                aplicarColorMaterial(colorHex) { const material = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo); if (material) { const r = parseInt(colorHex.slice(1, 3), 16) / 255, g = parseInt(colorHex.slice(3, 5), 16) / 255, b = parseInt(colorHex.slice(5, 7), 16) / 255; material.pbrMetallicRoughness.setBaseColorFactor([r, g, b, 1.0]); } },
+                aplicarReflectividad() { const material = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo); if (material) { material.pbrMetallicRoughness.setRoughnessFactor(1 - (this.reflectValue / 100)); } },
                 subirLocal(e) { const file = e.target.files[0]; if (file && file.name.toLowerCase().endsWith('.glb')) { this.modeloUrl = URL.createObjectURL(file); this.listaMateriales = []; this.materialActivo = ''; } },
                 cargarPrecargado(url) { if (url) { this.modeloUrl = url; this.listaMateriales = []; this.materialActivo = ''; } },
                 toggleCotas() { this.verCotas = !this.verCotas; const mv = document.querySelector('#visor'); [...mv.querySelectorAll('.dim'), mv.querySelector('#dimLines')].forEach(el => this.verCotas ? el.classList.remove('hide') : el.classList.add('hide')); if (this.verCotas) { this.initDimensiones(); this.renderSVG(); } },
                 cambiarUnidades() { this.factorUnidad = { 'mm': 1000, 'cm': 100, 'm': 1 }[this.unidad]; if (this.verCotas) { this.initDimensiones(); this.renderSVG(); } },
-                
                 initDimensiones() {
                     const mv = document.querySelector('#visor'); const center = mv.getBoundingBoxCenter(), size = mv.getDimensions(), x2 = size.x/2, y2 = size.y/2, z2 = size.z/2;
                     mv.updateHotspot({ name: 'hotspot-dot-origin', position: `${center.x + x2} ${center.y - y2} ${center.z - z2}` });
@@ -285,34 +194,16 @@
                     mv.querySelector('button[slot="hotspot-dim-width"]').textContent = format(size.x);
                     mv.querySelector('button[slot="hotspot-dim-height"]').textContent = format(size.y);
                     mv.querySelector('button[slot="hotspot-dim-depth"]').textContent = format(size.z);
-                    mv.updateHotspot({ name: 'hotspot-dim-width', position: `${center.x} ${center.y - y2*1.1} ${center.z - z2}` });
-                    mv.updateHotspot({ name: 'hotspot-dim-height', position: `${center.x + x2*1.1} ${center.y} ${center.z - z2}` });
-                    mv.updateHotspot({ name: 'hotspot-dim-depth', position: `${center.x + x2} ${center.y - y2*1.1} ${center.z}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-width', position: `${center.x} ${center.y - y2 * 1.1} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-height', position: `${center.x + x2 * 1.1} ${center.y} ${center.z - z2}` });
+                    mv.updateHotspot({ name: 'hotspot-dim-depth', position: `${center.x + x2} ${center.y - y2 * 1.1} ${center.z}` });
                     mv.addEventListener('camera-change', () => this.renderSVG());
                 },
-
-                renderSVG() {
-                    const mv = document.querySelector('#visor'); if (!mv || !this.verCotas) return;
-                    const draw = (line, h1, h2) => { const p1 = mv.queryHotspot(h1), p2 = mv.queryHotspot(h2); if (p1 && p2) { line.setAttribute('x1', p1.canvasPosition.x); line.setAttribute('y1', p1.canvasPosition.y); line.setAttribute('x2', p2.canvasPosition.x); line.setAttribute('y2', p2.canvasPosition.y); } };
-                    const lines = mv.querySelectorAll('line'); draw(lines[0], 'hotspot-dot-origin', 'hotspot-dot-width'); draw(lines[1], 'hotspot-dot-origin', 'hotspot-dot-height'); draw(lines[2], 'hotspot-dot-origin', 'hotspot-dot-depth');
-                },
-
+                renderSVG() { const mv = document.querySelector('#visor'); if (!mv || !this.verCotas) return; const draw = (line, h1, h2) => { const p1 = mv.queryHotspot(h1), p2 = mv.queryHotspot(h2); if (p1 && p2) { line.setAttribute('x1', p1.canvasPosition.x); line.setAttribute('y1', p1.canvasPosition.y); line.setAttribute('x2', p2.canvasPosition.x); line.setAttribute('y2', p2.canvasPosition.y); } }; const lines = mv.querySelectorAll('line'); draw(lines[0], 'hotspot-dot-origin', 'hotspot-dot-width'); draw(lines[1], 'hotspot-dot-origin', 'hotspot-dot-height'); draw(lines[2], 'hotspot-dot-origin', 'hotspot-dot-depth'); },
                 colocarPunto(event) { if (!this.editando) return; const hit = document.getElementById('visor').positionAndNormalFromPoint(event.clientX, event.clientY); if (hit) this.hotspots.push({ pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`, tempTitulo: "", tituloVisor: "", color: "#1a73e8", descripcion: "", tipo: "texto", url: "", abierto: true }); },
-                
-                abrirModal(h) { 
-                    if (this.editando) return; 
-                    this.pointActive = h; 
-                    this.modalAbierto = true; 
-                },
-
+                abrirModal(h) { if (this.editando) return; this.pointActive = h; this.modalAbierto = true; },
                 prepararYoutube(url) { if (!url) return ''; let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1]; return `https://www.youtube.com/embed/${id}`; },
-                
-                activarAR() {
-                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    if (isMobile) { document.getElementById('visor').activateAR(); }
-                    else { this.mostrarQR = true; this.$nextTick(() => { document.getElementById('qrcode').innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 }); }); }
-                },
-
+                activarAR() { const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); if (isMobile) { document.getElementById('visor').activateAR(); } else { this.mostrarQR = true; this.$nextTick(() => { document.getElementById('qrcode').innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 200, height: 200 }); }); } },
                 descargarJson() { const data = JSON.stringify({ t: this.tituloGuardado, h: this.hotspots }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], {type:'application/json'})); a.download = 'leccion.json'; a.click(); },
                 generarIframe() { const data = encodeURIComponent(JSON.stringify({ t: this.tituloGuardado, h: this.hotspots })); prompt("Iframe:", `<iframe src="${window.location.href.split('?')[0]}?data=${data}" width="100%" height="600px" allow="xr-spatial-tracking; camera;"></iframe>`); }
             }
