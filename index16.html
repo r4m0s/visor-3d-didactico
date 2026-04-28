@@ -17,7 +17,7 @@
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: #f5f5f5; }
 
-        /* 🎨 SELECTORES COLOR CIRCULARES (REFORZADOS) */
+        /* SELECTORES COLOR CIRCULARES */
         .color-circle {
             appearance: none; -webkit-appearance: none;
             width: 36px !important; height: 36px !important; 
@@ -28,7 +28,7 @@
         .color-circle::-webkit-color-swatch-wrapper { padding: 0; }
         .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
 
-        /* 📱 PANEL MULTIMEDIA GLOBAL (PARA PC) */
+        /* PANEL MULTIMEDIA GLOBAL (PARA PC) */
         .multimedia-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 20000; /* Por encima de todo */
@@ -89,7 +89,7 @@
     
     <div id="marcador-guia" :style="`display: ${editando ? 'block' : 'none'}; left: ${mouseX}px; top: ${mouseY}px;`" style="position: fixed; width: 42px; height: 42px; border: 3px dashed var(--danger); border-radius: 50%; pointer-events: none; z-index: 1000000; transform: translate(-50%, -50%);"></div>
 
-    <button id="btn-ar-universal" @click="activarAR()"><span>🚀 Realidad Aumentada</span></button>
+    <button id="btn-ar-universal" @click="activarAR()"><span>Realidad Aumentada</span></button>
 
     <div id="contenedor-principal">
         <model-viewer id="visor" 
@@ -134,7 +134,7 @@
     </div>
 
     <div id="dashboard">
-        <div class="header">Plataforma 3D Pro</div>
+        <div class="header">Plataforma 3D</div>
         <div class="scroll-area">
             
             <div class="card-ui">
@@ -151,8 +151,8 @@
                     <label style="font-size:10px; color:#888;">CARGAR .GLB:</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:5px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche (Aspanaes)</option>
-                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (Google)</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche</option>
+                        <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta</option>
                     </select>
                 </div>
             </div>
@@ -193,7 +193,7 @@
             <div class="card-ui">
                 <div class="section-header" @click="menu.s4 = !menu.s4"><span class="section-title">5. Marcación</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s4" style="padding:10px;">
-                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '📍 EDITANDO' : '🔍 EXPLORACIÓN'"></span></button>
+                    <button class="btn-main btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando" style="margin-bottom:10px;"><span x-text="editando ? '🔍 EXPLORACIÓN' : '📍 EDICIÓN'"></span></button>
                     <template x-for="(h, i) in hotspots" :key="i">
                         <div style="border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: white; margin-bottom:5px;">
                             <div @click="h.abierto = !h.abierto" style="padding:10px; cursor:pointer; display:flex; justify-content:space-between; background:#fafafa; align-items:center;">
