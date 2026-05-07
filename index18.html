@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v75 AR PC & Móvil</title>
+    <title>Plataforma 3D - v76 AR & Funciones Totales</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -45,7 +45,7 @@
         .color-circle::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
         .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
 
-        /* DASHBOARD ADAPTATIVO */
+        /* DASHBOARD */
         #dashboard {
             position: fixed; top: 15px; left: 15px; width: 360px; max-height: 95vh;
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border-radius: 20px;
@@ -90,15 +90,17 @@
         </div>
     </div>
 
-    <!-- BOTÓN AR -->
+    <!-- BOTÓN AR UNIVERSAL -->
     <button id="btn-ar-universal" @click="activarAR()">🚀 Realidad Aumentada</button>
 
     <div id="contenedor-principal">
+        <!-- VISOR 3D -->
         <model-viewer id="visor"
             :src="modeloUrl"
             :camera-controls="!editando"
             :animation-name="animacionActiva"
-            ar ar-modes="webxr scene-viewer quick-look"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
             shadow-intensity="1.5"
             @click="colocarPunto($event)"
             @load="onModelLoad()">
@@ -125,13 +127,13 @@
 
     <!-- DASHBOARD -->
     <div id="dashboard">
-        <div class="header">Configurador 3D v75</div>
+        <div class="header">Configurador 3D v76</div>
         <div class="scroll-area">
 
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s1')"><span class="section-title">1. Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s1" style="padding:15px;">
-                    <input type="text" x-model="inputTitulo" placeholder="Ej: Proyecto Brazo Robótico...">
+                    <input type="text" x-model="inputTitulo" placeholder="Título proyecto...">
                     <button class="btn-main" style="background:var(--primary); color:white;" @click="tituloGuardado = inputTitulo">✓ Guardar Título</button>
                 </div>
             </div>
@@ -139,7 +141,7 @@
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s2')"><span class="section-title">2. Gestión de Modelo</span><span x-text="menu.s2 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s2" style="padding:15px;">
-                    <label style="font-size:10px; font-weight:bold; color:#888;">ARCHIVO .GLB:</label>
+                    <label style="font-size:10px; font-weight:bold; color:#888;">ARCHIVO LOCAL:</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:10px;">
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
@@ -152,7 +154,7 @@
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s3')"><span class="section-title">3. Configuración</span><span x-text="menu.s3 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s3" style="padding:15px;">
-                    <!-- MATERIALES PRIMERO -->
+                    <!-- MATERIALES -->
                     <label style="font-size:10px; font-weight:bold; color:#888;">MATERIAL:</label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
                         <select x-model="materialActivo" @change="sincronizarControlesMaterial()" style="margin:0;"><option value="">Elegir...</option><template x-for="mat in listaMateriales" :key="mat"><option :value="mat" x-text="mat"></option></template></select>
@@ -162,9 +164,9 @@
                         <label style="font-size:10px; font-weight:bold;">REFLECTIVIDAD:</label>
                         <input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%;">
                     </div>
-                    <!-- ANIMACIONES SEGUNDO -->
+                    <!-- ANIMACIONES -->
                     <div x-show="listaAnimaciones.length > 0" style="padding:12px; background:#f0f7ff; border-radius:12px; border:1px solid #cde4ff;">
-                        <label style="font-size:10px; color:var(--primary); font-weight:bold;">ANIMACIÓN ACTIVA:</label>
+                        <label style="font-size:10px; color:var(--primary); font-weight:bold;">ANIMACIÓN:</label>
                         <select x-model="animacionActiva" style="margin-top:5px;"><template x-for="anim in listaAnimaciones" :key="anim"><option :value="anim" x-text="anim"></option></template></select>
                         <div style="display:flex; gap:8px; margin-top:8px;">
                             <button class="btn-mini" style="background:var(--success); color:white; flex:1;" @click="playAnim()">▶️ Play</button>
@@ -186,13 +188,13 @@
             </div>
 
             <div class="card-ui">
-                <div class="section-header" @click="toggleMenu('s5')"><span class="section-title">5. Multimedia</span><span x-text="menu.s5 ? '▲' : '▼'"></span></div>
+                <div class="section-header" @click="toggleMenu('s5')"><span class="section-title">5. Puntos Multimedia</span><span x-text="menu.s5 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s5" style="padding:15px;">
                     <button class="btn-main" :style="editando ? 'background:var(--danger); color:white' : 'background:#eee'" @click="editando = !editando" x-text="editando ? '📍 MODO EDICIÓN' : '🔍 MODO EXPLORACIÓN'"></button>
                     <template x-for="(h, i) in hotspots" :key="i">
                         <div style="margin-top:10px; padding:12px; background:#f9f9f9; border-radius:12px; border:1px solid #ddd;">
                             <input type="text" x-model="h.tempTitulo" placeholder="Etiqueta..." style="font-weight:bold;">
-                            <textarea x-model="h.descripcion" placeholder="Descripción..." style="height:60px;"></textarea>
+                            <textarea x-model="h.descripcion" placeholder="Descripción..."></textarea>
                             <div style="display:flex; gap:8px; align-items:center;">
                                 <select x-model="h.tipo" style="flex:2; margin:0;"><option value="texto">Texto</option><option value="imagen">Imagen</option><option value="video">YouTube</option></select>
                                 <input type="color" x-model="h.color" class="color-circle">
@@ -235,7 +237,7 @@
         </div>
     </div>
 
-    <!-- MODAL MULTIMEDIA -->
+    <!-- MODALES -->
     <div class="global-overlay" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
         <div class="viewer-card">
             <div class="v-header" style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:#f8f9fa;">
@@ -252,7 +254,7 @@
         </div>
     </div>
 
-    <!-- 🚀 MODAL QR (AR PC) -->
+    <!-- MODAL QR (AR PC) -->
     <div class="global-overlay" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
         <div class="viewer-card" style="max-width:350px; text-align:center; padding:20px;">
             <h3 style="margin-top:0;">Escanea para ver en AR</h3>
@@ -300,10 +302,12 @@
                 subirLocal(e) { const file = e.target.files[0]; if (file?.name.endsWith('.glb')) { this.modeloUrl = URL.createObjectURL(file); this.hotspots = []; this.verCotas = false; } },
                 cargarPrecargado(url) { this.modeloUrl = url; this.hotspots = []; this.verCotas = false; },
 
+                // 🚀 AR FIX: Activación directa en móvil y QR en PC
                 activarAR() {
                     const mv = document.getElementById('visor');
-                    if (/Android|iPhone/i.test(navigator.userAgent)) { mv.activateAR(); }
-                    else {
+                    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                        mv.activateAR();
+                    } else {
                         this.mostrarQR = true;
                         this.$nextTick(() => {
                             const div = document.getElementById("qrcode");
