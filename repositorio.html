@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Olive Studio - Final Fix</title>
+    <title>Repositorio/title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
-            /* Color Base solicitado */
+            /* Color Base */
             --olive-base: #636B2F;
-            /* Sidebar: Saturación reducida al 50% */
             --sidebar-bg: #535843;
             --bg-main: #f0f2ed;
             --white: #ffffff;
@@ -30,7 +29,7 @@
 
         .app-container { display: flex; height: 100vh; width: 100vw; }
 
-        /* PANEL LATERAL (25%) */
+        /* PANEL LATERAL */
         .sidebar {
             width: 25%;
             height: 100%;
@@ -82,7 +81,7 @@
         }
         .form-control::placeholder { color: #999; }
 
-        /* ÁREA DE LA GRID (75%) */
+        /* ÁREA DA GRID */
         .grid-area {
             width: 75%;
             padding: 25px;
@@ -169,7 +168,7 @@
             border-radius: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 0 #4a5023; /* Sombra de profundidad */
+            box-shadow: 0 4px 0 #4a5023;
             transition: all 0.1s;
             margin-top: 10px;
         }
@@ -192,25 +191,25 @@
 
 <div class="app-container">
     <aside class="sidebar">
-        <h4>Studio 3D</h4>
+        <h3>Repositorio</h3>
 
         <div class="preview-box">
             <model-viewer id="side-preview" auto-rotate camera-controls shadow-intensity="1" camera-target="auto" bounds="tight"></model-viewer>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">CARGAR ARCHIVO (.JSON)</label>
+            <label class="form-label">CARGAR FICHEIRO (.JSON)</label>
             <input type="file" id="jsonInput" class="form-control" accept=".json">
         </div>
 
         <div class="mb-4">
-            <label class="form-label">TÍTULO DEL MODELO</label>
+            <label class="form-label">TÍTULO DO MODELO</label>
             <input type="text" id="titleInput" class="form-control" placeholder="Ej: Silla Moderna">
         </div>
 
         <div class="mt-auto d-grid gap-2 text-center">
-            <button id="btnSave" class="btn btn-save" disabled>Guardar en Grid</button>
-            <button id="btnDeleteAll" class="btn btn-clear">Borrar almacenamiento local</button>
+            <button id="btnSave" class="btn btn-save" disabled>Gardar no repositorio</button>
+            <button id="btnDeleteAll" class="btn btn-clear">Borrar almacenamento local</button>
         </div>
     </aside>
 
@@ -279,7 +278,7 @@
         }
     }
 
-    // Carga de JSON con habilitación robusta del botón
+    // Carga de JSON
     jsonInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -310,7 +309,7 @@
         reader.readAsText(file);
     });
 
-    // FUNCIÓN DE GUARDADO CORREGIDA
+    // FUNCIÓN DE GARDADO
     btnSave.addEventListener('click', async () => {
         if (!sidePreview.src) return;
         if (modelsCollection.length >= 30) {
@@ -322,7 +321,7 @@
         btnSave.disabled = true;
 
         try {
-            // Capturamos el frame actual del model-viewer
+            // Captura do frame actual de model-viewer
             const blob = await sidePreview.toBlob({
                 idealAspect: true,
                 mimeType: "image/webp",
@@ -335,7 +334,7 @@
             reader.onloadend = () => {
                 const base64Image = reader.result;
 
-                // Añadimos al inicio del array para que se vea en el primer slot disponible
+                // ENgadir ao inicio do array para que se vexa no primeiro slot dispoñible
                 modelsCollection.push({
                     title: titleInput.value || "Sin Título",
                     src: sidePreview.src,
@@ -345,7 +344,7 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(modelsCollection));
                 renderGrid();
 
-                // Reset del formulario
+                // Reset do formulario
                 jsonInput.value = '';
                 titleInput.value = '';
                 btnSave.innerText = "GUARDAR EN GRID";
