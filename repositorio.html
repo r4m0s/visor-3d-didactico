@@ -191,7 +191,7 @@
 
 <div class="app-container">
     <aside class="sidebar">
-        <h3>Repositorio</h3>
+        <h4>Repositorio</h4>
 
         <div class="preview-box">
             <model-viewer id="side-preview" auto-rotate camera-controls shadow-intensity="1" camera-target="auto" bounds="tight"></model-viewer>
@@ -204,7 +204,7 @@
 
         <div class="mb-4">
             <label class="form-label">TÍTULO DO MODELO</label>
-            <input type="text" id="titleInput" class="form-control" placeholder="Ej: Silla Moderna">
+            <input type="text" id="titleInput" class="form-control" placeholder="Ex: Despece motor">
         </div>
 
         <div class="mt-auto d-grid gap-2 text-center">
@@ -220,7 +220,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="modalTitle" style="color: var(--olive-base);">Visor 3D Interactivo</h5>
+                <h5 class="modal-title fw-bold" id="modalTitle" style="color: var(--olive-base);">Visor 3D didáctico</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0" style="background: #ffffff;">
@@ -302,7 +302,7 @@
                 }, { once: true });
 
             } catch (err) {
-                alert("Error: El JSON no es válido o falta el campo 'src'.");
+                alert("Error: O JSON non é válido ou falta o campo 'src'.");
                 btnSave.disabled = true;
             }
         };
@@ -313,7 +313,7 @@
     btnSave.addEventListener('click', async () => {
         if (!sidePreview.src) return;
         if (modelsCollection.length >= 30) {
-            alert("La grid está llena.");
+            alert("A grid está chea.");
             return;
         }
 
@@ -336,7 +336,7 @@
 
                 // ENgadir ao inicio do array para que se vexa no primeiro slot dispoñible
                 modelsCollection.push({
-                    title: titleInput.value || "Sin Título",
+                    title: titleInput.value || "Sen Título",
                     src: sidePreview.src,
                     thumb: base64Image
                 });
@@ -347,22 +347,22 @@
                 // Reset do formulario
                 jsonInput.value = '';
                 titleInput.value = '';
-                btnSave.innerText = "GUARDAR EN GRID";
+                btnSave.innerText = "GARDAR NO GRID";
                 btnSave.disabled = true;
             };
 
         } catch (error) {
             console.error(error);
-            alert("Error al capturar la imagen del modelo.");
+            alert("Error ao capturar a imaxe do modelo.");
             btnSave.disabled = false;
-            btnSave.innerText = "GUARDAR EN GRID";
+            btnSave.innerText = "GARDAR NO GRID";
         }
     });
 
     // Eliminar item individual
     window.removeItem = function(e, index) {
         e.stopPropagation();
-        if (confirm("¿Eliminar este modelo de la grid?")) {
+        if (confirm("¿Eliminar este modelo do repositorio?")) {
             modelsCollection.splice(index, 1);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(modelsCollection));
             renderGrid();
@@ -371,7 +371,7 @@
 
     // Borrado total
     btnDeleteAll.addEventListener('click', () => {
-        if (confirm("¿Estás seguro de borrar toda la colección?")) {
+        if (confirm("¿Estás seguro de borrar toda a colección?")) {
             modelsCollection = [];
             localStorage.removeItem(STORAGE_KEY);
             renderGrid();
