@@ -37,6 +37,8 @@ O repositorio atópase estruturado da seguinte maneira:
 ![Static Badge](https://img.shields.io/badge/html-orange?style=for-the-badge&logo=html5&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/javascript-yellow?style=for-the-badge&logo=javascript&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/bootstrap-purple?style=for-the-badge&logo=bootstrap&labelColor=white)
-![Static Badge](https://img.shields.io/badge/css3-blue?style=for-the-badge&logo=css&logoColor=blue&labelColor=white)
+![Static Badge](https://img.shields.io/badge/css3-cyan?style=for-the-badge&logo=css&logoColor=cyan&labelColor=white)
+![Static Badge](https://img.shields.io/badge/elecron-blue?style=for-the-badge&logo=electron&logoColor=blue&labelColor=white)
+
 
 
