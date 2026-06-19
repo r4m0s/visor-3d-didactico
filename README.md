@@ -17,12 +17,15 @@ A motivación que empurra o deseño desta aplicación radica na subsanación dun
 
 ```
 📦 visor-3d-didactico
-├─ 🗀assets
+├─ 📂assets
     ├─coche_aspanaes.glb
     ├─motor.glb
     ├─piramide.glb
     ├─vocabulario.glb
-├─ 🗀assets
+├─ 📂libs
+    ├─📂model-viewer
+    ├─📂threejs
+    ├─📂bootstrap
 ├─ carga.html
 ├─ repositorio.html
 ├─ index.html
