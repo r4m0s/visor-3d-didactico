@@ -5,7 +5,7 @@ Prototipo funcional basado en tecnoloxía de realidade aumentada. <br><br>
 ![Static Badge](https://img.shields.io/badge/opensource-blue?style=flat&logoColor=003300&label=licencia&labelColor=green)
 
 
-<img width="1228" height="1243" alt="logo app_w" src="https://github.com/user-attachments/assets/5fa8eed7-49c5-4532-a979-a3ca34445af5" />
+<img width="2486" height="1243" alt="portada" src="https://github.com/user-attachments/assets/1e97ca42-43cb-45c2-ad5a-ceb15266bb11" />
 
 
 ## Sobre o proxecto
