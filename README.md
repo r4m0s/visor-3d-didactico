@@ -34,6 +34,9 @@ O repositorio atópase estruturado da seguinte maneira:
 
 
 ## Tecnoloxías usadas
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![HTML5][Html5.com]][Html5-url]
+![Static Badge](https://img.shields.io/badge/html-orange?style=for-the-badge&logo=html5&labelColor=white)
+![Static Badge](https://img.shields.io/badge/javascript-yellow?style=for-the-badge&logo=javascript&labelColor=white)
+![Static Badge](https://img.shields.io/badge/bootstrap-purple?style=for-the-badge&logo=bootstrap&labelColor=white)
+![Static Badge](https://img.shields.io/badge/css3-blue?style=for-the-badge&logo=css&logoColor=blue&labelColor=white)
+
 
