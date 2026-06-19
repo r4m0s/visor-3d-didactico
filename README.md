@@ -2,7 +2,8 @@
 Prototipo funcional basado en tecnoloxía de realidade aumentada. <br><br>
 ![Static Badge](https://img.shields.io/badge/0.18-red?style=flat&logoColor=003300&label=version&labelColor=green)
 ![Static Badge](https://img.shields.io/badge/en%20progreso-yellow?style=flat&logoColor=003300&label=estado&labelColor=green)
-![Static Badge](https://img.shields.io/badge/OPENSOURCE-blue?style=flat&logoColor=003300&label=licencia&labelColor=green)
+![Static Badge](https://img.shields.io/badge/opensource-blue?style=flat&logoColor=003300&label=licencia&labelColor=green)
+
 
 
 
