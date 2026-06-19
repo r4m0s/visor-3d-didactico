@@ -8,3 +8,7 @@ A motivación que empurra o deseño desta aplicación radica na subsanación dun
 
 ## Organización do repositorio
 
+## Tecnoloxías usadas
+* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
+* [![HTML5][Html5.com]][Html5-url]
+
