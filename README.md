@@ -1,3 +1,5 @@
+[//]: # (Autor: Rubén Ramos)
+
 # Visor 3D didáctico v0.18 
 Prototipo funcional basado en tecnoloxía de realidade aumentada. <br><br>
 ![Static Badge](https://img.shields.io/badge/0.18-red?style=flat&logoColor=003300&label=version&labelColor=green)
