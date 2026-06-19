@@ -32,6 +32,25 @@ O repositorio atópase estruturado da seguinte maneira:
 └─ readme.md
 ```
 
+## Requisitos##
+Para o uso da aplicación tan só é necesario dispoñer dun dispositivo con al menos 2GB de memoria RAM e acceso a internet.
+### Compatibilidade ###
+
+Este aplicación web así como as súas librerías e dependencias precisan dos seguintes navegadores
+
+* Firefox 3.5+
+* Google Chrome
+* Opera 12+
+* IE9+
+* Safari 6+
+
+### Instalación ###
+
+Descarga o repositorio aquí [here](https://github.com/r4m0s/visor-3d-didactivo).
+
+Clona repositorio git:
+
+    $ git clone git://github.com/r4m0s/visor-3d-didactico.git
 
 ## Tecnoloxías usadas
 ![Static Badge](https://img.shields.io/badge/html-orange?style=for-the-badge&logo=html5&labelColor=white)
