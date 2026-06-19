@@ -14,7 +14,7 @@ Este software encádrase dentro da modalidade de Innovación tecnolóxica e recu
 A motivación que empurra o deseño desta aplicación radica na subsanación dunha carencia didáctica que permita xerar REA interactivos con RA enriquecida que complementen a labor docente.
 
 ## Organización do repositorio
-
+O repositorio atópase estruturado da seguinte maneira:
 ```
 📦 visor-3d-didactico
 ├─ 📂assets
