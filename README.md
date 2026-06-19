@@ -1,4 +1,5 @@
-# Visor 3D didáctico v0.18 ![Static Badge](https://img.shields.io/badge/0.18-red?style=for-the-badge&logoColor=003300&label=version&labelColor=green)
+# Visor 3D didáctico v0.18 
+![Static Badge](https://img.shields.io/badge/0.18-red?style=for-the-badge&logoColor=003300&label=version&labelColor=green)
 Prototipo funcional basado en tecnoloxía de realidade aumentada.
 
 ## Sobre o proxecto
