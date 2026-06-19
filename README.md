@@ -32,9 +32,9 @@ O repositorio atópase estruturado da seguinte maneira:
 └─ readme.md
 ```
 
-## Requisitos##
+## Requisitos
 Para o uso da aplicación tan só é necesario dispoñer dun dispositivo con al menos 2GB de memoria RAM e acceso a internet.
-### Compatibilidade ###
+### Compatibilidade
 
 Este aplicación web así como as súas librerías e dependencias precisan dos seguintes navegadores
 
@@ -44,9 +44,9 @@ Este aplicación web así como as súas librerías e dependencias precisan dos s
 * IE9+
 * Safari 6+
 
-### Instalación ###
+### Instalación
 
-Descarga o repositorio aquí [here](https://github.com/r4m0s/visor-3d-didactivo).
+Descarga o repositorio [aquí](https://github.com/r4m0s/visor-3d-didactivo).
 
 Clona repositorio git:
 
