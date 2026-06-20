@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma Multimedia 3D - Gran Formato</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root { --primary: #1a73e8; --danger: #d93025; --glass: rgba(255, 255, 255, 0.95); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+
+        model-viewer { width: 100vw; height: 100vh; background-color: #f0f2f5; position: absolute; top: 0; left: 0; }
+
+        /* DASHBOARD FLOTANTE */
+        #dashboard {
+            position: fixed; top: 20px; left: 20px; width: 350px; max-height: 90vh;
+            background: var(--glass); backdrop-filter: blur(10px); border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000;
+            display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .header { padding: 15px; background: var(--primary); color: white; border-radius: 15px 15px 0 0; }
+        .scroll-area { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+        .card { background: #fff; border: 1px solid #e0e0e0; padding: 12px; border-radius: 10px; }
+        .card h3 { margin: 0 0 8px 0; font-size: 11px; color: #888; text-transform: uppercase; }
+
+        /* PUNTOS INTERACTIVOS */
+        .hotspot {
+            width: 28px; height: 28px; border-radius: 50%; border: 3px solid #fff;
+            background: var(--primary); cursor: pointer; transform: translate(-50%, -50%);
+        }
+
+        /* 💥 ANOTACIÓN TAMAÑO TRIPLE 💥 */
+        .annotation {
+            background: white; padding: 15px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+            width: 600px; /* Tamaño aumentado */
+            max-width: 85vw; /* Para que no se corte en pantallas pequeñas */
+            display: none; color: #333; pointer-events: auto;
+            z-index: 2000;
+        }
+        .hotspot.active .annotation { display: block; }
+
+        /* Ajustes multimedia */
+        .media-container { width: 100%; margin-top: 10px; border-radius: 10px; overflow: hidden; background: #000; }
+        .annotation img, .annotation video { width: 100%; display: block; }
+        .annotation iframe { width: 100%; height: 337px; border: none; display: block; } /* Proporción 16:9 */
+
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-modo { background: #eee; margin-bottom: 5px; }
+        .btn-modo.active { background: var(--danger); color: white; }
+
+        select, input { width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+    </style>
+</head>
+<body x-data="editorMultimedia()" x-init="inicializar()">
+
+    <model-viewer id="visor" :class="editando ? 'visor-editando' : ''" :src="modeloUrl" :camera-controls="!editando" ar shadow-intensity="1" @click="colocarPunto($event)">
+        <template x-for="(h, i) in hotspots" :key="i">
+            <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :data-normal="h.norm" @click.stop="toggleNota($event)">
+                <div class="annotation">
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="font-size: 1.1em;" x-text="h.texto"></strong>
+                        <span style="font-size: 0.8em; color: #888;">#<span x-text="i+1"></span></span>
+                    </div>
+
+                    <div class="media-container">
+                        <template x-if="h.tipo === 'imagen' && h.url">
+                            <img :src="h.url">
+                        </template>
+
+                        <template x-if="h.tipo === 'video' && h.url">
+                            <video :src="h.url" controls></video>
+                        </template>
+
+                        <template x-if="h.tipo === 'youtube' && h.url">
+                            <iframe :src="obtenerYoutubeUrl(h.url)" allowfullscreen></iframe>
+                        </template>
+
+                        <template x-if="h.tipo === 'audio' && h.url">
+                            <div style="padding: 20px; background: #f8f9fa;">
+                                <audio :src="h.url" controls style="width:100%;"></audio>
+                            </div>
+                        </template>
+                    </div>
+
+                    <template x-if="h.tipo === 'enlace' && h.url">
+                        <a :href="h.url" target="_blank" style="display:block; background:var(--primary); color:white; text-decoration:none; padding:12px; border-radius:8px; text-align:center; margin-top:10px; font-weight:bold;">Ver recurso externo</a>
+                    </template>
+                </div>
+            </button>
+        </template>
+    </model-viewer>
+
+    <div id="dashboard">
+        <div class="header"><strong>Creador Multimedia 3D</strong></div>
+        <div class="scroll-area">
+
+            <div class="card">
+                <h3>1. Archivo del Modelo</h3>
+                <input type="file" @change="subirLocal" style="font-size:11px;">
+            </div>
+
+            <div class="card">
+                <h3>2. Editor de Puntos</h3>
+                <button class="btn btn-modo" :class="editando ? 'active' : ''" @click="editando = !editando">
+                    <span x-text="editando ? '📍 MARCANDO PUNTOS' : '🔍 GIRAR MODELO'"></span>
+                </button>
+
+                <div style="max-height: 350px; overflow-y: auto;">
+                    <template x-for="(h, i) in hotspots" :key="i">
+                        <div style="background:#f8f9fa; border: 1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:10px; position:relative;">
+                            <input type="text" x-model="h.texto" placeholder="Título del punto...">
+                            <select x-model="h.tipo">
+                                <option value="texto">Solo Texto</option>
+                                <option value="imagen">Imagen</option>
+                                <option value="youtube">Vídeo de YouTube</option>
+                                <option value="video">Archivo Vídeo (.mp4)</option>
+                                <option value="audio">Audio (.mp3)</option>
+                                <option value="enlace">Enlace Web</option>
+                            </select>
+                            <input type="text" x-model="h.url" placeholder="Pega aquí la URL...">
+                            <button @click="hotspots.splice(i, 1)" style="position:absolute; top:-5px; right:-5px; width:20px; height:20px; background:red; color:white; border:none; border-radius:50%; cursor:pointer; font-size:10px;">✕</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3. Generar para Moodle</h3>
+                <button class="btn" style="background:var(--primary); color:white;" @click="generarIframe">Generar Iframe</button>
+                <textarea x-show="iframeCode" x-model="iframeCode" readonly style="width:100%; height:60px; font-size:10px; margin-top:10px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editorMultimedia() {
+            return {
+                modeloUrl: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+                editando: false,
+                hotspots: [],
+                iframeCode: '',
+
+                subirLocal(e) {
+                    const file = e.target.files[0];
+                    if (file) this.modeloUrl = URL.createObjectURL(file);
+                },
+
+                colocarPunto(event) {
+                    if (!this.editando) return;
+                    const viewer = document.getElementById('visor');
+                    const hit = viewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+                    if (hit) {
+                        this.hotspots.push({
+                            pos: `${hit.position.x} ${hit.position.y} ${hit.position.z}`,
+                            norm: `${hit.normal.x} ${hit.normal.y} ${hit.normal.z}`,
+                            texto: "Nuevo Punto",
+                            tipo: "texto",
+                            url: ""
+                        });
+                    }
+                },
+
+                obtenerYoutubeUrl(url) {
+                    if (!url) return '';
+                    let id = '';
+                    if (url.includes('v=')) id = url.split('v=')[1].split('&')[0];
+                    else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1];
+                    else return url;
+                    return `https://www.youtube.com/embed/${id}`;
+                },
+
+                toggleNota(e) {
+                    if (this.editando) return;
+                    const btn = e.target.closest('.hotspot');
+                    document.querySelectorAll('.hotspot').forEach(b => { if(b !== btn) b.classList.remove('active') });
+                    btn.classList.toggle('active');
+                },
+
+                generarIframe() {
+                    const base = window.location.href.split('?')[0];
+                    const data = encodeURIComponent(JSON.stringify({ h: this.hotspots, m: this.modeloUrl.startsWith('blob') ? '' : this.modeloUrl }));
+                    const url = `${base}?data=${data}`;
+                    this.iframeCode = `<iframe src="${url}" width="100%" height="600px" style="border:none;" allow="xr-spatial-tracking; camera; microphone; autoplay"></iframe>`;
+                },
+
+                inicializar() {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('data')) {
+                        const config = JSON.parse(decodeURIComponent(params.get('data')));
+                        this.hotspots = config.h;
+                        if(config.m) this.modeloUrl = config.m;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
