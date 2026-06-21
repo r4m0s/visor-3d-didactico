@@ -59,7 +59,7 @@ Clona repositorio git:
 ![Static Badge](https://img.shields.io/badge/javascript-yellow?style=for-the-badge&logo=javascript&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/bootstrap-purple?style=for-the-badge&logo=bootstrap&labelColor=white)
 ![Static Badge](https://img.shields.io/badge/CSS-90d5ff?style=for-the-badge&logo=css&logoColor=90d5ff&labelColor=white)
-![Static Badge](https://img.shields.io/badge/elecron-blue?style=for-the-badge&logo=electron&logoColor=blue&labelColor=white)
+![Static Badge](https://img.shields.io/badge/electron-blue?style=for-the-badge&logo=electron&logoColor=blue&labelColor=white)
 
 
 
