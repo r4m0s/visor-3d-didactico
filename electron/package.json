@@ -1,0 +1,22 @@
+{
+  "name": "visor-3d-didactico",
+  "productName": "visor-3d-didactico",
+  "description": "v3DD",
+  "keywords": [],
+  "main": "main.js",
+  "version": "1.0.0",
+  "author": "Ruben Ramos",
+  "build": {
+    "win": {
+      "icon": "icon.ico"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  }
+}
