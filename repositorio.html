@@ -24,10 +24,10 @@
             background-color: var(--bg-main);
         }
 
-        /* --- LAYOUT ESTRUCTURAL --- */
+        /* --- LAYOUT ESTRUTURAL --- */
         .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
-        /* BARRA LATERAL RESPONSIVE */
+        /* BARRA LATERAL */
         .sidebar {
             width: var(--sidebar-width); flex-shrink: 0; height: 100%;
             background-color: var(--sidebar-bg); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -67,13 +67,13 @@
         .btn-custom:active { transform: translateY(4px); box-shadow: 0 0 0 #4a5023; }
         .btn-custom:disabled { background-color: #888; box-shadow: 0 4px 0 #666; opacity: 0.6; }
 
-        /* --- ÁREA DE CONTENIDO (GRID) --- */
+        /* --- ÁREA DE CONTIDO (GRID) --- */
         .main-content { flex-grow: 1; height: 100%; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
 
         .grid-header { height: 70px; padding: 0 30px; display: flex; align-items: center; justify-content: flex-end; background-color: var(--white); border-bottom: 1px solid var(--border-olive); flex-shrink: 0; }
         #repoDisplay { background: var(--bg-main); padding: 8px 20px; border-radius: 12px; border: 2px solid var(--border-olive); color: var(--olive-base); font-weight: 800; font-size: 0.85rem; }
 
-        /* --- MODIFICACIÓN DE LA GRID (SIN SCROLL) --- */
+        /* --- MODIFICACIÓN DA GRID (SEN SCROLL) --- */
         .grid-scroll-area { 
             flex-grow: 1; 
             padding: 20px; 
@@ -121,7 +121,7 @@
 
         .preview-box { width: 100%; height: 100%; background: #2a2d21; border-radius: 12px; margin-top: 10px; border: 2px solid var(--border-olive); overflow: hidden; }
 
-        /* --- ESTILOS DEL VISOR MODAL --- */
+        /* --- ESTILOS DO VISOR MODAL --- */
         #modal-viewer-container { position: relative; width: 100%; height: 75vh; }
         model-viewer#modal-viewer { width: 100%; height: 100%; background: #fdfdfd; }
         
@@ -148,7 +148,7 @@
         .dimensionLine.cota-general { stroke: var(--olive-base); }
         .dimensionLine.cota-libre { stroke: #e63946; }
 
-        /* Modal interno para Hotspots */
+        /* Modal interno para Puntos */
         #inner-hotspot-modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
@@ -172,10 +172,10 @@
                 <small id="icon-repoSection">▼</small>
             </div>
             <div id="repoSection" class="section-body">
-                <label class="form-label">Nombre del Repositorio</label>
+                <label class="form-label">Nome do Repositorio</label>
                 <input type="text" id="repoInput" class="form-control mb-3" placeholder="Mi Colección 3D">
                 <div class="d-grid gap-2">
-                    <button class="btn btn-custom btn-sm" onclick="saveRepoName()">Guardar Repositorio</button>
+                    <button class="btn btn-custom btn-sm" onclick="saveRepoName()">Gardar Repositorio</button>
                     <button class="btn btn-link text-white-50 text-decoration-none btn-sm" onclick="clearRepoName()">Borrar Nombre</button>
                 </div>
             </div>
@@ -189,13 +189,13 @@
                     <model-viewer id="side-preview" auto-rotate camera-controls shadow-intensity="1" camera-target="auto" bounds="tight"></model-viewer>
                 </div>
                 
-                <label class="form-label">Fichero .JSON (Completo)</label>
+                <label class="form-label">Ficheiro .JSON</label>
                 <input type="file" id="jsonInput" class="form-control mb-2" accept=".json">
 
-                <label class="form-label">Título del Item (Opcional)</label>
+                <label class="form-label">Título do REA</label>
                 <input type="text" id="titleInput" class="form-control mb-3" placeholder="Sobrescribe el título...">
 
-                <button id="btnSave" class="btn btn-custom" disabled>Guardar en Grid</button>
+                <button id="btnSave" class="btn btn-custom" disabled>Gardar</button>
             </div>
 
             <div class="mt-auto pt-4 text-center">
@@ -268,7 +268,7 @@
     const viewModalElement = document.getElementById('viewModal');
 
     let modelsCollection = [];
-    let currentParsedData = null; // Almacena el JSON crudo temporalmente
+    let currentParsedData = null; // Almacena o JSON crudo temporalmente
     const STORAGE_KEY = 'studio_olive_full_data_v1';
 
     function init() {
@@ -348,7 +348,7 @@
                     sidePreview.cameraOrbit = "auto auto auto";
                     sidePreview.resetTurntable();
                 }, { once: true });
-            } catch (err) { alert("El JSON no es válido."); btnSave.disabled = true; }
+            } catch (err) { alert("O JSON non é válido."); btnSave.disabled = true; }
         };
         reader.readAsText(file);
     });
@@ -358,8 +358,7 @@
         btnSave.innerText = "PROCESANDO..."; btnSave.disabled = true;
 
         try {
-            // FIX APLICADO: Se elimina idealAspect: true para evitar el recorte (crop) de los bordes.
-            // Ahora la imagen capturará exactamente lo mismo que el canvas del preview.
+            // FIX APLICADO: A imaxe capturará exactamente o mesmo que o canvas da previsualización.
             const blob = await sidePreview.toBlob({ mimeType: "image/webp" });
             const reader = new FileReader();
             reader.readAsDataURL(blob);
@@ -368,7 +367,7 @@
                 else currentParsedData.title = titleInput.value;
 
                 modelsCollection.push({
-                    title: titleInput.value || "Sin Título",
+                    title: titleInput.value || "Sen Título",
                     thumb: reader.result,
                     rawData: currentParsedData 
                 });
@@ -377,14 +376,14 @@
                 renderGrid();
                 
                 jsonInput.value = ''; titleInput.value = ''; currentParsedData = null;
-                btnSave.innerText = "GUARDAR EN GRID"; btnSave.disabled = true;
+                btnSave.innerText = "GARDAR"; btnSave.disabled = true;
             };
-        } catch (e) { btnSave.disabled = false; btnSave.innerText = "GUARDAR EN GRID"; }
+        } catch (e) { btnSave.disabled = false; btnSave.innerText = "GARDAR"; }
     });
 
     window.removeItem = function(e, index) {
         e.stopPropagation();
-        if (confirm("¿Eliminar este item?")) {
+        if (confirm("¿Eliminar este REA?")) {
             modelsCollection.splice(index, 1);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(modelsCollection));
             renderGrid();
@@ -392,12 +391,12 @@
     };
 
     function deleteAllModels() {
-        if(confirm("¿Borrar todos los datos locales?")) {
+        if(confirm("¿Borrar tódolos datos locais?")) {
             modelsCollection = []; localStorage.removeItem(STORAGE_KEY); renderGrid();
         }
     }
 
-    // --- LÓGICA DEL VISOR AVANZADO ---
+    // --- LÓXICA DO VISOR AVANZADO ---
     let cameraChangeListener = null; 
 
     function openAdvancedViewer(item) {
