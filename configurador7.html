@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v90 Corte 3D & AR Blindado</title>
+    <title>Plataforma 3D - v91 Corte Real y AR Multimedia</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -75,35 +75,34 @@
             padding: 14px 28px; border-radius: 40px; font-weight: bold; cursor: pointer;
             box-shadow: 0 6px 25px rgba(0,0,0,0.15); transition: 0.2s;
         }
-        #btn-ar-universal:hover { background-color: var(--primary); color: white; }
 
         /* SCRUBBER */
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* 🚀 CAPA DE UI AR BLINDADA (DOM OVERLAY) */
+        /* 🚀 CAPA DE UI AR (DOM OVERLAY PERFECTO) */
         #ar-ui-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 999999;
         }
-        /* Esto evita que ModelViewer oculte la UI al interactuar en AR */
-        model-viewer > #ar-ui-layer { opacity: 1 !important; transition: none !important; }
-        
+        /* Esto anula el comportamiento de Google de ocultar los botones al tocar la pantalla */
+        model-viewer > #ar-ui-layer { opacity: 1 !important; visibility: visible !important; transition: none !important; }
         #ar-ui-layer * { pointer-events: auto; }
-        #visor-info-display { pointer-events: none !important; } /* Excepto el título que debe dejar pasar clicks */
+        #visor-info-display { pointer-events: none !important; } /* Título ignora clicks */
 
-        .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; }
-        .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
-        
         /* INFO DISPLAY */
         #visor-info-display {
             position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
             padding: 15px 25px; border-radius: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; z-index: 100;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
         }
         #visor-info-display h2 { margin: 0; font-size: 1.4em; color: var(--dark); font-weight: 800; }
         .autor-linea { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9em; color: var(--primary-light); font-weight: 600; }
         .autor-linea img { height: 20px; }
+
+        /* CONTROLES AR */
+        .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; }
+        .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
 
         /* MODALES */
         .global-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.85); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); z-index: 1000; }
@@ -145,7 +144,7 @@
             <button slot="hotspot-temp" class="hotspot" style="background:var(--danger); display:none; pointer-events:none; width:16px; height:16px;" id="temp-punto-medida" data-position="0 0 0"></button>
 
             <template x-for="(h, i) in hotspots" :key="'hs-'+i">
-                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click.stop="abrirModal(h)">
+                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click="abrirModal(h)">
                     <div style="position:absolute; bottom:140%; left:50%; transform:translateX(-50%); background:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:bold; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; color:var(--primary);" x-text="h.tituloVisor || 'Punto '+(i+1)"></div>
                 </button>
             </template>
@@ -199,11 +198,11 @@
                 </div>
 
             </div>
-            </model-viewer>
+        </model-viewer>
     </div>
 
     <div id="dashboard">
-        <div class="header-main">CONFIGURADOR 3D v90</div>
+        <div class="header-main">CONFIGURADOR 3D v91</div>
         <div class="title-strip">PROYECTO: <span x-text="tituloGuardado || 'SIN TÍTULO'"></span></div>
 
         <div class="scroll-area">
@@ -274,7 +273,7 @@
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">PLANO DE SECCIÓN:</span>
+                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">PLANO DE CORTE:</span>
                         <button class="btn-mini" :style="planoCorteActivo ? 'background:var(--danger); color:white' : 'background:var(--bg-page); border:1px solid var(--primary-soft); color:var(--primary)'" @click="togglePlanoCorte()">
                             <span x-text="planoCorteActivo ? 'Desactivar' : 'Activar'"></span>
                         </button>
@@ -287,15 +286,12 @@
                             <option value="y">Eje Y (Vertical)</option>
                             <option value="z">Eje Z (Frontal)</option>
                         </select>
-                        
-                        <label style="font-size:10px; font-weight:bold; color:var(--dark);">DESPLAZAMIENTO:</label>
+                        <label style="font-size:10px; font-weight:bold; color:var(--dark);">DESPLAZAR CORTE:</label>
                         <input type="range" :min="rangoCorte.min" :max="rangoCorte.max" step="0.01" x-model="valorCorte" @input="actualizarPlanoCorte()" class="scrubber">
-                        
                         <button class="btn-mini" style="background:var(--primary-light); color:white; width:100%; margin-top:5px;" @click="inversoCorte = !inversoCorte; actualizarPlanoCorte()">
                             <span x-text="inversoCorte ? '🔄 Mostrando Lado B' : '🔄 Mostrando Lado A'"></span>
                         </button>
                     </div>
-
                 </div>
             </div>
 
@@ -379,6 +375,7 @@
             <div id="qrcode" style="display:inline-block; margin-bottom:15px; background:white; padding:10px; border-radius:12px; border:1px solid var(--primary-soft);"></div>
             <button class="btn-main" style="background:var(--primary); color:white;" @click="mostrarQR = false">Cerrar</button>
         </div>
+        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px;">V0.18 // r4m0s</div>
     </div>
 
     <script>
@@ -396,8 +393,9 @@
                 formatoCaptura: 'image/png',
                 reproduciendo: false, enAR: false,
                 
-                // Variables Corte 3D
+                // 🚀 Variables para el Corte 3D Dinámico
                 planoCorteActivo: false, ejeCorte: 'x', inversoCorte: false, valorCorte: 0, rangoCorte: { min: -1, max: 1 },
+                clipPlaneObj: null, planeMesh: null,
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -422,94 +420,104 @@
                     this.detectarAnimaciones();
                     mv.addEventListener('camera-change', () => this.renderSVG());
                     this.updateSVGVisibility();
-                    
                     if (this.verCotas) this.initDimensiones();
                     if (this.planoCorteActivo) this.activarPlanoCorte();
-                    
+
                     setInterval(() => { if (mv && mv.animationName) { this.animTiempo = mv.currentTime; } }, 50);
                     setTimeout(() => this.renderSVG(), 250);
                 },
 
-                // 🚀 LÓGICA DE CORTE 3D (CLIPPING PLANE HACK)
-                togglePlanoCorte() {
-                    this.planoCorteActivo = !this.planoCorteActivo;
-                    if (this.planoCorteActivo) { this.activarPlanoCorte(); } 
-                    else { this.eliminarPlanoCorte(); }
-                },
-                activarPlanoCorte() {
-                    const mv = document.querySelector('#visor');
-                    if (!mv) return;
-                    const symbols = Object.getOwnPropertySymbols(mv);
-                    const rendererSym = symbols.find(s => s.description === 'renderer');
-                    const sceneSym = symbols.find(s => s.description === 'scene');
-                    
-                    if (rendererSym && sceneSym) {
-                        const renderer = mv[rendererSym].threeRenderer;
-                        if (renderer) renderer.localClippingEnabled = true;
-                        
-                        const size = mv.getDimensions();
-                        const center = mv.getBoundingBoxCenter();
-                        const axes = { 'x': size.x, 'y': size.y, 'z': size.z };
-                        const centers = { 'x': center.x, 'y': center.y, 'z': center.z };
-                        
-                        this.rangoCorte.min = centers[this.ejeCorte] - axes[this.ejeCorte] / 2;
-                        this.rangoCorte.max = centers[this.ejeCorte] + axes[this.ejeCorte] / 2;
-                        
-                        if (this.valorCorte < this.rangoCorte.min || this.valorCorte > this.rangoCorte.max) {
-                            this.valorCorte = centers[this.ejeCorte];
-                        }
-                        this.actualizarPlanoCorte(mv[sceneSym]);
+                // 🚀 IMPORTADOR DINÁMICO DEL MOTOR DE CORTE (THREE.JS)
+                async activarPlanoCorte() {
+                    if(!window.THREE) {
+                        try { window.THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); } 
+                        catch(e) { console.error("Error al cargar motor de corte"); return; }
                     }
+                    const THREE = window.THREE;
+                    const mv = document.querySelector('#visor');
+                    let scene, mvRenderer;
+                    for(let key of Object.getOwnPropertySymbols(mv)) {
+                        if(String(key).includes('scene')) scene = mv[key];
+                        if(String(key).includes('renderer')) mvRenderer = mv[key];
+                    }
+                    
+                    if (mvRenderer && mvRenderer.threeRenderer) { mvRenderer.threeRenderer.localClippingEnabled = true; }
+                    
+                    if (!this.clipPlaneObj) { this.clipPlaneObj = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); }
+                    if (!this.planeMesh && scene) {
+                        const size = mv.getDimensions();
+                        const maxDim = Math.max(size.x, size.y, size.z) * 2.5;
+                        const geometry = new THREE.PlaneGeometry(maxDim, maxDim);
+                        const material = new THREE.MeshBasicMaterial({color: 0x8a9443, side: THREE.DoubleSide, transparent: true, opacity: 0.45, depthWrite: false});
+                        this.planeMesh = new THREE.Mesh(geometry, material);
+                        scene.add(this.planeMesh);
+                    }
+                    
+                    const size = mv.getDimensions();
+                    const center = mv.getBoundingBoxCenter();
+                    this.rangoCorte.min = center[this.ejeCorte] - size[this.ejeCorte] / 2;
+                    this.rangoCorte.max = center[this.ejeCorte] + size[this.ejeCorte] / 2;
+                    
+                    if (this.valorCorte < this.rangoCorte.min || this.valorCorte > this.rangoCorte.max) { this.valorCorte = center[this.ejeCorte]; }
+                    this.actualizarPlanoCorte(scene);
                 },
+                
                 actualizarPlanoCorte(sceneObj = null) {
-                    if (!this.planoCorteActivo) return;
+                    if (!this.planoCorteActivo || !window.THREE) return;
+                    const THREE = window.THREE;
                     const mv = document.querySelector('#visor');
                     let scene = sceneObj;
-                    if (!scene) {
-                        const symbols = Object.getOwnPropertySymbols(mv);
-                        const sceneSym = symbols.find(s => s.description === 'scene');
-                        if (sceneSym) scene = mv[sceneSym];
-                    }
+                    if (!scene) { for(let key of Object.getOwnPropertySymbols(mv)) { if(String(key).includes('scene')) scene = mv[key]; } }
                     
-                    if (scene) {
-                        const normal = { x: 0, y: 0, z: 0 };
+                    if (scene && this.clipPlaneObj) {
                         const dir = this.inversoCorte ? -1 : 1;
-                        normal[this.ejeCorte] = -dir;
-                        const constant = dir * parseFloat(this.valorCorte);
-                        const clipPlane = { normal: normal, constant: constant };
+                        const normal = new THREE.Vector3(0,0,0);
+                        normal[this.ejeCorte] = dir;
+                        
+                        this.clipPlaneObj.normal.copy(normal);
+                        this.clipPlaneObj.constant = -this.valorCorte * dir;
                         
                         scene.traverse(child => {
-                            if (child.isMesh && child.material) {
+                            if (child.isMesh && child.material && child !== this.planeMesh) {
                                 if (Array.isArray(child.material)) {
-                                    child.material.forEach(m => { m.clippingPlanes = [clipPlane]; m.needsUpdate = true; });
+                                    child.material.forEach(m => { m.clippingPlanes = [this.clipPlaneObj]; m.needsUpdate = true; });
                                 } else {
-                                    child.material.clippingPlanes = [clipPlane];
-                                    child.material.needsUpdate = true;
+                                    child.material.clippingPlanes = [this.clipPlaneObj]; child.material.needsUpdate = true;
                                 }
                             }
                         });
-                        // Hack ligero para forzar re-render: cambiamos micro la exposición
+                        
+                        if (this.planeMesh) {
+                            this.planeMesh.visible = true;
+                            this.planeMesh.position.set(0,0,0);
+                            this.planeMesh.position[this.ejeCorte] = this.valorCorte;
+                            
+                            this.planeMesh.rotation.set(0,0,0);
+                            if (this.ejeCorte === 'x') this.planeMesh.rotation.y = Math.PI / 2;
+                            if (this.ejeCorte === 'y') this.planeMesh.rotation.x = Math.PI / 2;
+                        }
                         mv.exposure = mv.exposure + 0.0001; mv.exposure = mv.exposure - 0.0001;
                     }
                 },
+                
                 eliminarPlanoCorte() {
                     const mv = document.querySelector('#visor');
-                    const symbols = Object.getOwnPropertySymbols(mv);
-                    const sceneSym = symbols.find(s => s.description === 'scene');
-                    if (sceneSym) {
-                        const scene = mv[sceneSym];
+                    let scene;
+                    for(let key of Object.getOwnPropertySymbols(mv)) { if(String(key).includes('scene')) scene = mv[key]; }
+                    if (scene) {
                         scene.traverse(child => {
-                            if (child.isMesh && child.material) {
-                                if (Array.isArray(child.material)) {
-                                    child.material.forEach(m => { m.clippingPlanes = []; m.needsUpdate = true; });
-                                } else {
-                                    child.material.clippingPlanes = [];
-                                    child.material.needsUpdate = true;
-                                }
+                            if (child.isMesh && child.material && child !== this.planeMesh) {
+                                if (Array.isArray(child.material)) { child.material.forEach(m => { m.clippingPlanes = []; m.needsUpdate = true; }); } 
+                                else { child.material.clippingPlanes = []; child.material.needsUpdate = true; }
                             }
                         });
+                        if (this.planeMesh) this.planeMesh.visible = false;
                         mv.exposure = mv.exposure + 0.0001; mv.exposure = mv.exposure - 0.0001;
                     }
+                },
+                togglePlanoCorte() {
+                    this.planoCorteActivo = !this.planoCorteActivo;
+                    if (this.planoCorteActivo) { this.activarPlanoCorte(); } else { this.eliminarPlanoCorte(); }
                 },
 
                 detectarAnimaciones() {
@@ -533,7 +541,7 @@
 
                 subirLocal(e) { const file = e.target.files[0]; if (file?.name.endsWith('.glb')) { this.modeloUrl = URL.createObjectURL(file); this.resetState(); } },
                 cargarPrecargado(url) { this.modeloUrl = url; this.resetState(); },
-                resetState() { this.hotspots = []; this.limpiarMedidas(); this.verCotas = false; this.planoCorteActivo = false; this.materialesModificados = {}; },
+                resetState() { this.hotspots = []; this.limpiarMedidas(); this.verCotas = false; this.planoCorteActivo = false; this.eliminarPlanoCorte(); this.materialesModificados = {}; },
 
                 aplicarColorMaterial(hex) {
                     if (!this.materialesModificados[this.materialActivo]) this.materialesModificados[this.materialActivo] = {};
@@ -700,7 +708,6 @@
                     } catch (err) { alert("Hubo un problema al generar la captura de pantalla."); }
                 },
 
-                // 🚀 EXPORTACIÓN COMPLETA INCLUYENDO PLANO DE CORTE
                 descargarJson() { 
                     const pack = { 
                         version: "v90",
@@ -729,7 +736,6 @@
                             this.unidad = data.configuracion.unidad || 'cm'; this.cambiarUnidades();
                             this.hotspots = data.hotspots || []; this.medidasLibres = data.medidasLibres || []; this.verCotas = data.configuracion.verCotas || false;
                             
-                            // Restaurar Corte
                             this.planoCorteActivo = data.corte?.activo || false;
                             this.ejeCorte = data.corte?.eje || 'x';
                             this.valorCorte = data.corte?.valor || 0;
