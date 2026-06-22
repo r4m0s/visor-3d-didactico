@@ -53,7 +53,7 @@
             appearance: none; -webkit-appearance: none; -moz-appearance: none;
             width: 36px !important; height: 36px !important; 
             border-radius: 50% !important; cursor: pointer; border: 2px solid var(--primary-soft);
-            padding: 0; overflow: hidden; background: none; flex-shrink: 0; display: inline-block;
+            padding: 0; overflow: hidden; background: none; aspect-ratio: 1/1 !important; flex-shrink: 0; display: inline-block;
         }
         .color-circle::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
         .color-circle::-webkit-color-swatch { border: none; border-radius: 50%; }
@@ -68,7 +68,7 @@
         .hide { display: none !important; }
         .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); pointer-events: auto; }
 
-        /* BOTONES FLOTANTES */
+        /* BOTÓN AR UNIVERSAL */
         #btn-ar-universal {
             position: fixed; bottom: 25px; right: 25px; z-index: 90000;
             background-color: white; border: 2px solid var(--primary); color: var(--primary);
@@ -223,7 +223,6 @@
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
                         <option value="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb">Robot Google</option>
                         <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta Wave</option>
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Motor</option>
                     </select>
                 </div>
             </div>
@@ -273,7 +272,7 @@
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">CORTAR MODELO 3D:</span>
+                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">CORTE DEL MODELO:</span>
                         <button class="btn-mini" :style="planoCorteActivo ? 'background:var(--danger); color:white' : 'background:var(--bg-page); border:1px solid var(--primary-soft); color:var(--primary)'" @click="togglePlanoCorte()">
                             <span x-text="planoCorteActivo ? 'Apagar Corte' : 'Activar Corte'"></span>
                         </button>
@@ -282,14 +281,14 @@
                     <div x-show="planoCorteActivo" style="background:var(--bg-page); padding:10px; border-radius:10px; border:1px solid var(--primary-soft);">
                         <label style="font-size:10px; font-weight:bold; color:var(--dark);">EJE DE CORTE:</label>
                         <select x-model="ejeCorte" @change="cambiarEjeCorte()" style="margin-top:5px; margin-bottom:10px;">
-                            <option value="x">Eje X (Corte Lateral)</option>
-                            <option value="y">Eje Y (Corte Vertical)</option>
-                            <option value="z">Eje Z (Corte Frontal)</option>
+                            <option value="x">Eje X (Lateral)</option>
+                            <option value="y">Eje Y (Vertical)</option>
+                            <option value="z">Eje Z (Frontal)</option>
                         </select>
                         <label style="font-size:10px; font-weight:bold; color:var(--dark);">DESPLAZAMIENTO:</label>
-                        <input type="range" :min="rangoCorte.min" :max="rangoCorte.max" step="0.01" x-model="valorCorte" @input="actualizarPlanoCorte()" class="scrubber">
+                        <input type="range" :min="rangoCorte.min" :max="rangoCorte.max" step="0.001" x-model="valorCorte" @input="actualizarPlanoCorte()" class="scrubber">
                         <button class="btn-mini" style="background:var(--primary-light); color:white; width:100%; margin-top:5px;" @click="inversoCorte = !inversoCorte; actualizarPlanoCorte()">
-                            <span x-text="inversoCorte ? '🔄 Mostrando Lado Trasero' : '🔄 Mostrando Lado Frontal'"></span>
+                            <span x-text="inversoCorte ? '🔄 Mostrando Mitad B' : '🔄 Mostrando Mitad A'"></span>
                         </button>
                     </div>
                 </div>
@@ -367,7 +366,6 @@
                 </div>
             </div>
         </div>
-        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%;">V0.18 // r4m0s</div>
     </div>
 
     <div class="global-overlay-fixed" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
@@ -393,9 +391,9 @@
                 formatoCaptura: 'image/png',
                 reproduciendo: false, enAR: false,
                 
-                // 🚀 Variables de Corte 3D
+                // 🚀 Variables de Corte 3D Estables
                 planoCorteActivo: false, ejeCorte: 'x', inversoCorte: false, valorCorte: 0, rangoCorte: { min: -1, max: 1 },
-                clipPlaneObj: null, planeMesh: null,
+                clipPlaneObj: { normal: { x: 1, y: 0, z: 0 }, constant: 0 },
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -427,112 +425,105 @@
                     setTimeout(() => this.renderSVG(), 250);
                 },
 
-                // 🚀 MOTOR DE BÚSQUEDA PROFUNDA DE THREE.JS (Evita fallos de contexto)
-                findThreeObjects() {
+                // 🚀 LÓGICA DE CORTE 3D (Sin importaciones externas para evitar congelación)
+                activarPlanoCorte() {
                     const mv = document.querySelector('#visor');
-                    let scene = null; let renderer = null;
-                    for (const sym of Object.getOwnPropertySymbols(mv)) {
-                        const val = mv[sym];
-                        if (val && typeof val === 'object') {
-                            if (val.isScene || val.type === 'Scene') scene = val;
-                            if (val.threeRenderer) renderer = val.threeRenderer;
-                            if (!renderer && val.renderer && val.renderer.threeRenderer) renderer = val.renderer.threeRenderer;
-                        }
+                    const center = mv.getBoundingBoxCenter();
+                    const size = mv.getDimensions();
+                    
+                    this.rangoCorte.min = center[this.ejeCorte] - size[this.ejeCorte] / 2;
+                    this.rangoCorte.max = center[this.ejeCorte] + size[this.ejeCorte] / 2;
+                    
+                    if (this.valorCorte < this.rangoCorte.min || this.valorCorte > this.rangoCorte.max) {
+                        this.valorCorte = center[this.ejeCorte];
                     }
-                    return { scene, renderer };
+                    this.actualizarPlanoCorte();
                 },
 
-                // 🚀 LÓGICA DE CORTE 3D (Clipping Planes Reales)
-                async activarPlanoCorte() {
-                    if(!window.THREE) {
-                        try { window.THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); } 
-                        catch(e) { console.error("Error al cargar Three.js", e); return; }
-                    }
-                    const THREE = window.THREE;
-                    const mv = document.querySelector('#visor');
-                    const { scene, renderer } = this.findThreeObjects();
-                    
-                    if (renderer) renderer.localClippingEnabled = true;
-                    if (!scene) return;
-                    
-                    if (!this.clipPlaneObj) { this.clipPlaneObj = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); }
-                    
-                    // Malla verde translúcida que representa el corte
-                    if (!this.planeMesh) {
-                        const size = mv.getDimensions();
-                        const maxDim = Math.max(size.x, size.y, size.z) * 3;
-                        const geometry = new THREE.PlaneGeometry(maxDim, maxDim);
-                        const material = new THREE.MeshBasicMaterial({ color: 0x8a9443, side: THREE.DoubleSide, transparent: true, opacity: 0.25, depthWrite: false });
-                        this.planeMesh = new THREE.Mesh(geometry, material);
-                        scene.add(this.planeMesh);
-                    }
-                    
-                    this.cambiarEjeCorte(false); // Inicializa rangos sin borrar
-                },
-                
-                cambiarEjeCorte(forzarActualizacion = true) {
+                cambiarEjeCorte() {
                     const mv = document.querySelector('#visor');
                     const center = mv.getBoundingBoxCenter();
                     const size = mv.getDimensions();
                     this.rangoCorte.min = center[this.ejeCorte] - size[this.ejeCorte] / 2;
                     this.rangoCorte.max = center[this.ejeCorte] + size[this.ejeCorte] / 2;
-                    if (forzarActualizacion) {
-                        this.valorCorte = center[this.ejeCorte];
-                        this.actualizarPlanoCorte();
-                    }
+                    this.valorCorte = center[this.ejeCorte];
+                    this.actualizarPlanoCorte();
                 },
 
                 actualizarPlanoCorte() {
-                    if (!this.planoCorteActivo || !window.THREE) return;
-                    const THREE = window.THREE;
+                    if (!this.planoCorteActivo) return;
                     const mv = document.querySelector('#visor');
-                    const { scene } = this.findThreeObjects();
                     
-                    if (scene && this.clipPlaneObj) {
+                    // Bucear en los símbolos para encontrar Scene y Renderer internos sin colgar WebGL
+                    let scene = null; let mvRenderer = null;
+                    for (const sym of Object.getOwnPropertySymbols(mv)) {
+                        const val = mv[sym];
+                        if (val && typeof val === 'object') {
+                            if (val.type === 'Scene') scene = val;
+                            if (val.threeRenderer) mvRenderer = val;
+                        }
+                    }
+                    
+                    if (mvRenderer && mvRenderer.threeRenderer) {
+                        mvRenderer.threeRenderer.localClippingEnabled = true;
+                    }
+                    
+                    if (scene) {
                         const dir = this.inversoCorte ? -1 : 1;
                         const v = parseFloat(this.valorCorte);
                         
-                        this.clipPlaneObj.normal.set(0,0,0);
+                        this.clipPlaneObj.normal = { x: 0, y: 0, z: 0 };
                         this.clipPlaneObj.normal[this.ejeCorte] = dir;
                         this.clipPlaneObj.constant = -v * dir;
                         
-                        // Recorremos el modelo inyectando el plano de corte
+                        let changed = false;
                         scene.traverse(child => {
-                            if (child.isMesh && child.material && child !== this.planeMesh) {
-                                const applyClip = (mat) => { mat.clippingPlanes = [this.clipPlaneObj]; mat.needsUpdate = true; };
+                            if (child.isMesh && child.material) {
+                                const applyClip = (mat) => { 
+                                    mat.clippingPlanes = [this.clipPlaneObj]; 
+                                    mat.clipShadows = true;
+                                    mat.needsUpdate = true; 
+                                };
                                 if (Array.isArray(child.material)) child.material.forEach(applyClip);
                                 else applyClip(child.material);
+                                changed = true;
                             }
                         });
                         
-                        if (this.planeMesh) {
-                            this.planeMesh.visible = true;
-                            this.planeMesh.position.set(0,0,0);
-                            this.planeMesh.position[this.ejeCorte] = v;
-                            this.planeMesh.rotation.set(0,0,0);
-                            if (this.ejeCorte === 'x') this.planeMesh.rotation.y = Math.PI / 2;
-                            if (this.ejeCorte === 'y') this.planeMesh.rotation.x = Math.PI / 2;
+                        // Forzar refresco de WebGL de forma segura
+                        if (changed) {
+                            mv.exposure = parseFloat(mv.exposure || 1) + 0.0001;
+                            mv.exposure = parseFloat(mv.exposure || 1) - 0.0001;
                         }
-                        
-                        // Hack ligero para forzar a WebGL a repintar el frame
-                        mv.exposure = parseFloat(mv.exposure || 1) + 0.0001; 
-                        mv.exposure = parseFloat(mv.exposure || 1) - 0.0001;
                     }
                 },
                 
                 eliminarPlanoCorte() {
                     const mv = document.querySelector('#visor');
-                    const { scene } = this.findThreeObjects();
+                    let scene = null; let mvRenderer = null;
+                    for (const sym of Object.getOwnPropertySymbols(mv)) {
+                        const val = mv[sym];
+                        if (val && typeof val === 'object') {
+                            if (val.type === 'Scene') scene = val;
+                            if (val.threeRenderer) mvRenderer = val;
+                        }
+                    }
+                    if (mvRenderer && mvRenderer.threeRenderer) {
+                        mvRenderer.threeRenderer.localClippingEnabled = false;
+                    }
                     if (scene) {
                         scene.traverse(child => {
-                            if (child.isMesh && child.material && child !== this.planeMesh) {
-                                const removeClip = (mat) => { mat.clippingPlanes = null; mat.needsUpdate = true; };
+                            if (child.isMesh && child.material) {
+                                const removeClip = (mat) => { 
+                                    mat.clippingPlanes = null; 
+                                    mat.needsUpdate = true; 
+                                };
                                 if (Array.isArray(child.material)) child.material.forEach(removeClip);
                                 else removeClip(child.material);
                             }
                         });
-                        if (this.planeMesh) this.planeMesh.visible = false;
-                        mv.exposure = parseFloat(mv.exposure || 1) + 0.0001; mv.exposure = parseFloat(mv.exposure || 1) - 0.0001;
+                        mv.exposure = parseFloat(mv.exposure || 1) + 0.0001;
+                        mv.exposure = parseFloat(mv.exposure || 1) - 0.0001;
                     }
                 },
                 
@@ -541,6 +532,7 @@
                     if (this.planoCorteActivo) { this.activarPlanoCorte(); } else { this.eliminarPlanoCorte(); }
                 },
 
+                // RESTO DE MÉTODOS MANTENIDOS INTACTOS
                 detectarAnimaciones() {
                     const mv = document.querySelector('#visor');
                     this.listaAnimaciones = [];
