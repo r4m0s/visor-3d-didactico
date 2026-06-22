@@ -2,25 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v93 Corte Real y AR Estable</title>
-    
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
-        }
-    }
-    </script>
-
+    <title>Plataforma 3D - v94 Corte 3D Optimizado y AR</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <script type="module">
-        import * as THREE from 'three';
-        window.THREE = THREE;
-    </script>
-
     <style>
         /* PALETA MOSS */
         :root { 
@@ -96,11 +81,8 @@
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* CAPA DE UI AR (DOM OVERLAY BLINDADO PARA AR) */
-        #ar-ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 999999;
-        }
+        /* CAPA DE UI AR (DOM OVERLAY PROTEGIDO) */
+        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
         model-viewer > #ar-ui-layer { opacity: 1 !important; visibility: visible !important; transition: none !important; }
         #ar-ui-layer * { pointer-events: auto; }
         #visor-info-display { pointer-events: none !important; } 
@@ -156,14 +138,13 @@
                 <line class="dimensionLine cota-general"></line>
             </svg>
 
-            <button slot="hotspot-temp" class="hotspot" style="background:var(--danger); display:none; pointer-events:none; width:16px; height:16px;" id="temp-punto-medida" data-position="0 0 0"></button>
-
             <template x-for="(h, i) in hotspots" :key="'hs-'+i">
                 <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click.stop="abrirModal(h)">
                     <div style="position:absolute; bottom:140%; left:50%; transform:translateX(-50%); background:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:bold; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; color:var(--primary);" x-text="h.tituloVisor || 'Punto '+(i+1)"></div>
                 </button>
             </template>
 
+            <button slot="hotspot-temp" class="hotspot" style="background:var(--danger); display:none; pointer-events:none; width:16px; height:16px;" id="temp-punto-medida" data-position="0 0 0"></button>
             <template x-for="(m, i) in medidasLibres" :key="'m1-'+i">
                 <button class="hotspot" :slot="'hotspot-m-p1-'+i" style="width:14px; height:14px; background:var(--danger); pointer-events:none;" :data-position="m.p1"></button>
             </template>
@@ -198,15 +179,9 @@
                         <div class="v-body">
                             <p x-text="pointActive?.descripcion" style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;"></p>
                             <div x-show="pointActive?.url" style="border-radius:12px; overflow:hidden; margin-top:10px;">
-                                <template x-if="pointActive?.tipo === 'imagen'">
-                                    <img :src="pointActive.url" style="width:100%; display:block; background:#000;">
-                                </template>
-                                <template x-if="pointActive?.tipo === 'video'">
-                                    <iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe>
-                                </template>
-                                <template x-if="pointActive?.tipo === 'enlace'">
-                                    <a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a>
-                                </template>
+                                <template x-if="pointActive?.tipo === 'imagen'"><img :src="pointActive.url" style="width:100%; display:block; background:#000;"></template>
+                                <template x-if="pointActive?.tipo === 'video'"><iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe></template>
+                                <template x-if="pointActive?.tipo === 'enlace'"><a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a></template>
                             </div>
                         </div>
                     </div>
@@ -217,7 +192,7 @@
     </div>
 
     <div id="dashboard">
-        <div class="header-main">CONFIGURADOR 3D v93</div>
+        <div class="header-main">CONFIGURADOR 3D v94</div>
         <div class="title-strip">PROYECTO: <span x-text="tituloGuardado || 'SIN TÍTULO'"></span></div>
 
         <div class="scroll-area">
@@ -288,7 +263,7 @@
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">CORTE DEL MODELO:</span>
+                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">PLANO DE CORTE:</span>
                         <button class="btn-mini" :style="planoCorteActivo ? 'background:var(--danger); color:white' : 'background:var(--bg-page); border:1px solid var(--primary-soft); color:var(--primary)'" @click="togglePlanoCorte()">
                             <span x-text="planoCorteActivo ? 'Apagar Corte' : 'Activar Corte'"></span>
                         </button>
@@ -296,10 +271,10 @@
 
                     <div x-show="planoCorteActivo" style="background:var(--bg-page); padding:10px; border-radius:10px; border:1px solid var(--primary-soft);">
                         <label style="font-size:10px; font-weight:bold; color:var(--dark);">EJE DE CORTE:</label>
-                        <select x-model="ejeCorte" @change="activarPlanoCorte()" style="margin-top:5px; margin-bottom:10px;">
-                            <option value="x">Eje X (Corte Lateral)</option>
-                            <option value="y">Eje Y (Corte Vertical)</option>
-                            <option value="z">Eje Z (Corte Frontal)</option>
+                        <select x-model="ejeCorte" @change="cambiarEjeCorte()" style="margin-top:5px; margin-bottom:10px;">
+                            <option value="x">Eje X (Lateral)</option>
+                            <option value="y">Eje Y (Vertical)</option>
+                            <option value="z">Eje Z (Frontal)</option>
                         </select>
                         <label style="font-size:10px; font-weight:bold; color:var(--dark);">DESPLAZAMIENTO:</label>
                         <input type="range" :min="rangoCorte.min" :max="rangoCorte.max" step="0.001" x-model="valorCorte" @input="actualizarPlanoCorte()" class="scrubber">
@@ -407,9 +382,9 @@
                 formatoCaptura: 'image/png',
                 reproduciendo: false, enAR: false,
                 
-                // 🚀 Variables de Corte 3D Estables
+                // 🚀 Variables de Corte 3D Totalmente Estables
                 planoCorteActivo: false, ejeCorte: 'x', inversoCorte: false, valorCorte: 0, rangoCorte: { min: -1, max: 1 },
-                clipPlaneObj: null,
+                clipPlanesArray: null, planeMesh: null, clipPlaneObj: null,
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -436,123 +411,157 @@
                     this.updateSVGVisibility();
                     if (this.verCotas) this.initDimensiones();
                     
-                    // Aseguramos que Three.js corte al cargar si estaba activo
                     if (this.planoCorteActivo) { setTimeout(() => this.activarPlanoCorte(), 300); }
 
                     setInterval(() => { if (mv && mv.animationName) { this.animTiempo = mv.currentTime; } }, 50);
                     setTimeout(() => this.renderSVG(), 250);
                 },
 
-                // 🚀 MOTOR DE CORTE OPTIMIZADO (Evita congelamientos)
+                // 🚀 MOTOR DE CORTE (IMPORTACIÓN SEGURA DE THREE.JS)
+                async asegurarThree() {
+                    if (!window.THREE) {
+                        try {
+                            const mod = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+                            window.THREE = mod;
+                        } catch(e) { console.error("No se pudo cargar el motor 3D interno"); }
+                    }
+                    return window.THREE;
+                },
+
                 async activarPlanoCorte() {
-                    if (!window.THREE) { console.error("Three.js no está cargado"); return; }
-                    const THREE = window.THREE;
+                    const THREE = await this.asegurarThree();
+                    if (!THREE) return;
+
                     const mv = document.querySelector('#visor');
                     
-                    // 1. Buscamos el renderer y la escena oculta de Google
-                    let scene = null; let mvRenderer = null;
+                    // Encontrar variables ocultas de ModelViewer
+                    let scene = null; let rendererFound = false;
                     for (const sym of Object.getOwnPropertySymbols(mv)) {
                         const val = mv[sym];
                         if (val && typeof val === 'object') {
-                            if (val.type === 'Scene') scene = val;
-                            if (val.threeRenderer) mvRenderer = val;
-                            if (!mvRenderer && val.renderer && val.renderer.threeRenderer) mvRenderer = val.renderer;
+                            if (val.type === 'Scene' || val.isScene) scene = val;
+                            if (val.threeRenderer) { val.threeRenderer.localClippingEnabled = true; rendererFound = true; }
+                            else if (val.renderer && val.renderer.threeRenderer) { val.renderer.threeRenderer.localClippingEnabled = true; rendererFound = true; }
                         }
                     }
-                    
-                    // 2. Habilitar Clipping en el motor WebGL
-                    if (mvRenderer && mvRenderer.threeRenderer) { mvRenderer.threeRenderer.localClippingEnabled = true; }
-                    
-                    // 3. Crear el objeto matemático del plano (No se renderiza visualmente para evitar cuelgues)
-                    if (!this.clipPlaneObj) { this.clipPlaneObj = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0); }
 
-                    // 4. Calcular el tamaño de la caja del modelo
+                    if (!scene || !rendererFound) return;
+
+                    // 1. Crear el objeto matemático del corte solo 1 vez
+                    if (!this.clipPlaneObj) {
+                        this.clipPlaneObj = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+                        this.clipPlanesArray = [this.clipPlaneObj];
+                    }
+
+                    // 2. Crear la placa visual verde
+                    if (!this.planeMesh) {
+                        const size = mv.getDimensions();
+                        const maxDim = Math.max(size.x, size.y, size.z) * 2;
+                        const geom = new THREE.PlaneGeometry(maxDim, maxDim);
+                        const mat = new THREE.MeshBasicMaterial({ color: 0x8a9443, side: THREE.DoubleSide, transparent: true, opacity: 0.35, depthWrite: false });
+                        this.planeMesh = new THREE.Mesh(geom, mat);
+                        scene.add(this.planeMesh);
+                    }
+
+                    // 3. Establecer rangos del deslizador según el eje elegido
+                    this.cambiarEjeCorte(false);
+
+                    // 4. Aplicar el array de corte a todos los materiales DE FORMA SEGURA (Sin Freeze)
+                    scene.traverse(child => {
+                        if (child.isMesh && child.material && child !== this.planeMesh) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(m => {
+                                // Solo marcamos needsUpdate si no tenía asignado ya este array exacto
+                                if (m.clippingPlanes !== this.clipPlanesArray) {
+                                    m.clippingPlanes = this.clipPlanesArray;
+                                    m.clipShadows = true;
+                                    m.needsUpdate = true; 
+                                }
+                            });
+                        }
+                    });
+
+                    this.actualizarPlanoCorte();
+                },
+
+                cambiarEjeCorte(forzarActualizacion = true) {
+                    const mv = document.querySelector('#visor');
                     const center = mv.getBoundingBoxCenter();
                     const size = mv.getDimensions();
                     this.rangoCorte.min = center[this.ejeCorte] - (size[this.ejeCorte] / 2);
                     this.rangoCorte.max = center[this.ejeCorte] + (size[this.ejeCorte] / 2);
                     
-                    // Centrar el slider la primera vez
-                    if (this.valorCorte < this.rangoCorte.min || this.valorCorte > this.rangoCorte.max) {
+                    if (forzarActualizacion) {
                         this.valorCorte = center[this.ejeCorte];
+                        this.actualizarPlanoCorte();
+                    } else {
+                        if (this.valorCorte < this.rangoCorte.min || this.valorCorte > this.rangoCorte.max) {
+                            this.valorCorte = center[this.ejeCorte];
+                        }
                     }
-
-                    // 5. Asignar el plano a todos los materiales de la escena
-                    if (scene) {
-                        let changed = false;
-                        scene.traverse(child => {
-                            if (child.isMesh && child.material) {
-                                const applyClip = (mat) => {
-                                    // SOLO lo asignamos si no estaba para evitar recompilar Shaders 60 veces x seg
-                                    if (!mat.clippingPlanes || !mat.clippingPlanes.includes(this.clipPlaneObj)) {
-                                        mat.clippingPlanes = [this.clipPlaneObj];
-                                        mat.clipShadows = true;
-                                        mat.needsUpdate = true; 
-                                        changed = true;
-                                    }
-                                };
-                                if (Array.isArray(child.material)) child.material.forEach(applyClip);
-                                else applyClip(child.material);
-                            }
-                        });
-                    }
-
-                    this.actualizarPlanoCorte();
                 },
 
+                // Esta función se lanza CIENTOS de veces al arrastrar. ¡NO PUEDE USAR needsUpdate!
                 actualizarPlanoCorte() {
                     if (!this.planoCorteActivo || !this.clipPlaneObj || !window.THREE) return;
                     
                     const dir = this.inversoCorte ? -1 : 1;
                     const v = parseFloat(this.valorCorte);
                     
-                    // Modificar la matemática del plano (es ultrarrápido y no congela)
-                    const normal = new THREE.Vector3(0,0,0);
-                    normal[this.ejeCorte] = dir;
-                    
-                    this.clipPlaneObj.normal.copy(normal);
+                    // 1. Actualizar Matemática del Corte al instante
+                    this.clipPlaneObj.normal.set(0, 0, 0);
+                    this.clipPlaneObj.normal[this.ejeCorte] = dir;
                     this.clipPlaneObj.constant = -v * dir;
                     
-                    // Hack ligero para forzar a WebGL a dibujar el frame actual
+                    // 2. Mover la placa visual verde
+                    if (this.planeMesh) {
+                        this.planeMesh.visible = true;
+                        this.planeMesh.position.set(0,0,0);
+                        this.planeMesh.position[this.ejeCorte] = v;
+                        
+                        this.planeMesh.rotation.set(0,0,0);
+                        if (this.ejeCorte === 'x') this.planeMesh.rotation.y = Math.PI / 2;
+                        if (this.ejeCorte === 'y') this.planeMesh.rotation.x = Math.PI / 2;
+                    }
+
+                    // 3. Micro-HACK para obligar al canvas a repintarse suavemente
                     const mv = document.querySelector('#visor');
                     mv.exposure = parseFloat(mv.exposure || 1) + 0.00001; 
                     mv.exposure = parseFloat(mv.exposure || 1) - 0.00001;
                 },
-                
+
                 eliminarPlanoCorte() {
-                    if (!window.THREE) return;
+                    if (!window.THREE || !this.clipPlanesArray) return;
                     const mv = document.querySelector('#visor');
                     
-                    let scene = null; let mvRenderer = null;
+                    let scene = null; let rendererFound = false;
                     for (const sym of Object.getOwnPropertySymbols(mv)) {
                         const val = mv[sym];
                         if (val && typeof val === 'object') {
-                            if (val.type === 'Scene') scene = val;
-                            if (val.threeRenderer) mvRenderer = val;
+                            if (val.type === 'Scene' || val.isScene) scene = val;
+                            if (val.threeRenderer) { val.threeRenderer.localClippingEnabled = false; rendererFound = true; }
+                            else if (val.renderer && val.renderer.threeRenderer) { val.renderer.threeRenderer.localClippingEnabled = false; rendererFound = true; }
                         }
                     }
 
                     if (scene) {
                         scene.traverse(child => {
-                            if (child.isMesh && child.material) {
-                                const removeClip = (mat) => {
-                                    if (mat.clippingPlanes && mat.clippingPlanes.length > 0) {
-                                        mat.clippingPlanes = [];
-                                        mat.needsUpdate = true; // Forzar limpieza
+                            if (child.isMesh && child.material && child !== this.planeMesh) {
+                                const mats = Array.isArray(child.material) ? child.material : [child.material];
+                                mats.forEach(m => {
+                                    if (m.clippingPlanes === this.clipPlanesArray) {
+                                        m.clippingPlanes = null;
+                                        m.needsUpdate = true; // Solo re-compilamos al borrar
                                     }
-                                };
-                                if (Array.isArray(child.material)) child.material.forEach(removeClip);
-                                else removeClip(child.material);
+                                });
                             }
                         });
+                        if (this.planeMesh) this.planeMesh.visible = false;
                     }
-                    
-                    if (mvRenderer && mvRenderer.threeRenderer) { mvRenderer.threeRenderer.localClippingEnabled = false; }
-                    
                     mv.exposure = parseFloat(mv.exposure || 1) + 0.00001; 
                     mv.exposure = parseFloat(mv.exposure || 1) - 0.00001;
                 },
-                
+
                 togglePlanoCorte() {
                     this.planoCorteActivo = !this.planoCorteActivo;
                     if (this.planoCorteActivo) { this.activarPlanoCorte(); } else { this.eliminarPlanoCorte(); }
@@ -748,7 +757,7 @@
 
                 descargarJson() { 
                     const pack = { 
-                        version: "v93",
+                        version: "v94",
                         proyecto: { titulo: this.tituloGuardado, autor: this.autorGuardado, licencia: this.licenciaSel },
                         modelo: { src: this.modeloUrl, materialesModificados: this.materialesModificados },
                         configuracion: { unidad: this.unidad, verCotas: this.verCotas },
