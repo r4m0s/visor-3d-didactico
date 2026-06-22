@@ -198,7 +198,7 @@
 
         <div class="scroll-area">
             <div class="card-ui">
-                <div class="section-header" @click="toggleMenu('s1')"><span class="section-title">1. Gestión de Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
+                <div class="section-header" @click="toggleMenu('s1')"><span class="section-title">1. Título do REA</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s1" style="padding:15px;">
                     <input type="text" x-model="inputTitulo" placeholder="Nome do proxecto...">
                     <button class="btn-main" style="background:var(--primary); color:white;" @click="tituloGuardado = inputTitulo">✓ Gardar Título</button>
