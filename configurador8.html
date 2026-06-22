@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Plataforma 3D - v94 Corte 3D Optimizado y AR</title>
+    <title>Plataforma 3D - v95 Corte Optimizado y AR Total</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -81,8 +81,11 @@
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* CAPA DE UI AR (DOM OVERLAY PROTEGIDO) */
-        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
+        /* 🚀 COFRE AR: PROTECCIÓN TOTAL PARA REALIDAD AUMENTADA */
+        #ar-ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999999;
+        }
         model-viewer > #ar-ui-layer { opacity: 1 !important; visibility: visible !important; transition: none !important; }
         #ar-ui-layer * { pointer-events: auto; }
         #visor-info-display { pointer-events: none !important; } 
@@ -179,9 +182,15 @@
                         <div class="v-body">
                             <p x-text="pointActive?.descripcion" style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;"></p>
                             <div x-show="pointActive?.url" style="border-radius:12px; overflow:hidden; margin-top:10px;">
-                                <template x-if="pointActive?.tipo === 'imagen'"><img :src="pointActive.url" style="width:100%; display:block; background:#000;"></template>
-                                <template x-if="pointActive?.tipo === 'video'"><iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe></template>
-                                <template x-if="pointActive?.tipo === 'enlace'"><a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a></template>
+                                <template x-if="pointActive?.tipo === 'imagen'">
+                                    <img :src="pointActive.url" style="width:100%; display:block; background:#000;">
+                                </template>
+                                <template x-if="pointActive?.tipo === 'video'">
+                                    <iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe>
+                                </template>
+                                <template x-if="pointActive?.tipo === 'enlace'">
+                                    <a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -192,7 +201,7 @@
     </div>
 
     <div id="dashboard">
-        <div class="header-main">CONFIGURADOR 3D v94</div>
+        <div class="header-main">CONFIGURADOR 3D v95</div>
         <div class="title-strip">PROYECTO: <span x-text="tituloGuardado || 'SIN TÍTULO'"></span></div>
 
         <div class="scroll-area">
@@ -213,7 +222,6 @@
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
                         <option value="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb">Robot Google</option>
                         <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta Wave</option>
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Motor</option>
                     </select>
                 </div>
             </div>
@@ -263,7 +271,7 @@
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">PLANO DE CORTE:</span>
+                        <span style="font-size:10px; font-weight:bold; color:var(--primary);">SECCIONAR MODELO:</span>
                         <button class="btn-mini" :style="planoCorteActivo ? 'background:var(--danger); color:white' : 'background:var(--bg-page); border:1px solid var(--primary-soft); color:var(--primary)'" @click="togglePlanoCorte()">
                             <span x-text="planoCorteActivo ? 'Apagar Corte' : 'Activar Corte'"></span>
                         </button>
@@ -279,7 +287,7 @@
                         <label style="font-size:10px; font-weight:bold; color:var(--dark);">DESPLAZAMIENTO:</label>
                         <input type="range" :min="rangoCorte.min" :max="rangoCorte.max" step="0.001" x-model="valorCorte" @input="actualizarPlanoCorte()" class="scrubber">
                         <button class="btn-mini" style="background:var(--primary-light); color:white; width:100%; margin-top:5px;" @click="inversoCorte = !inversoCorte; actualizarPlanoCorte()">
-                            <span x-text="inversoCorte ? '🔄 Mostrando Mitad B' : '🔄 Mostrando Mitad A'"></span>
+                            <span x-text="inversoCorte ? '🔄 Mostrando Lado Trasero' : '🔄 Mostrando Lado Frontal'"></span>
                         </button>
                     </div>
                 </div>
@@ -382,9 +390,9 @@
                 formatoCaptura: 'image/png',
                 reproduciendo: false, enAR: false,
                 
-                // 🚀 Variables de Corte 3D Totalmente Estables
+                // 🚀 Variables de Corte 3D Seguras (Duck-Typed)
                 planoCorteActivo: false, ejeCorte: 'x', inversoCorte: false, valorCorte: 0, rangoCorte: { min: -1, max: 1 },
-                clipPlanesArray: null, planeMesh: null, clipPlaneObj: null,
+                clipPlaneObj: null,
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -411,87 +419,70 @@
                     this.updateSVGVisibility();
                     if (this.verCotas) this.initDimensiones();
                     
-                    if (this.planoCorteActivo) { setTimeout(() => this.activarPlanoCorte(), 300); }
+                    // Si al cambiar de modelo el corte está activo, lo reiniciamos seguro
+                    if (this.planoCorteActivo) { setTimeout(() => this.activarPlanoCorte(), 200); }
 
                     setInterval(() => { if (mv && mv.animationName) { this.animTiempo = mv.currentTime; } }, 50);
                     setTimeout(() => this.renderSVG(), 250);
                 },
 
-                // 🚀 MOTOR DE CORTE (IMPORTACIÓN SEGURA DE THREE.JS)
-                async asegurarThree() {
-                    if (!window.THREE) {
-                        try {
-                            const mod = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
-                            window.THREE = mod;
-                        } catch(e) { console.error("No se pudo cargar el motor 3D interno"); }
-                    }
-                    return window.THREE;
-                },
-
-                async activarPlanoCorte() {
-                    const THREE = await this.asegurarThree();
-                    if (!THREE) return;
-
+                // 🚀 SISTEMA DE CORTE 3D NATIVO (Anticongelamientos)
+                activarPlanoCorte() {
                     const mv = document.querySelector('#visor');
-                    
-                    // Encontrar variables ocultas de ModelViewer
-                    let scene = null; let rendererFound = false;
+                    let scene = null; let renderer = null;
+
+                    // Buceamos para encontrar los núcleos gráficos internos de Google
                     for (const sym of Object.getOwnPropertySymbols(mv)) {
                         const val = mv[sym];
                         if (val && typeof val === 'object') {
-                            if (val.type === 'Scene' || val.isScene) scene = val;
-                            if (val.threeRenderer) { val.threeRenderer.localClippingEnabled = true; rendererFound = true; }
-                            else if (val.renderer && val.renderer.threeRenderer) { val.renderer.threeRenderer.localClippingEnabled = true; rendererFound = true; }
+                            if (val.isScene || val.type === 'Scene' || val.constructor.name === 'ModelScene') scene = val;
+                            if (val.threeRenderer) renderer = val.threeRenderer;
+                            else if (val.renderer && val.renderer.threeRenderer) renderer = val.renderer.threeRenderer;
                         }
                     }
 
-                    if (!scene || !rendererFound) return;
+                    if (!scene || !renderer) { console.error("No se pudo acceder al motor gráfico."); return; }
 
-                    // 1. Crear el objeto matemático del corte solo 1 vez
+                    // Habilitar a nivel hardware
+                    renderer.localClippingEnabled = true;
+
+                    // Crear plano matemático abstracto (No choca con Three.js)
                     if (!this.clipPlaneObj) {
-                        this.clipPlaneObj = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
-                        this.clipPlanesArray = [this.clipPlaneObj];
+                        this.clipPlaneObj = {
+                            normal: { x: 1, y: 0, z: 0 },
+                            constant: 0
+                        };
                     }
 
-                    // 2. Crear la placa visual verde
-                    if (!this.planeMesh) {
-                        const size = mv.getDimensions();
-                        const maxDim = Math.max(size.x, size.y, size.z) * 2;
-                        const geom = new THREE.PlaneGeometry(maxDim, maxDim);
-                        const mat = new THREE.MeshBasicMaterial({ color: 0x8a9443, side: THREE.DoubleSide, transparent: true, opacity: 0.35, depthWrite: false });
-                        this.planeMesh = new THREE.Mesh(geom, mat);
-                        scene.add(this.planeMesh);
-                    }
-
-                    // 3. Establecer rangos del deslizador según el eje elegido
-                    this.cambiarEjeCorte(false);
-
-                    // 4. Aplicar el array de corte a todos los materiales DE FORMA SEGURA (Sin Freeze)
+                    // Inyectar el plano de corte en los materiales SOLO UNA VEZ
                     scene.traverse(child => {
-                        if (child.isMesh && child.material && child !== this.planeMesh) {
-                            const mats = Array.isArray(child.material) ? child.material : [child.material];
-                            mats.forEach(m => {
-                                // Solo marcamos needsUpdate si no tenía asignado ya este array exacto
-                                if (m.clippingPlanes !== this.clipPlanesArray) {
-                                    m.clippingPlanes = this.clipPlanesArray;
-                                    m.clipShadows = true;
-                                    m.needsUpdate = true; 
+                        if (child.isMesh && child.material) {
+                            const applyClip = (mat) => {
+                                // Solo se asigna si el array no está ya presente
+                                if (!mat.clippingPlanes || mat.clippingPlanes[0] !== this.clipPlaneObj) {
+                                    mat.clippingPlanes = [this.clipPlaneObj];
+                                    mat.clipShadows = true;
+                                    mat.needsUpdate = true; // Solo compila 1 vez
                                 }
-                            });
+                            };
+                            if (Array.isArray(child.material)) child.material.forEach(applyClip);
+                            else applyClip(child.material);
                         }
                     });
 
+                    this.cambiarEjeCorte(false);
                     this.actualizarPlanoCorte();
                 },
 
-                cambiarEjeCorte(forzarActualizacion = true) {
+                cambiarEjeCorte(forzarCorteCentral = true) {
                     const mv = document.querySelector('#visor');
                     const center = mv.getBoundingBoxCenter();
                     const size = mv.getDimensions();
+                    
                     this.rangoCorte.min = center[this.ejeCorte] - (size[this.ejeCorte] / 2);
                     this.rangoCorte.max = center[this.ejeCorte] + (size[this.ejeCorte] / 2);
                     
-                    if (forzarActualizacion) {
+                    if (forzarCorteCentral) {
                         this.valorCorte = center[this.ejeCorte];
                         this.actualizarPlanoCorte();
                     } else {
@@ -501,65 +492,55 @@
                     }
                 },
 
-                // Esta función se lanza CIENTOS de veces al arrastrar. ¡NO PUEDE USAR needsUpdate!
+                // Esta función mueve el corte de manera 100% matemática, sin recompilar (No Freezes)
                 actualizarPlanoCorte() {
-                    if (!this.planoCorteActivo || !this.clipPlaneObj || !window.THREE) return;
+                    if (!this.planoCorteActivo || !this.clipPlaneObj) return;
                     
                     const dir = this.inversoCorte ? -1 : 1;
                     const v = parseFloat(this.valorCorte);
                     
-                    // 1. Actualizar Matemática del Corte al instante
-                    this.clipPlaneObj.normal.set(0, 0, 0);
-                    this.clipPlaneObj.normal[this.ejeCorte] = dir;
+                    this.clipPlaneObj.normal.x = this.ejeCorte === 'x' ? dir : 0;
+                    this.clipPlaneObj.normal.y = this.ejeCorte === 'y' ? dir : 0;
+                    this.clipPlaneObj.normal.z = this.ejeCorte === 'z' ? dir : 0;
                     this.clipPlaneObj.constant = -v * dir;
-                    
-                    // 2. Mover la placa visual verde
-                    if (this.planeMesh) {
-                        this.planeMesh.visible = true;
-                        this.planeMesh.position.set(0,0,0);
-                        this.planeMesh.position[this.ejeCorte] = v;
-                        
-                        this.planeMesh.rotation.set(0,0,0);
-                        if (this.ejeCorte === 'x') this.planeMesh.rotation.y = Math.PI / 2;
-                        if (this.ejeCorte === 'y') this.planeMesh.rotation.x = Math.PI / 2;
-                    }
 
-                    // 3. Micro-HACK para obligar al canvas a repintarse suavemente
+                    // Micro-hack sutilísimo para ordenar a WebGL que dibuje el siguiente frame
                     const mv = document.querySelector('#visor');
-                    mv.exposure = parseFloat(mv.exposure || 1) + 0.00001; 
-                    mv.exposure = parseFloat(mv.exposure || 1) - 0.00001;
+                    mv.exposure = parseFloat(mv.exposure || 1) + 0.000001;
+                    mv.exposure = parseFloat(mv.exposure || 1) - 0.000001;
                 },
 
                 eliminarPlanoCorte() {
-                    if (!window.THREE || !this.clipPlanesArray) return;
                     const mv = document.querySelector('#visor');
-                    
-                    let scene = null; let rendererFound = false;
+                    let scene = null; let renderer = null;
+
                     for (const sym of Object.getOwnPropertySymbols(mv)) {
                         const val = mv[sym];
                         if (val && typeof val === 'object') {
-                            if (val.type === 'Scene' || val.isScene) scene = val;
-                            if (val.threeRenderer) { val.threeRenderer.localClippingEnabled = false; rendererFound = true; }
-                            else if (val.renderer && val.renderer.threeRenderer) { val.renderer.threeRenderer.localClippingEnabled = false; rendererFound = true; }
+                            if (val.isScene || val.type === 'Scene' || val.constructor.name === 'ModelScene') scene = val;
+                            if (val.threeRenderer) renderer = val.threeRenderer;
+                            else if (val.renderer && val.renderer.threeRenderer) renderer = val.renderer.threeRenderer;
                         }
                     }
 
+                    if (renderer) renderer.localClippingEnabled = false;
+
                     if (scene) {
                         scene.traverse(child => {
-                            if (child.isMesh && child.material && child !== this.planeMesh) {
-                                const mats = Array.isArray(child.material) ? child.material : [child.material];
-                                mats.forEach(m => {
-                                    if (m.clippingPlanes === this.clipPlanesArray) {
-                                        m.clippingPlanes = null;
-                                        m.needsUpdate = true; // Solo re-compilamos al borrar
+                            if (child.isMesh && child.material) {
+                                const removeClip = (mat) => {
+                                    if (mat.clippingPlanes && mat.clippingPlanes[0] === this.clipPlaneObj) {
+                                        mat.clippingPlanes = null;
+                                        mat.needsUpdate = true; // Limpieza final
                                     }
-                                });
+                                };
+                                if (Array.isArray(child.material)) child.material.forEach(removeClip);
+                                else removeClip(child.material);
                             }
                         });
-                        if (this.planeMesh) this.planeMesh.visible = false;
                     }
-                    mv.exposure = parseFloat(mv.exposure || 1) + 0.00001; 
-                    mv.exposure = parseFloat(mv.exposure || 1) - 0.00001;
+                    mv.exposure = parseFloat(mv.exposure || 1) + 0.000001;
+                    mv.exposure = parseFloat(mv.exposure || 1) - 0.000001;
                 },
 
                 togglePlanoCorte() {
@@ -567,6 +548,7 @@
                     if (this.planoCorteActivo) { this.activarPlanoCorte(); } else { this.eliminarPlanoCorte(); }
                 },
 
+                // RESTO DEL CÓDIGO 100% INTACTO Y FUNCIONAL
                 detectarAnimaciones() {
                     const mv = document.querySelector('#visor');
                     this.listaAnimaciones = [];
@@ -757,7 +739,7 @@
 
                 descargarJson() { 
                     const pack = { 
-                        version: "v94",
+                        version: "v95",
                         proyecto: { titulo: this.tituloGuardado, autor: this.autorGuardado, licencia: this.licenciaSel },
                         modelo: { src: this.modeloUrl, materialesModificados: this.materialesModificados },
                         configuracion: { unidad: this.unidad, verCotas: this.verCotas },
