@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Configurador 3D - v3DD</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Configurador 3D - V3DD</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,7 +14,6 @@
             --primary-light: #8a9443; 
             --primary-soft: #dce0cc;  
             --bg-page: #f4f5ee;       
-            
             --danger: #b24a4a;        
             --success: #636B2F;       
             --dark: #2a2e13;          
@@ -27,17 +26,6 @@
 
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: transparent; }
-
-        /* INFO DISPLAY */
-        #visor-info-display {
-            position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
-            padding: 15px 25px; border-radius: 18px; z-index: 2000;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none;
-        }
-        #visor-info-display h2 { margin: 0; font-size: 1.4em; color: var(--dark); font-weight: 800; }
-        .autor-linea { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9em; color: var(--primary-light); font-weight: 600; }
-        .autor-linea img { height: 20px; }
 
         /* DASHBOARD */
         #dashboard {
@@ -79,7 +67,7 @@
         .dim.cota-general { color: var(--primary); border: 1px solid var(--primary-soft); }
         .dim.cota-libre { color: var(--danger); border: 2px solid var(--danger); }
         .hide { display: none !important; }
-        .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hotspot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #fff; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 10px rgba(0,0,0,0.3); pointer-events: auto; }
 
         /* BOTÓNS FLOTANTES */
         #btn-ar-universal {
@@ -90,25 +78,32 @@
         }
         #btn-ar-universal:hover { background-color: var(--primary); color: white; }
 
-        /* SCRUBBER */
+        /* DEPURACIÖN */
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* MODAIS */
-        .global-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); z-index: 100000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .viewer-card { background: white; width: 92%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        .v-body { padding: 25px; overflow-y: auto; max-height: 70vh; color: var(--dark); }
+        /* CAPAS AR / MODALES OPTIMIZADOS PARA WEBXR */
+        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
+        .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: auto; }
+        .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
+        
+        .global-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); pointer-events: auto; }
+        .global-overlay-fixed { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); z-index: 100000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); pointer-events: auto; }
+        .viewer-card { background: white; width: 92%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.5); pointer-events: auto; }
+        .v-body { padding: 25px; overflow-y: auto; max-height: 70vh; color: var(--dark); pointer-events: auto;}
+
+        /* INFO DISPLAY DENTRO DA AR-UI-LAYER */
+        #visor-info-display {
+            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px; border-radius: 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none;
+        }
+        #visor-info-display h2 { margin: 0; font-size: 1.4em; color: var(--dark); font-weight: 800; }
+        .autor-linea { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9em; color: var(--primary-light); font-weight: 600; }
+        .autor-linea img { height: 20px; }
     </style>
 </head>
 <body x-data="editorPro()">
-
-    <div id="visor-info-display" x-show="tituloGuardado || autorGuardado" x-cloak>
-        <h2 x-text="tituloGuardado"></h2>
-        <div class="autor-linea" x-show="autorGuardado">
-            <span x-text="'Autor: ' + autorGuardado"></span>
-            <img x-show="licenciaImgGuardada" :src="licenciaImgGuardada">
-        </div>
-    </div>
 
     <button id="btn-ar-universal" @click="activarAR()">🚀 Realidade Aumentada</button>
 
@@ -117,10 +112,12 @@
             :src="modeloUrl" 
             :camera-controls="!editando && !midiendoLibre" 
             :animation-name="animacionActiva"
+            :autoplay="reproduciendo" 
             ar ar-modes="webxr scene-viewer quick-look"
             shadow-intensity="1.5" 
             @click="colocarPunto($event)" 
-            @load="onModelLoad()">
+            @load="onModelLoad()"
+            @ar-status="enAR = ($event.detail.status === 'session-started')">
             
             <button slot="hotspot-dot-origin" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" style="display:none;" data-position="0 0 0"></button>
@@ -139,7 +136,7 @@
             <button slot="hotspot-temp" class="hotspot" style="background:var(--danger); display:none; pointer-events:none; width:16px; height:16px;" id="temp-punto-medida" data-position="0 0 0"></button>
 
             <template x-for="(h, i) in hotspots" :key="'hs-'+i">
-                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click.stop="abrirModal(h)">
+                <button class="hotspot" :slot="'hotspot-' + i" :data-position="h.pos" :style="`background-color: ${h.color}`" @click="abrirModal(h)">
                     <div style="position:absolute; bottom:140%; left:50%; transform:translateX(-50%); background:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:bold; box-shadow:0 2px 8px rgba(0,0,0,0.15); white-space:nowrap; color:var(--primary);" x-text="h.tituloVisor || 'Punto '+(i+1)"></div>
                 </button>
             </template>
@@ -153,14 +150,55 @@
             <template x-for="(m, i) in medidasLibres" :key="'ml-'+i">
                 <button class="dim cota-libre" style="z-index:101;" :slot="'hotspot-m-label-'+i" :data-position="m.center" x-text="formatMeasure(m.dist)"></button>
             </template>
-        </model-viewer>
+
+            <div id="ar-ui-layer">
+                
+                <div id="visor-info-display" x-show="tituloGuardado || autorGuardado" x-cloak>
+                    <h2 x-text="tituloGuardado"></h2>
+                    <div class="autor-linea" x-show="autorGuardado">
+                        <span x-text="'Autor: ' + autorGuardado"></span>
+                        <img x-show="licenciaImgGuardada" :src="licenciaImgGuardada">
+                    </div>
+                </div>
+
+                <div class="ar-controls" x-show="enAR && listaAnimaciones.length > 0" x-cloak>
+                    <button class="ar-btn" style="background:var(--success); color:white;" @click.stop="document.getElementById('visor').play(); reproduciendo = true;">▶️ Reproducir</button>
+                    <button class="ar-btn" style="background:var(--danger); color:white;" @click.stop="document.getElementById('visor').pause(); reproduciendo = false;">⏸ Pausar</button>
+                </div>
+
+                <div class="global-overlay" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
+                    <div class="viewer-card">
+                        <div style="padding:15px; border-bottom:1px solid var(--primary-soft); display:flex; justify-content:space-between; align-items:center; background:var(--bg-page);">
+                            <h3 x-text="pointActive?.tituloVisor || 'Punto'" style="margin:0; color:var(--primary);"></h3>
+                            <button @click.stop="modalAbierto = false" style="border:none; background:none; font-size:30px; cursor:pointer; color:var(--primary);">&times;</button>
+                        </div>
+                        <div class="v-body">
+                            <p x-text="pointActive?.descripcion" style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;"></p>
+                            <div x-show="pointActive?.url" style="border-radius:12px; overflow:hidden; margin-top:10px;">
+                                <template x-if="pointActive?.tipo === 'imagen'">
+                                    <img :src="pointActive.url" style="width:100%; display:block; background:#000;">
+                                </template>
+                                <template x-if="pointActive?.tipo === 'video'">
+                                    <iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe>
+                                </template>
+                                <template x-if="pointActive?.tipo === 'enlace'">
+                                    <a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </model-viewer>
     </div>
 
     <div id="dashboard">
-        <div class="header-main">Configurador RA - v3DD</div>
+        <div class="header-main">CONFIGURADOR 3D - v3DD</div>
+
         <div class="scroll-area">
             <div class="card-ui">
-                <div class="section-header" @click="toggleMenu('s1')"><span class="section-title">1. Xestión do Título</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
+                <div class="section-header" @click="toggleMenu('s1')"><span class="section-title">1. Título do REA</span><span x-text="menu.s1 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s1" style="padding:15px;">
                     <input type="text" x-model="inputTitulo" placeholder="Nome do proxecto...">
                     <button class="btn-main" style="background:var(--primary); color:white;" @click="tituloGuardado = inputTitulo">✓ Gardar Título</button>
@@ -173,7 +211,7 @@
                     <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">CARGAR FICHEIRO LOCAL (.GLB):</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:10px;">
-                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Tecnoloxía - Motor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/flor.glb">Bioloxía - Flor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/castelo.glb">Historia - Castelo</option>
@@ -203,8 +241,8 @@
                         <label style="font-size:10px; color:var(--primary); font-weight:bold;">ANIMACIÓN:</label>
                         <select x-model="animacionActiva" style="margin-top:5px;"><template x-for="anim in listaAnimaciones" :key="anim"><option :value="anim" x-text="anim"></option></template></select>
                         <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button class="btn-mini" style="background:var(--success); color:white; flex:1;" @click="document.getElementById('visor').play()">▶️ Reproducir</button>
-                            <button class="btn-mini" style="background:var(--danger); color:white; flex:1;" @click="document.getElementById('visor').pause()">⏸ Parar</button>
+                            <button class="btn-mini" style="background:var(--success); color:white; flex:1;" @click="document.getElementById('visor').play(); reproduciendo=true;">▶️ Reproducir</button>
+                            <button class="btn-mini" style="background:var(--danger); color:white; flex:1;" @click="document.getElementById('visor').pause(); reproduciendo=false;">⏸ Pause</button>
                         </div>
                         <input type="range" min="0" :max="animDuracion" step="0.01" x-model="animTiempo" @input="seekAnim()" class="scrubber">
                     </div>
@@ -224,7 +262,7 @@
                     </button>
                     <p x-show="midiendoLibre" style="font-size:10.5px; color:var(--danger); text-align:center; font-weight:bold; margin-top:8px;" x-text="puntoTemp ? '📍 Selecciona o segundo punto' : '📍 Selecciona o primeiro punto'"></p>
                     <div x-show="medidasLibres.length > 0" style="margin-top:10px;">
-                        <button class="btn-mini" style="background:transparent; border:1px solid var(--danger); color:var(--danger); width:100%; padding:10px;" @click="limpiarMedidas()">✕ Borrar medidas</button>
+                        <button class="btn-mini" style="background:transparent; border:1px solid var(--danger); color:var(--danger); width:100%; padding:10px;" @click="limpiarMedidas()">✕ Borrar Medidas</button>
                     </div>
                 </div>
             </div>
@@ -246,17 +284,12 @@
                             
                             <div x-show="h.abierto" style="padding:12px; border-top:1px solid var(--primary-soft);">
                                 <input type="text" x-model="h.tempTitulo" placeholder="Nome do punto...">
-                                <textarea x-model="h.descripcion" placeholder="Descrición..." style="height:60px;"></textarea>
+                                <textarea x-model="h.descripcion" placeholder="Descripción..." style="height:60px;"></textarea>
                                 <div style="display:flex; gap:8px; align-items:center;">
-                                    <select x-model="h.tipo" style="flex:2; margin:0;">
-                                        <option value="texto">Texto</option>
-                                        <option value="imagen">Imaxe</option>
-                                        <option value="video">Vídeo</option>
-                                        <option value="enlace">Ligazón</option>
-                                    </select>
+                                    <select x-model="h.tipo" style="flex:2; margin:0;"><option value="texto">Texto</option><option value="imagen">Imaxe</option><option value="video">Vídeo</option><option value="enlace">Ligazón</option></select>
                                     <input type="color" x-model="h.color" class="color-circle">
                                 </div>
-                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="URL (Imaxe, vídeo ou ligazón)..." style="margin-top:8px;">
+                                <input type="text" x-show="h.tipo !== 'texto'" x-model="h.url" placeholder="URL Multimedia..." style="margin-top:8px;">
                                 <div style="display:flex; gap:5px; margin-top:10px;">
                                     <button class="btn-mini" style="background:var(--success); color:white; flex:2;" @click="h.tituloVisor = h.tempTitulo; h.abierto = false;">✓ Gardar</button>
                                     <button class="btn-mini" style="background:transparent; border:1px solid var(--danger); color:var(--danger); flex:1;" @click="hotspots.splice(i, 1)">✕ Borrar</button>
@@ -280,13 +313,25 @@
             </div>
 
             <div class="card-ui">
-                <div class="section-header" @click="toggleMenu('s7')"><span class="section-title">7. Importar e Exportar</span><span x-text="menu.s7 ? '▲' : '▼'"></span></div>
+                <div class="section-header" @click="toggleMenu('s7')"><span class="section-title">7. Captura de Pantalla</span><span x-text="menu.s7 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s7" style="padding:15px;">
+                    <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">FORMATO DE IMAXE:</label>
+                    <select x-model="formatoCaptura" style="margin-top:5px; margin-bottom:12px;">
+                        <option value="image/png">Imaxe .PNG (Fondo Transparente)</option>
+                        <option value="image/jpeg">Image JPG (Fondo Blanco)</option>
+                    </select>
+                    <button class="btn-main" style="background:var(--primary); color:white;" @click="tomarCaptura()">📸 Tomar Captura 3D</button>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <div class="section-header" @click="toggleMenu('s8')"><span class="section-title">8. Importar y Exportar</span><span x-text="menu.s8 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s8" style="padding:15px;">
                     <label style="font-size:10px; font-weight:bold; color:var(--primary);">CARGAR PROXECTO (.JSON):</label>
                     <input type="file" accept=".json" @change="cargarJson" style="border: 2px dashed var(--primary-light); background: var(--bg-page);">
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
                     <button class="btn-main" style="background:var(--success); color:white; margin-bottom:15px;" @click="descargarJson()">💾 Descargar REA .JSON</button>
-                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Xerar código aula virtual</button>
+                    <button class="btn-main" style="background:var(--primary); color:white;" @click="generarIframe()">🔗 Xerar código para aula virtual</button>
                     <div x-show="iframeCodigo" style="margin-top:10px;">
                         <textarea x-model="iframeCodigo" readonly style="background:var(--bg-page); height:80px; font-family:monospace; font-size:11px;"></textarea>
                         <button class="btn-mini" style="background:var(--primary-light); color:white; width:100%;" @click="copiarIframe()">📋 Copiar Código</button>
@@ -296,30 +341,7 @@
         </div>
     </div>
 
-    <div class="global-overlay" x-show="modalAbierto" x-cloak @click.self="modalAbierto = false">
-        <div class="viewer-card">
-            <div style="padding:15px; border-bottom:1px solid var(--primary-soft); display:flex; justify-content:space-between; align-items:center; background:var(--bg-page);">
-                <h3 x-text="pointActive?.tituloVisor || 'Punto'" style="margin:0; color:var(--primary);"></h3>
-                <button @click="modalAbierto = false" style="border:none; background:none; font-size:30px; cursor:pointer; color:var(--primary);">&times;</button>
-            </div>
-            <div class="v-body">
-                <p x-text="pointActive?.descripcion" style="white-space: pre-wrap; margin-bottom:15px; line-height:1.6;"></p>
-                <div x-show="pointActive?.url" style="border-radius:12px; overflow:hidden; margin-top:10px;">
-                    <template x-if="pointActive?.tipo === 'imagen'">
-                        <img :src="pointActive.url" style="width:100%; display:block; background:#000;">
-                    </template>
-                    <template x-if="pointActive?.tipo === 'video'">
-                        <iframe :src="prepararYoutube(pointActive.url)" style="width:100%; aspect-ratio:16/9; border:none; background:#000;" allowfullscreen></iframe>
-                    </template>
-                    <template x-if="pointActive?.tipo === 'enlace'">
-                        <a :href="pointActive.url" target="_blank" style="display:block; padding:12px; background:var(--primary); color:white; text-align:center; border-radius:8px; text-decoration:none; font-weight:bold;">🔗 Visitar Enlace Externo</a>
-                    </template>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="global-overlay" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
+    <div class="global-overlay-fixed" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
         <div class="viewer-card" style="max-width:350px; text-align:center; padding:20px;">
             <h3 style="margin-top:0; color:var(--primary);">Escanea o código QR</h3>
             <div id="qrcode" style="display:inline-block; margin-bottom:15px; background:white; padding:10px; border-radius:12px; border:1px solid var(--primary-soft);"></div>
@@ -331,7 +353,7 @@
         function editorPro() {
             return {
                 modeloUrl: 'https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb',
-                menu: { s1:false, s2:false, s3:false, s4:false, s5:false, s6:false, s7:false },
+                menu: { s1:false, s2:false, s3:false, s4:false, s5:false, s6:false, s7:false, s8:false },
                 inputTitulo: '', tituloGuardado: '', inputAutor: '', autorGuardado: '', licenciaSel: 'by', licenciaImgGuardada: '',
                 editando: false, midiendoLibre: false, verCotas: false, unidad: 'cm', factorUnidad: 100, 
                 hotspots: [], medidasLibres: [], puntoTemp: null, 
@@ -339,6 +361,8 @@
                 listaMateriales: [], materialActivo: '', reflectValue: 50, colorActual: '#ffffff',
                 materialesModificados: {}, 
                 listaAnimaciones: [], animacionActiva: '', animDuracion: 0, animTiempo: 0, scannerId: null, iframeCodigo: '',
+                formatoCaptura: 'image/png',
+                reproduciendo: false, enAR: false,
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -466,8 +490,7 @@
 
                     if (this.editando) {
                         const newPos = `${hit.position.x} ${hit.position.y} ${hit.position.z}`;
-                        // 🚀 Nuevo color por defecto basado en la paleta Moss
-                        this.hotspots.push({ pos: newPos, tempTitulo: "", tituloVisor: "Novo punto", descripcion: "", color: "#636B2F", tipo: "texto", url: "", abierto: true });
+                        this.hotspots.push({ pos: newPos, tempTitulo: "", tituloVisor: "Novo Punto", descripcion: "", color: "#636B2F", tipo: "texto", url: "", abierto: true });
                         setTimeout(() => { try { mv.updateHotspot({ name: `hotspot-${this.hotspots.length - 1}`, position: newPos }); } catch(e){} }, 100);
                     }
                 },
@@ -534,9 +557,34 @@
                 abrirModal(h) { if (!this.editando && !this.midiendoLibre) { this.pointActive = h; this.modalAbierto = true; } },
                 prepararYoutube(url) { if (!url) return ''; let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1]; return `https://www.youtube.com/embed/${id}`; },
                 
+                async tomarCaptura() {
+                    const mv = document.getElementById('visor');
+                    const ext = this.formatoCaptura === 'image/jpeg' ? 'jpg' : 'png';
+                    let url = '';
+
+                    try {
+                        const blob = await mv.toBlob({ idealAspect: true });
+                        if (this.formatoCaptura === 'image/png') { url = URL.createObjectURL(blob); } 
+                        else {
+                            const img = new Image(); const tempUrl = URL.createObjectURL(blob);
+                            img.src = tempUrl; await new Promise(r => img.onload = r);
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width; canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0);
+                            url = canvas.toDataURL('image/jpeg', 0.95); URL.revokeObjectURL(tempUrl);
+                        }
+
+                        const a = document.createElement('a'); a.href = url;
+                        const nombreBase = this.tituloGuardado ? this.tituloGuardado.trim().replace(/\s+/g, '_').toLowerCase() : 'modelo_3d';
+                        a.download = `captura_${nombreBase}.${ext}`; a.click();
+                        if (this.formatoCaptura === 'image/png') { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+                    } catch (err) { alert("Houbo un problema ao xerar a captura de pantalla."); }
+                },
+
                 descargarJson() { 
                     const pack = { 
-                        version: "v84",
+                        version: "v88",
                         proyecto: { titulo: this.tituloGuardado, autor: this.autorGuardado, licencia: this.licenciaSel },
                         modelo: { src: this.modeloUrl, materialesModificados: this.materialesModificados },
                         configuracion: { unidad: this.unidad, verCotas: this.verCotas },
@@ -544,33 +592,22 @@
                     }; 
                     const a = document.createElement('a'); 
                     a.href = URL.createObjectURL(new Blob([JSON.stringify(pack, null, 2)], {type:'application/json'})); 
-                    a.download = 'proyecto_3d_pro.json'; 
+                    a.download = 'REA_3d.json'; 
                     a.click(); 
                 },
                 cargarJson(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
+                    const file = e.target.files[0]; if (!file) return;
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         try {
                             const data = JSON.parse(event.target.result);
-                            if(data.modelo.src.startsWith('blob:')) {
-                                alert("⚠️ El proyecto usaba un modelo local. Carga primero el mismo archivo .GLB en la Sección 2 y luego vuelve a cargar este JSON.");
-                                return;
-                            }
+                            if(data.modelo.src.startsWith('blob:')) { alert("⚠️ Carga primeiro o mesmo ficheiro .GLB na Sección 2 e logo volve a cargar este JSON."); return; }
                             this.inputTitulo = data.proyecto.titulo || ''; this.tituloGuardado = this.inputTitulo;
                             this.inputAutor = data.proyecto.autor || ''; this.autorGuardado = this.inputAutor;
-                            this.licenciaSel = data.proyecto.licencia || 'by';
-                            this.licenciaImgGuardada = `https://mirrors.creativecommons.org/presskit/buttons/88x31/png/${this.licenciaSel}.png`;
-                            
+                            this.licenciaSel = data.proyecto.licencia || 'by'; this.licenciaImgGuardada = `https://mirrors.creativecommons.org/presskit/buttons/88x31/png/${this.licenciaSel}.png`;
                             this.materialesModificados = data.modelo.materialesModificados || {};
-                            this.unidad = data.configuracion.unidad || 'cm';
-                            this.cambiarUnidades();
-                            
-                            this.hotspots = data.hotspots || [];
-                            this.medidasLibres = data.medidasLibres || [];
-                            this.verCotas = data.configuracion.verCotas || false;
-                            
+                            this.unidad = data.configuracion.unidad || 'cm'; this.cambiarUnidades();
+                            this.hotspots = data.hotspots || []; this.medidasLibres = data.medidasLibres || []; this.verCotas = data.configuracion.verCotas || false;
                             this.modeloUrl = data.modelo.src;
                         } catch (err) { alert('Error al leer el archivo JSON.'); }
                     };
