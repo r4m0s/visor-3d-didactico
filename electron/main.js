@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron/main')
 const path = require('node:path')
 
+
 function createWindow () {
   const win = new BrowserWindow({
     width: 1960,
@@ -15,7 +16,7 @@ function createWindow () {
     }
   })
 
-  win.loadURL('r4m0s.github.io/visor-3d-didactico/index.html')
+  win.loadURL('http://r4m0s.github.io/visor-3d-didactico/index.html')
 }
 
 app.whenReady().then(() => {
