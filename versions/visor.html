@@ -2,15 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor 3D</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Creado por Rubén Ramos Loureiro - Mestrado Universitario en Profesorado de ESO e Bacharelato, F.P. e Ensino de Idiomas - Universidade da Coruña - 2026 -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* Paleta Cores */
+        /* Paleta MOSS */
         :root { 
             --primary: #636B2F;       
             --primary-light: #8a9443; 
@@ -28,7 +26,7 @@
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: transparent; }
 
-        /* INFO DISPLAY */
+        /* INFO DISPLAY (Título e Autor) */
         #visor-info-display {
             position: fixed; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
             padding: 15px 25px; border-radius: 18px; z-index: 2000;
@@ -71,41 +69,18 @@
             box-shadow: 0 6px 25px rgba(0,0,0,0.15); transition: 0.2s;
         }
         #btn-ar-universal:hover { background-color: var(--primary); color: white; }
-        
-        #btn-sair {
-            position: fixed; bottom: 25px; left: 25px; z-index: 9000;
-            background-color: white; border: 2px solid var(--primary); color: var(--primary-light);
-            padding: 14px 28px; border-radius: 14px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.15); transition: 0.2s; text-decoration: none; display: inline-block;
-        }
-        #btn-sair:hover { background-color: var(--primary); color: white; }
-
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
 
-        /* PANEIS */
+        /* MODAIS */
         .global-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); z-index: 100000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .viewer-card { background: white; width: 92%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
         .v-body { padding: 25px; overflow-y: auto; max-height: 70vh; color: var(--dark); }
-
-        /* RESPONSIVE DESIGN PARA MÓBILES */
-        @media (max-width: 600px) {
-            #panel-carga { width: 90%; max-width: none; left: 5%; top: 15px; padding: 15px; }
-            #visor-info-display { top: 15px; right: 15px; padding: 10px 15px; max-width: 65%; }
-            #visor-info-display h2 { font-size: 1.1em; }
-            .autor-linea { font-size: 0.75em; }
-            
-            #btn-ar-universal { bottom: 15px; right: 15px; padding: 10px 16px; font-size: 13px; }
-            #btn-sair { bottom: 15px; left: 15px; padding: 10px 16px; font-size: 13px; }
-            
-            .viewer-card { width: 95%; border-radius: 18px; }
-            .v-body { padding: 15px; }
-        }
     </style>
 </head>
 <body x-data="visorPro()">
 
     <div id="panel-carga" x-show="!proyectoCargado">
-        <h3>Abrir o modelo 3D</h3>
+        <h3>Abrir Modelo 3D</h3>
         <div class="input-file-wrapper">
             <label style="font-size:11px; font-weight:bold; color:var(--primary); display:block; margin-bottom:8px;">CARGAR FICHEIRO (.JSON):</label>
             <input type="file" accept=".json" @change="cargarJson">
@@ -114,9 +89,7 @@
             Sube o ficheiro REA xerado no configurador.
         </p>
     </div>
-
-    <button id="btn-sair" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
-
+<input type="button" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'"; cursor="pointer"; value="🚪 Saír"; style="position:fixed; bottom: 2%; left: 1%;"/>
     <div id="visor-info-display" x-show="tituloGuardado || autorGuardado" x-cloak>
         <h2 x-text="tituloGuardado"></h2>
         <div class="autor-linea" x-show="autorGuardado">
@@ -251,7 +224,7 @@
                 },
 
                 onModelLoad() { 
-                    if (!this.proyectoCargado) return; // Evita procesar se o visor arranca en branco
+                    if (!this.proyectoCargado) return; // Evita procesar si o visor arranca en branco
                     
                     const mv = document.querySelector('#visor');
                     
