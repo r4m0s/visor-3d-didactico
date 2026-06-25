@@ -31,54 +31,27 @@
 
         #loading-screen {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 9999;
             background-color: var(--bg-page);
+            display: flex;
+            flex-direction: column;
             transition: opacity 0.8s ease-in-out;
         }
 
-        /* --- VISOR 3D (FONDO) --- */
-        .model-container {
+        /* --- TÍTULO RESPONSIVO --- */
+        .top-title {
             position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            /* Desplazamos el modelo hacia la izquierda en PC */
-            transform: translateX(-15%);
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            outline: none;
-            --progress-bar-height: 0px;
-        }
-
-        /* --- CAPA DE INTERFAZ (UI) --- */
-        .ui-layer {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            max-width: 450px;
-            margin-left: auto; /* Empuja la interfaz a la derecha en PC */
-            padding: 5%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-end;
+            top: 5%;
+            right: 5%;
             text-align: right;
-            /* Permite hacer click a través de la capa transparente para rotar el modelo */
-            pointer-events: none; 
+            z-index: 30;
+            max-width: 90%;
         }
 
-        /* Reactivamos los clicks solo para los elementos visuales de la UI si fuera necesario */
-        .ui-layer > div {
-            pointer-events: auto;
-        }
-
-        /* --- TÍTULO --- */
         .top-title h1 {
             font-size: clamp(1.2rem, 4vw, 1.8rem); 
             font-weight: 800;
@@ -88,18 +61,22 @@
         }
 
         .title-line {
-            width: 100%;
+            width: 58%;
             height: 4px;
             background: var(--moss-light);
-            display: block;
+            display: inline-block;
             margin-top: 5px;
         }
 
         /* --- CONSELLOS --- */
         .tips-container {
-            width: 100%;
-            margin-top: auto;
-            margin-bottom: 20px;
+            position: absolute;
+            top: 30%;
+            right: 5%;
+            width: 375px;
+            max-width: 80vw; 
+            text-align: right;
+            z-index: 25;
         }
 
         .tip-box {
@@ -123,12 +100,36 @@
             line-height: 1.3;
             font-style: italic;
             font-weight: 400;
-            margin: 0;
         }
 
-        /* --- BARRA DE CARGA --- */
-        .progress-container {
+        /* --- VISOR 3D --- */
+        .model-container {
+            position: absolute;
+            top: 50%;
+            left: -15%; 
+            transform: translateY(-50%);
             width: 100%;
+            height: 80%;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            --progress-bar-height: 0px;
+        }
+
+        /* --- BARRA DE CARGA RESPONSIVA --- */
+        .progress-container {
+            position: absolute;
+            bottom: 7.5%;
+            right: 5%;
+            width: 350px;
+            max-width: 90vw;
+            z-index: 30;
+            text-align: right;
         }
 
         .progress {
@@ -136,7 +137,6 @@
             border-radius: 20px;
             background-color: var(--moss-soft);
             overflow: hidden;
-            margin-bottom: 5px;
         }
 
         .progress-bar {
@@ -149,35 +149,15 @@
             margin-bottom: 8px;
         }
 
-        .version-info {
-            font-size: 0.7rem; 
-            opacity: 0.5; 
-            letter-spacing: 1px;
-        }
-
         /* --- ADAPTACIÓN PARA MÓVILES --- */
         @media (max-width: 768px) {
             .model-container {
-                /* Centramos el robot y lo subimos ligeramente para dejar espacio al texto */
-                transform: translateX(0) translateY(-10%);
+                left: 0; 
+                top: 55%;
+                height: 60%;
             }
-            
-            .ui-layer {
-                max-width: 100%;
-                align-items: center;
-                text-align: center;
-                justify-content: space-between;
-                padding-bottom: 10%;
-            }
-
-            .title-line {
-                width: 50%;
-                margin: 5px auto 0 auto; /* Centramos la línea en móvil */
-            }
-
-            .tip-box {
-                border-right: none;
-                border-bottom: 3px solid var(--moss-base); /* Cambiamos el borde abajo en móvil */
+            .tips-container {
+                top: 25%; 
             }
         }
 
@@ -187,7 +167,19 @@
 <body>
 
     <div id="loading-screen">
-        
+
+        <div class="top-title">
+            <h1 class="display-6">Visor 3D Didáctico</h1>
+            <div class="title-line"></div>
+        </div>
+
+        <div class="tips-container">
+            <div class="tip-box" id="tip-box">
+                <span class="tip-label">Axuda do visor</span>
+                <p class="tip-text" id="tip-content">Fai click e arrastra para orbitar arredor do modelo e velo desde calquera ángulo.</p>
+            </div>
+        </div>
+
         <div class="model-container">
             <model-viewer
                 id="robot-model"
@@ -204,26 +196,12 @@
             </model-viewer>
         </div>
 
-        <div class="ui-layer">
-            <div class="top-title">
-                <h1 class="display-6">Visor 3D Didáctico</h1>
-                <div class="title-line"></div>
+        <div class="progress-container">
+            <div class="progress-text"><span id="loading-msg">Cargando dependencias...</span> <span id="percent-text">0%</span></div>
+            <div class="progress">
+                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
             </div>
-
-            <div class="tips-container">
-                <div class="tip-box" id="tip-box">
-                    <span class="tip-label">Axuda do visor</span>
-                    <p class="tip-text" id="tip-content">Fai click e arrastra para orbitar arredor do modelo e velo desde calquera ángulo.</p>
-                </div>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-text"><span id="loading-msg">Cargando dependencias...</span> <span id="percent-text">0%</span></div>
-                <div class="progress">
-                    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                </div>
-                <div class="version-info">V0.18 // r4m0s</div>
-            </div>
+            <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; position: fixed; bottom: 5%; right: 5%; z-index: 10;">V0.18 // r4m0s</div>
         </div>
 
     </div>
@@ -300,5 +278,6 @@
             }, 100);
         });
     </script>
+<div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; position: fixed; bottom: 5%; left: 5%; z-index: 10;">V0.18 // r4m0s</div>
 </body>
 </html>
