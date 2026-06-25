@@ -21,30 +21,30 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
-            overflow: hidden !important;
-            overscroll-behavior: none;
+            min-height: 100vh;
             background-color: var(--bg-page);
             color: var(--moss-base);
             font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden; /* Evita scroll horizontal indeseado */
         }
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .main-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
             padding: 5%;
+            box-sizing: border-box;
             z-index: 10;
         }
 
-        /* --- TÍTULO (Estilo Carga.html) --- */
+        /* --- TÍTULO --- */
         .top-title {
             text-align: right;
-            max-width: 100%;
+            width: 100%;
+            z-index: 10;
         }
 
         .top-title h1 {
@@ -63,6 +63,25 @@
             margin-top: 5px;
         }
 
+        /* --- MODELO 3D DE FONDO (PC) --- */
+        .bg-model-container {
+            position: absolute;
+            top: 50%;
+            right: -10%; 
+            transform: translateY(-50%);
+            width: 70%;
+            height: 80%;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            --progress-bar-height: 0px;
+        }
+
         /* --- MENÚ DE OPCIONES --- */
         .options-container {
             display: flex;
@@ -78,6 +97,7 @@
         .option-card {
             background-color: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
             border: none;
             border-left: 5px solid var(--moss-base);
             padding: 20px;
@@ -123,81 +143,84 @@
             opacity: 0.8;
         }
 
-        /* --- MODELO 3D DE FONDO (Para mantener estética) --- */
-        .bg-model-container {
-            position: absolute;
-            top: 50%;
-            right: -10%; 
-            transform: translateY(-50%);
-            width: 70%;
-            height: 80%;
-            z-index: 1;
-            pointer-events: auto;
-        }
-
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            outline: none;
-            --progress-bar-height: 0px;
+        .version-info {
+            font-size: 0.7rem; 
+            opacity: 0.5; 
+            letter-spacing: 1px;
+            z-index: 10;
         }
 
         /* --- ADAPTACIÓN MÓVIL --- */
         @media (max-width: 768px) {
             .main-container {
-                justify-content: flex-start;
-                gap: 30px;
-                overflow-y: auto !important;
+                padding: 8% 5%;
             }
+
+            /* Usamos la propiedad 'order' de Flexbox para reorganizar los elementos */
             .top-title {
                 text-align: center;
+                order: 1; /* Título primero */
             }
-            .options-container {
-                max-width: 100%;
-                margin: 0;
-            }
+
             .bg-model-container {
                 position: relative;
+                top: auto;
+                right: auto;
                 transform: none;
-                top: 0;
-                right: 0;
                 width: 100%;
-                height: 35vh;
-                margin-top: auto;
+                height: 45vh; /* Altura del robot en móvil */
+                min-height: 350px;
+                order: 2; /* Robot justo después del título */
+                margin: 10px 0 20px 0;
+                z-index: 10;
             }
+
+            .options-container {
+                max-width: 100%;
+                margin: 0 0 30px 0;
+                order: 3; /* Menú después del robot */
+            }
+
+            .version-info {
+                text-align: center;
+                order: 4; /* Versión al final */
+            }
+
             .option-card:hover {
-                transform: translateY(-2px);
+                transform: translateY(-2px); /* Animación más amigable en pantallas táctiles */
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-model-container">
-        <model-viewer
-            id="menu-robot"
-            src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb"
-            autoplay
-            animation-name="Wave"
-            camera-controls
-            interaction-prompt="none"
-            shadow-intensity="0"
-            exposure="1"
-            scale="1.4 1.4 1.4"
-            camera-orbit="30deg 75deg 105%"
-            loading="eager">
-        </model-viewer>
-    </div>
-
     <div class="main-container">
         
+        <!-- ELEMENTO 1: TÍTULO -->
         <div class="top-title">
             <h1>v3DD</h1>
             <div class="title-line"></div>
         </div>
 
-        <div class="options-container">
+        <!-- ELEMENTO 2: MODELO 3D (En móvil se insertará aquí automáticamente por el CSS 'order') -->
+        <div class="bg-model-container">
+            <model-viewer
+                id="menu-robot"
+                src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb"
+                autoplay
+                animation-name="Wave"
+                camera-controls
+                interaction-prompt="none"
+                shadow-intensity="0"
+                exposure="1"
+                scale="1.4 1.4 1.4"
+                camera-orbit="30deg 75deg 105%"
+                loading="eager">
+            </model-viewer>
+        </div>
 
+        <!-- ELEMENTO 3: MENÚ DE OPCIONES -->
+        <div class="options-container">
              <a href="axuda.html" class="option-card">
                 <span class="option-label">Módulo 00</span>
                 <h2 class="option-title">Manual de uso</h2>
@@ -221,15 +244,16 @@
                 <h2 class="option-title">Visor 3D</h2>
                 <p class="option-desc">Accede á visualización do REA configurado.</p>
             </a>
-
         </div>
 
-        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px;">V0.18 // r4m0s</div>
+        <!-- ELEMENTO 4: VERSIÓN -->
+        <div class="version-info">V0.18 // r4m0s</div>
 
     </div>
+
     <script>
         const modelViewer = document.querySelector('#menu-robot');
-        // 2. Paletas Cores Coordinadas
+        // Paletas Cores Coordinadas
         const palettes = [
             [[0.2, 0.1, 0.4, 1], [0.9, 0.4, 0.1, 1], [0.95, 0.75, 0.2, 1]],        // Atardecer Eléctrico
             [[0.1, 0.25, 0.2, 1], [0.3, 0.5, 0.5, 1], [0.65, 0.75, 0.65, 1]],       // Bosque de Niebla

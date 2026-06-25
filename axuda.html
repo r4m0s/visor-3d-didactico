@@ -28,7 +28,7 @@
         }
 
         /* LAYOUT ESTRUTURAL */
-        .app-container { display: flex; width: 100vw; height: 100vh; }
+        .app-container { display: flex; width: 100vw; height: 100vh; flex-direction: row; }
 
         /* BARRA LATERAL */
         .sidebar {
@@ -56,14 +56,18 @@
         .menu-btn:hover { background: rgba(255, 197, 197, 0.12); transform: translateX(4px); }
         .menu-btn.active { background: var(--primary); border-color: var(--primary-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
 
-        .exit-btn {
-            width: 90%; margin-left: 14px; padding: 14px 18px; background: var(--white);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
-            color: #000000; text-align: center; font-weight: 600; font-size: 0.9rem; color
-            cursor: pointer; transition: all 0.2s ease; align-items: center; gap: 12px;
+        /* CONTENEDOR INFERIOR DE LA BARRA LATERAL */
+        .sidebar-bottom {
+            margin-top: auto;
         }
-        .exit-btn:hover { background: rgba(255, 255, 255, 0.50); transform: translateX(4px); cursor: pointer;}
-        .exit-btn.active { background: var(--primary); border-color: var(--primary-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+
+        .exit-btn {
+            width: 90%; margin: 14px auto; padding: 14px 18px; background: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+            color: #000000; text-align: center; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s ease; display: flex; justify-content: center; align-items: center; gap: 12px;
+        }
+        .exit-btn:hover { background: rgba(255, 255, 255, 0.50); transform: translateX(4px); }
 
         .sidebar-footer {
             padding: 15px; text-align: left; font-size: 0.75rem; opacity: 0.5;
@@ -86,7 +90,7 @@
 
         /* COMANDOS */
         .command-badge { background: var(--bg-page); border: 1px solid var(--primary-soft); border-radius: 6px; padding: 4px 8px; font-family: monospace; font-weight: bold; color: var(--danger); font-size: 0.9rem; display: inline-block; }
-        .grid-commands { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
+        .grid-commands { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
         .command-item { background: var(--bg-page); border-left: 4px solid var(--primary); padding: 12px 15px; border-radius: 0 10px 10px 0; display: flex; flex-direction: column; gap: 6px; }
         .command-desc { font-size: 0.9rem; font-weight: 600; color: var(--dark); }
 
@@ -100,6 +104,59 @@
         li { margin-bottom: 8px; }
 
         .alert-box { background: #fff5f5; border-left: 4px solid var(--danger); padding: 15px; border-radius: 0 12px 12px 0; font-size: 0.9rem; margin-top: 15px; color: #721c24; }
+
+        /* MODO RESPONSIVE PARA DISPOSITIVOS MÓBILES */
+        @media (max-width: 768px) {
+            body, html { overflow: hidden; height: 100%; }
+            .app-container { flex-direction: column; height: 100vh; }
+            
+            .sidebar {
+                width: 100%; height: auto; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 20;
+            }
+            .sidebar-header { padding: 15px; }
+            .sidebar-header h1 { font-size: 1.1rem; }
+            
+            .sidebar-menu { 
+                flex-direction: row; padding: 10px 15px; gap: 10px; 
+                overflow-x: auto; overflow-y: hidden;
+                /* Ocultar barra de desprazamento visual pero manter funcionalidade */
+                -ms-overflow-style: none; scrollbar-width: none;
+            }
+            .sidebar-menu::-webkit-scrollbar { display: none; }
+            
+            .menu-btn { 
+                width: auto; white-space: nowrap; padding: 10px 15px; flex-shrink: 0; 
+            }
+            .menu-btn:hover { transform: none; }
+            
+            /* FIJAR BOTÓN Y FOOTER EN LA PARTE INFERIOR */
+            .sidebar-bottom {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: var(--sidebar-bg);
+                z-index: 30;
+                box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
+            }
+
+            .exit-btn { 
+                width: calc(100% - 30px); margin: 10px auto; 
+            }
+            .exit-btn:hover { transform: none; }
+
+            .sidebar-footer { padding: 10px; text-align: center; }
+
+            .main-content { 
+                /* Padding inferior aumentado (110px) para que el texto no quede tapado por los botones fijos */
+                padding: 20px 15px 110px 15px; 
+                overflow-y: auto; 
+            }
+            .section-title { font-size: 1.4rem; }
+            .subtitle { font-size: 0.95rem; }
+            .card-ui { padding: 15px; }
+            .grid-commands { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -128,13 +185,15 @@
                 <button class="menu-btn" onclick="openTab('visor', this)">
                     <span></span> 3. Visor 3D
                 </button>
-                
             </nav>
-            <button class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
-                <span></span> Saír
-            </button>
-            <div class="sidebar-footer">
-                V0.18 // r4m0s
+            
+            <div class="sidebar-bottom">
+                <button class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
+                    <span></span> Saír
+                </button>
+                <div class="sidebar-footer">
+                    V0.18 // r4m0s
+                </div>
             </div>
         </aside>
 
@@ -152,7 +211,7 @@
                         <li><strong>Repositorio de REA:</strong> Un espazo de almacenamento para xerar repositorios de REA listos para usar na aula.</li>
                         <li><strong>Visor 3D:</strong> Unha interface de viausalización de REA para que o alumnado acceda de xeito directo ao contido interactivo sen perigo de desconfiguración.</li>
                     </ul>
-                    <img src="https://r4m0s.github.io/visor-3d-didactico/assets/inicio.png" alt="selector" style="max-width: 100%; height: auto;"/>
+                    <img src="https://r4m0s.github.io/visor-3d-didactico/assets/inicio.png" alt="selector" style="max-width: 100%; height: auto; display: block; margin: 15px auto 0;"/>
                 </div>
             </div>
 
@@ -349,11 +408,7 @@
                 section.classList.remove('active');
             });
             // Quitar clase activa dos botóns
-            document.querySelectorAll('.menu-btn').forEach(button => {
-                button.classList.remove('active');
-            });
-            // Quitar clase activa dos botóns
-            document.querySelectorAll('.exit-btn').forEach(button => {
+            document.querySelectorAll('.menu-btn, .exit-btn').forEach(button => {
                 button.classList.remove('active');
             });
             
