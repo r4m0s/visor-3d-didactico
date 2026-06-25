@@ -246,7 +246,7 @@
                 const duration = modelViewer.duration;
                 if (duration > 0 && modelViewer.currentTime >= duration - 0.15) {
                     modelViewer.pause(); 
-                    modelViewer.currentTime = duration - 0.001; 
+                    modelViewer.currentTime = duration - 0.15; 
                     
                     setTimeout(() => {
                         modelViewer.currentTime = 0; 

@@ -95,7 +95,7 @@
 
         /* BOTÓNS FLOTANTES */
         #btn-ar-universal {
-            position: fixed; bottom: 25px; right: 25px; z-index: 2000; /* REBAJADO PARA NO SUPERPONER AL MENÚ */
+            position: fixed; bottom: 25px; right: 25px; z-index: 2000;
             background-color: white; border: 2px solid var(--primary); color: var(--primary);
             padding: 14px 28px; border-radius: 40px; font-weight: bold; cursor: pointer;
             box-shadow: 0 6px 25px rgba(0,0,0,0.15); transition: 0.2s;
@@ -107,7 +107,7 @@
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         /* CAPAS AR / MODALES OPTIMIZADOS PARA WEBXR */
-        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2500; } /* REBAJADO BAJO EL MENÚ */
+        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2500; }
         .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: auto; }
         .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
         
@@ -134,18 +134,18 @@
 
             #dashboard {
                 top: 0; left: 0;
-                height: 100%; /* Fallback */
-                height: 100dvh; /* dvh maneja el teclado virtual correctamente */
+                height: 100%;
+                height: 100dvh;
                 width: 90vw;
                 max-width: 380px;
-                border-radius: 0 20px 20px 0; /* Solo bordes a la derecha */
+                border-radius: 0 20px 20px 0;
                 border: none;
-                background: #ffffff; /* FONDO SÓLIDO: Elimina fallos gráficos al escribir */
-                backdrop-filter: none; /* QUITA EL BLUR para que no se filtre el visor */
+                background: #ffffff;
+                backdrop-filter: none;
                 transform: translateX(-100%);
             }
             #dashboard.open {
-                transform: translateX(0); /* Visible al abrir */
+                transform: translateX(0);
             }
 
             #btn-ar-universal {
@@ -445,8 +445,15 @@
                 reproduciendo: false, enAR: false,
 
                 init() {
+                    // GARDAMOS O ESTADO INICIAL DO ANCHO
+                    let esMovil = window.innerWidth <= 768;
                     window.addEventListener('resize', () => {
-                        this.mostrarDashboard = window.innerWidth > 768;
+                        const ahoraEsMovil = window.innerWidth <= 768;
+                        // SÓ CAMBIA O MENÚ SE PASA DE PC A MÓBIL OU VICEVERSA
+                        if (esMovil !== ahoraEsMovil) {
+                            this.mostrarDashboard = !ahoraEsMovil;
+                            esMovil = ahoraEsMovil;
+                        }
                     });
                 },
 
