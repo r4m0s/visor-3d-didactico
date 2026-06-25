@@ -22,20 +22,20 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh; /* Forzamos a que ocupe exactamente la pantalla */
+            height: 100vh; 
             background-color: var(--bg-page);
             color: var(--moss-base);
             font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; /* Desactivamos por completo el scroll */
+            overflow: hidden; 
         }
 
-        /* --- CONTENEDOR PRINCIPAL --- */
+        /* --- CONTEDOR PRINCIPAL --- */
         .main-container {
             display: flex;
             flex-direction: column;
             position: relative;
             width: 100%;
-            height: 100vh; /* Ajustado a la altura de la pantalla */
+            height: 100vh; 
             padding: 5%;
             box-sizing: border-box;
             z-index: 10;
@@ -64,11 +64,11 @@
             margin-top: 5px;
         }
 
-        /* --- MODELO 3D DE FONDO (PC) --- */
+        /* --- MODELO 3D  --- */
         .bg-model-container {
             position: absolute;
             top: 50%;
-            right: 0%; /* Ajustado de -10% a 0% para moverlo un 10% a la izquierda */
+            right: 0%; 
             transform: translateY(-50%);
             width: 70%;
             height: 80%;
@@ -83,7 +83,7 @@
             --progress-bar-height: 0px;
         }
 
-        /* --- MENÚ DE OPCIONES / ERRO --- */
+        /* --- MENÚ DE OPCIÓNS / ERRO --- */
         .options-container {
             display: flex;
             flex-direction: column;
@@ -167,7 +167,7 @@
             z-index: 10;
         }
 
-        /* --- ADAPTACIÓN MÓVIL --- */
+        /* --- DESEÑO RESPONSIVE --- */
         @media (max-width: 768px) {
             .main-container { 
                 padding: 5% 5%; 
@@ -180,7 +180,7 @@
                 right: auto;
                 transform: none;
                 width: 100%;
-                height: 35vh; /* Reducido ligeramente para evitar scroll en móviles */
+                height: 35vh; 
                 min-height: 250px;
                 order: 2; 
                 margin: 10px 0;

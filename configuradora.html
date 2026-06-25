@@ -29,7 +29,7 @@
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: transparent; }
 
-        /* MENU MÓVIL Y OVERLAY */
+        /* MENU MÓVIL E OVERLAY */
         #btn-mobile-menu {
             display: none; position: fixed; top: 15px; left: 15px; z-index: 3000;
             background: var(--primary); color: white; border: none; padding: 10px 15px;
@@ -44,8 +44,8 @@
         /* DASHBOARD */
         #dashboard {
             position: fixed; top: 15px; left: 15px; width: 360px; 
-            height: calc(100vh - 30px); /* Fallback navegadores antigos */
-            height: calc(100dvh - 30px); /* Fix para iPad e Safari */
+            height: calc(100vh - 30px); 
+            height: calc(100dvh - 30px); 
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 4000; display: flex; flex-direction: column;
             border: 1px solid var(--primary-soft); overflow: hidden;
@@ -108,11 +108,11 @@
         }
         #btn-ar-universal:hover { background-color: var(--primary); color: white; }
 
-        /* DEPURACIÖN */
+        /* DEPURACIÓN */
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* CAPAS AR / MODALES OPTIMIZADOS PARA WEBXR */
+        /* CAPAS AR PARA WEBXR */
         #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2500; }
         .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: auto; }
         .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
@@ -132,7 +132,7 @@
         .autor-linea { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9em; color: var(--primary-light); font-weight: 600; }
         .autor-linea img { height: 20px; }
 
-        /* MEDIA QUERIES RESPONSIVE */
+        /* MODELOS 3D RESPONSIVE */
         @media (max-width: 768px) {
             #btn-mobile-menu { display: block; }
             .mobile-overlay.active { display: block; }
@@ -289,7 +289,7 @@
                     <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">CARGAR FICHEIRO LOCAL (.GLB):</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:10px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Proxecto Aspanaes - Coche</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Tecnoloxía - Motor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/flor.glb">Bioloxía - Flor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/castelo.glb">Historia - Castelo</option>
@@ -316,7 +316,7 @@
                         <input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%;">
                     </div>
                     <div x-show="materialActivo" style="margin-bottom:15px;">
-                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDAD:</label>
+                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDADE:</label>
                         <input type="range" min="0" max="100" x-model="opacidadValue" @input="aplicarOpacidad()" style="width:100%;">
                     </div>
                     <div x-show="listaAnimaciones.length > 0" style="padding:12px; background:var(--primary-soft); border-radius:12px;">
@@ -334,13 +334,13 @@
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s4')"><span class="section-title">4. Ferramentas de Medición</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s4" style="padding:15px;">
-                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? '📏 Ocultar cotas xerais do modelo' : '📏 Activar cotas xerais do modelo'"></button>
+                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? 'Ocultar cotas xerais do modelo' : 'Activar cotas xerais do modelo'"></button>
                     <select x-model="unidad" @change="cambiarUnidades()" style="margin-top:10px;" x-show="verCotas || medidasLibres.length > 0">
                         <option value="mm">Milímetros (mm)</option><option value="cm">Centímetros (cm)</option><option value="m">Metros (m)</option>
                     </select>
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
-                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--primary-soft); color:var(--primary)'" @click="toggleMidiendoLibre()">
-                        <span x-text="midiendoLibre ? '🛑 Deter medición' : '📐 Medición entre puntos'"></span>
+                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleMidiendoLibre()">
+                        <span x-text="midiendoLibre ? 'Deter medición' : 'Medición entre puntos'"></span>
                     </button>
                     <p x-show="midiendoLibre" style="font-size:10.5px; color:var(--danger); text-align:center; font-weight:bold; margin-top:8px;" x-text="puntoTemp ? '📍 Selecciona o segundo punto' : '📍 Selecciona o primeiro punto'"></p>
                     <div x-show="medidasLibres.length > 0" style="margin-top:10px;">
