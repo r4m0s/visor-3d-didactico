@@ -12,6 +12,7 @@
         :root {
             --olive-base: #636B2F;
             --sidebar-bg: #535843; 
+            --sidebar-footer-bg: #4a4f3b; /* Tono ligeramente más oscuro para el pie */
             --bg-main: #f0f2ed;
             --white: #ffffff;
             --border-olive: #929971;
@@ -25,9 +26,10 @@
         }
 
         /* --- LAYOUT ESTRUCTURAL --- */
-        .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; position: relative; }
+        /* Cambiado 100vh por 100% para evitar que las barras de los navegadores móviles lo tapen */
+        .app-wrapper { display: flex; width: 100vw; height: 100%; overflow: hidden; position: relative; }
 
-        /* BARRA LATERAL (Estructura Flex para fijar el pie de página) */
+        /* BARRA LATERAL */
         .sidebar {
             width: var(--sidebar-width); flex-shrink: 0; height: 100%;
             background-color: var(--sidebar-bg); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -43,8 +45,8 @@
             box-shadow: 5px 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Contenido compacto para evitar scroll */
-        .sidebar-content { padding: 20px 20px 5px 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; }
+        /* Contenido compacto */
+        .sidebar-content { padding: 20px 20px 0px 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; }
         .sidebar h4 { color: white; font-weight: 800; text-align: center; margin-bottom: 15px; text-transform: uppercase; font-size: 1.15rem; }
 
         .section-header {
@@ -77,14 +79,13 @@
         .exit-custom:active { transform: translateY(3px); box-shadow: 0 0 0 #4a5023; }
         .exit-custom:disabled { background-color: #888; box-shadow: 0 3px 0 #666; opacity: 0.6; }
 
-        /* Altura controlada para el visor previo lateral */
         .preview-box { width: 100%; height: 130px; background: #2a2d21; border-radius: 12px; margin-top: 5px; margin-bottom: 5px; border: 2px solid var(--border-olive); overflow: hidden; }
         
-        /* Pie de página de la barra lateral ajustado */
+        /* Pie de página reforzado */
         .sidebar-footer {
-            font-size: 0.7rem; color: #fff ; opacity: 0.5; letter-spacing:0.1em;
-            padding: 12px 20px; text-align: left; background-color: var(--sidebar-bg);
-            border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
+            font-size: 0.7rem; color: #fff ; opacity: 0.6; letter-spacing:0.1em;
+            padding: 12px 20px; text-align: left; background-color: var(--sidebar-footer-bg);
+            flex-shrink: 0; width: 100%;
         }
 
         /* --- ÁREA DE CONTENIDO (GRID) --- */
@@ -146,7 +147,7 @@
         model-viewer#modal-viewer { width: 100%; height: 100%; background: #fdfdfd; }
         
         #visor-info-display {
-            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 25 class="autor-linea" 55, 0.95);
+            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
             padding: 15px 25px; border-radius: 15px; z-index: 10; pointer-events: none;
             box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05);
             display: none; flex-direction: column; align-items: flex-end; gap: 4px;
@@ -192,7 +193,7 @@
         @media (max-width: 768px) {
             .sidebar {
                 position: absolute;
-                height: 100vh;
+                height: 100%; /* Igual, mantenemos 100% para prevenir bugs de vista móvil */
                 box-shadow: 10px 0 20px rgba(0,0,0,0.3);
             }
             .grid-header { padding-left: 50px; justify-content: center; padding-right: 15px; }
@@ -250,7 +251,7 @@
                 <button class="btn exit-custom btn-sm" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
             </div>   
             
-            <div class="text-center mt-auto pt-3">
+            <div class="text-center mt-auto pt-3 pb-4">
                 <button onclick="deleteAllModels()" class="btn btn-link text-white-50 text-decoration-none btn-sm" style="font-size: 0.65rem;">Resetear Memoria Local</button>
             </div>
         </div> 
