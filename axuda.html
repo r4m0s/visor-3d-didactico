@@ -32,8 +32,8 @@
         .app-container { 
             display: flex; 
             width: 100vw; 
-            height: 100vh; /* Fallback para navegadores antigos */
-            height: 100dvh; /* Solución dinámica para iPad/iOS */
+            height: 100vh; 
+            height: 100dvh; 
             flex-direction: row; 
         }
 
@@ -42,7 +42,7 @@
             width: 320px; background-color: var(--sidebar-bg); color: var(--white);
             display: flex; flex-direction: column; flex-shrink: 0;
             box-shadow: 4px 0 15px rgba(0,0,0,0.15); z-index: 10;
-            height: 100%; /* Asegura que non exceda o contedor */
+            height: 100%;
         }
 
         .sidebar-header {
@@ -56,7 +56,7 @@
         .sidebar-menu { 
             padding: 20px; overflow-y: auto; flex-grow: 1; 
             display: flex; flex-direction: column; gap: 8px; 
-            -webkit-overflow-scrolling: touch; /* Mellora o scroll en iPad */
+            -webkit-overflow-scrolling: touch; 
         }
 
         .menu-btn {
@@ -65,13 +65,12 @@
             color: var(--white); text-align: left; font-weight: 600; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 12px;
         }
-        .menu-btn:hover { background: rgba(255, 197, 197, 0.12); transform: translateX(4px); }
         .menu-btn.active { background: var(--primary); border-color: var(--primary-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
 
-        /* CONTENEDOR INFERIOR DE LA BARRA LATERAL */
+        /* CONTEDOR INFERIOR DA BARRA LATERAL */
         .sidebar-bottom {
             margin-top: auto;
-            flex-shrink: 0; /* Evita que o iPad esmague esta sección */
+            flex-shrink: 0; 
         }
 
         .exit-btn {
@@ -80,7 +79,12 @@
             color: #000000; text-align: center; font-weight: 600; font-size: 0.9rem;
             cursor: pointer; transition: all 0.2s ease; display: flex; justify-content: center; align-items: center; gap: 12px;
         }
-        .exit-btn:hover { background: rgba(255, 255, 255, 0.50); transform: translateX(4px); }
+
+        /* EFECTOS HOVER */
+        @media (hover: hover) {
+            .menu-btn:hover { background: rgba(255, 197, 197, 0.12); transform: translateX(4px); }
+            .exit-btn:hover { background: rgba(255, 255, 255, 0.50); transform: translateX(4px); }
+        }
 
         .sidebar-footer {
             padding: 15px; text-align: left; font-size: 0.75rem; opacity: 0.5;
@@ -122,54 +126,34 @@
 
         .alert-box { background: #fff5f5; border-left: 4px solid var(--danger); padding: 15px; border-radius: 0 12px 12px 0; font-size: 0.9rem; margin-top: 15px; color: #721c24; }
 
-        /* MODO RESPONSIVE PARA DISPOSITIVOS MÓBILES E IPADS EN VERTICAL */
+        /* MODO RESPONSIVE */
         @media (max-width: 834px) {
             body, html { overflow: hidden; height: 100%; }
-            .app-container { 
-                flex-direction: column; 
-                height: 100vh; 
-                height: 100dvh; /* Tamén necesario en modo móbil */
-            }
+            .app-container { flex-direction: column; height: 100vh; height: 100dvh; }
             
-            .sidebar {
-                width: 100%; height: auto; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 20;
-            }
+            .sidebar { width: 100%; height: auto; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 20; }
             .sidebar-header { padding: 15px; }
             .sidebar-header h1 { font-size: 1.1rem; }
             
             .sidebar-menu { 
                 flex-direction: row; padding: 10px 15px; gap: 10px; 
                 overflow-x: auto; overflow-y: hidden;
-                /* Ocultar barra de desprazamento visual pero manter funcionalidade */
                 -ms-overflow-style: none; scrollbar-width: none;
             }
             .sidebar-menu::-webkit-scrollbar { display: none; }
             
-            .menu-btn { 
-                width: auto; white-space: nowrap; padding: 10px 15px; flex-shrink: 0; 
-            }
-            .menu-btn:hover { transform: none; }
+            .menu-btn { width: auto; white-space: nowrap; padding: 10px 15px; flex-shrink: 0; }
             
-            /* FIJAR BOTÓN Y FOOTER EN LA PARTE INFERIOR */
             .sidebar-bottom {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                background-color: var(--sidebar-bg);
-                z-index: 30;
+                position: fixed; bottom: 0; left: 0; width: 100%;
+                background-color: var(--sidebar-bg); z-index: 30;
                 box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
             }
 
-            .exit-btn { 
-                width: calc(100% - 30px); margin: 10px auto; 
-            }
-            .exit-btn:hover { transform: none; }
-
+            .exit-btn { width: calc(100% - 30px); margin: 10px auto; }
             .sidebar-footer { padding: 10px; text-align: center; }
 
             .main-content { 
-                /* Padding inferior aumentado (110px) para que el texto no quede tapado por los botones fijos */
                 padding: 20px 15px 110px 15px; 
                 overflow-y: auto; 
             }
@@ -191,25 +175,25 @@
             </div>
             
             <nav class="sidebar-menu">
-                <button class="menu-btn active" onclick="openTab('inicio', this)">
+                <button type="button" class="menu-btn active" onclick="openTab('inicio', this)">
                     <span></span> Inicio / Introdución
                 </button>
-                <button class="menu-btn" onclick="openTab('controis', this)">
+                <button type="button" class="menu-btn" onclick="openTab('controis', this)">
                     <span></span> Controis de Navegación
                 </button>
-                <button class="menu-btn" onclick="openTab('configurador', this)">
+                <button type="button" class="menu-btn" onclick="openTab('configurador', this)">
                     <span></span> 1. Configurador de RA
                 </button>
-                <button class="menu-btn" onclick="openTab('repositorio', this)">
+                <button type="button" class="menu-btn" onclick="openTab('repositorio', this)">
                     <span></span> 2. Repositorio de REA
                 </button>
-                <button class="menu-btn" onclick="openTab('visor', this)">
+                <button type="button" class="menu-btn" onclick="openTab('visor', this)">
                     <span></span> 3. Visor 3D
                 </button>
             </nav>
             
             <div class="sidebar-bottom">
-                <button class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
+                <button type="button" class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
                     <span></span> Saír
                 </button>
                 <div class="sidebar-footer">
@@ -297,4 +281,177 @@
                     <div class="acc-header" onclick="toggleAccordion(this)"><span>2. Selección de Modelo (Ficheiro ou Precargados)</span><span class="icon">▼</span></div>
                     <div class="acc-content">
                         <ul>
-                            <li><strong>Opción Ficheiro Local:</strong> Preme en <em>"Elexir
+                            <li><strong>Opción Ficheiro Local:</strong> Preme en <em>"Elexir ficheiro"</em> e carga un modelo tridimensional propio en formato <code>.glb</code> do teu ordenador.</li>
+                            <li><strong>Opción Catálogo Didáctico:</strong> Usa o menú despregable inferior para seleccionar instantaneamente modelos precargados de exemplo.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>3. Edición de Materiais e Animacións</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ol>
+                            <li><strong>Materiais:</strong> Selecciona unha malla do modelo no menú despregable. Habilitaranse controis para cambiar a cor, reflectividade e opacidade (transparencia).</li>
+                            <li><strong>Animacións:</strong> Se o modelo ten movemento propio, aparecerá o control de liña de tempo. Podes reproducir, pausar ou arrastrar o control deslizante.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>4. Ferramentas de Medición e Cotas</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ul>
+                            <li><strong>Cotas Xerais:</strong> Preme en <em>"Activar cotas xerais do modelo"</em> para proxectar automaticamente as liñas de dimensión máximas. Podes cambiar as unidades a mm, cm ou m.</li>
+                            <li><strong>Medición entre Puntos:</strong> Fai clic sobre o modelo para poñer o primeiro punto e outro clic noutro lugar para trazar unha liña de cota libre coa súa distancia real calculada.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>5. Creación de Puntos Multimedia</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ol>
+                            <li>Preme no botón <strong>"🔍 Activar edición multimedia"</strong>.</li>
+                            <li>Fai clic sobre calquera zona do modelo 3D onde desexes poñer unha anotación.</li>
+                            <li>Despregarase unha ficha no panel para configurar o punto: asígnalle título, texto, cor e contido (Texto, Imaxe, Vídeo ou Ligazón). Preme <strong>✓ Gardar</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>6. Información da Autoría e Licenzas</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ol>
+                            <li>Pon o nome do autor ou o da institución no campo correspondente.</li>
+                            <li>Selecciona o tipo de licenza Creative Commons no selector para incluír o selo legal. Preme <strong>✓ Aplicar</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>7. Captura de Pantalla do Modelo</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ol>
+                            <li>Xira e posiciona o modelo 3D no ángulo exacto que prefiras.</li>
+                            <li>Escolle o formato: PNG (fondo transparente) ou JPG (fondo branco).</li>
+                            <li>Preme <strong>"📸 Tomar Captura 3D"</strong> para descargar a imaxe no teu dispositivo.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="acc-item">
+                    <div class="acc-header" onclick="toggleAccordion(this)"><span>8. Importar, Exportar e Integración</span><span class="icon">▼</span></div>
+                    <div class="acc-content">
+                        <ul>
+                            <li><strong>Gardar Traballo:</strong> Preme en <strong>"💾 Descargar REA .JSON"</strong>. Este ficheiro conterá todo o que programaches e permitiráche usalo para cargar no repositorio ou no visor.</li>
+                            <li><strong>Xerar código aula virtual:</strong> Obtén un código HTML listo para copiar e incrustar de xeito directo en plataformas como Moodle.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card-ui" style="margin-top:25px; background:var(--primary-soft);">
+                    <h3 class="card-title" style="color:var(--dark);">Activación de Realidade Aumentada (RA)</h3>
+                    <ul>
+                        <li><strong>Ordenador:</strong> Xerarase un código QR interactivo. Escanéao co móbil para transferir a experiencia.</li>
+                        <li><strong>Móbil/Tableta:</strong> Abrirase a cámara para detectar o chan e proxectar o modelo real no espazo físico de traballo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="repositorio" class="content-section">
+                <h2 class="section-title">Repositorio de REA</h2>
+                <div class="subtitle">Instrucións para xestionar a biblioteca dixital de recursos</div>
+                
+                <div class="card-ui">
+                    <h3 class="card-title">Estrutura e Carga de Datos</h3>
+                    <p>O repositorio permite administrar <strong>espazos funcionais</strong> dispoñibles para cargar os teus REA configurados.</p>
+                    <ol>
+                        <li><strong>Identificar a materia:</strong> No menú lateral, escribe o nome da túa materia e preme <em>"Gardar Repositorio"</em>.</li>
+                        <li><strong>Cargar Proxectos:</strong> Selecciona o ficheiro <code>.json</code> descargado previamente desde o configurador.</li>
+                        <li><strong>Verificación e Gardado:</strong> Verás o modelo na previsualización. Ponlle un título e preme <strong>"Gardar"</strong>.</li>
+                    </ol>
+                </div>
+
+                <div class="card-ui">
+                    <h3 class="card-title">🔍 Interacción co repositorio</h3>
+                    <ul>
+                        <li><strong>Visor Avanzado:</strong> Fai clic en calquera REA cargado para abrir unha xanela interactiva que contén o modelo completo coa súa información.</li>
+                        <li><strong>Eliminar recursos:</strong> Pasa o cursor por riba dun REA e fai clic no botón vermello <strong>"×"</strong> para eliminalo.</li>
+                        <li><strong>Limpado Absoluto:</strong> Preme <em>"Resetear Memoria Local"</em> se desexas baleirar por completo tódolos espazos do repositorio á vez.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="visor" class="content-section">
+                <h2 class="section-title">Visor 3D</h2>
+                <div class="subtitle">Contorna de visualización de REA</div>
+                
+                <div class="card-ui">
+                    <h3 class="card-title">Como abrir e presentar un recurso</h3>
+                    <ol>
+                        <li>Ao iniciar o Visor, amósase un panel flotante á esquerda titulado <strong>"Abrir Modelo 3D"</strong>.</li>
+                        <li>Carga o ficheiro <code>.json</code> correspondente ao REA preparado no configurador. O panel desaparecerá cedendo o protagonismo ao modelo.</li>
+                        <li>Na esquina superior dereita amosarase permanentemente o Título, o Nome do Autor e o seu Selo de Licenza Creative Commons.</li>
+                        <li>O alumnado poderá interactuar cos <strong>Puntos multimedia</strong> facendo clic neles para abrir información, imaxes ou vídeos.</li>
+                    </ol>
+                    
+                    <div class="alert-box">
+                        <strong>⚠️ Nota Técnica Importante:</strong><br>
+                        Se o proxecto foi configurado cargando un ficheiro <code>.glb</code> desde unha unidade local, o visor require subir previamente ese mesmo modelo para ler as súas mallas físicas tridimensionais, dado que o ficheiro JSON só almacena os datos de texto e metadatos.
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Lóxica para as lapelas do menú lateral
+        function openTab(tabId, btn) {
+            
+            // 1. Ocultar todas as seccións forzando o display
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+            
+            // 2. Quitar clase activa dos botóns
+            document.querySelectorAll('.menu-btn, .exit-btn').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 3. Mostrar a sección correspondente
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) {
+                activeSection.style.display = 'block';
+                activeSection.classList.add('active');
+            }
+            
+            // 4. Marcar botón premido
+            if (btn) {
+                btn.classList.add('active');
+            }
+
+            // 5. Devolver o scroll arriba
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.scrollTop = 0;
+            }
+        }
+
+        // Lóxica para o acordeón do Configurador
+        function toggleAccordion(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.icon');
+            
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                icon.textContent = "▼";
+            } else {
+                content.style.display = "block";
+                icon.textContent = "▲";
+            }
+        }
+    </script>
+</body>
+</html>
