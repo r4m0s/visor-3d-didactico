@@ -42,7 +42,9 @@
 
         /* DASHBOARD */
         #dashboard {
-            position: fixed; top: 15px; left: 15px; width: 360px; height: calc(100vh - 30px);
+            position: fixed; top: 15px; left: 15px; width: 360px; 
+            height: calc(100vh - 30px); /* Fallback navegadores antigos */
+            height: calc(100dvh - 30px); /* Fix para iPad e Safari */
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 4000; display: flex; flex-direction: column;
             border: 1px solid var(--primary-soft); overflow: hidden;
@@ -70,7 +72,10 @@
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--primary-soft); border-radius: 8px; margin-bottom: 5px; font-size: 13px; font-family: inherit; color: var(--dark); }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .exit-main { width: 93%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        
+        /* Modificado para que no se encoja en iPad */
+        .exit-main { width: 93%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        
         .btn-mini { padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
 
         /* SELECTORES CIRCULARES */
@@ -187,6 +192,7 @@
             @click="colocarPunto($event)" 
             @load="onModelLoad()"
             @ar-status="enAR = ['session-started', 'object-placed'].includes($event.detail.status)"> 
+            
             <button slot="hotspot-dot-origin" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-height" style="display:none;" data-position="0 0 0"></button>
@@ -415,7 +421,7 @@
             </div>
         </div>
         <button class="exit-main" style="background:var(--success); margin-left: 3%; color:white; margin-bottom:15px;" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
-        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%;">V0.18 // r4m0s</div>
+        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%; flex-shrink: 0;">V0.18 // r4m0s</div>
     </div>
 
     <div class="global-overlay-fixed" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
