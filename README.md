@@ -22,15 +22,32 @@ O repositorio atópase estruturado da seguinte maneira:
 ├─ 📂assets
     ├─coche_aspanaes.glb
     ├─motor.glb
+    ├─flor.glb
+    ├─castelo.glb
     ├─piramide.glb
+    ├─peza.glb
+    ├─castelao.glb
     ├─vocabulario.glb
+    ├─inicio.png
+├─ 📂electron
+    ├─main.js
+    ├─preload.js
+    ├─renderer.js
+    ├─styles.css
+    ├─package.json
+    ├─package-lock.json
 ├─ 📂libs
     ├─📂model-viewer
     ├─📂threejs
     ├─📂bootstrap
-├─ carga.html
-├─ repositorio.html
+├─ 📂versions
 ├─ index.html
+├─ selector.html
+├─ configurador.html
+├─ repositorio.html
+├─ visor.html
+├─ axuda.html
+├─ 404.html
 └─ readme.md
 ```
 
