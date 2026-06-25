@@ -186,8 +186,7 @@
             shadow-intensity="1.5" 
             @click="colocarPunto($event)" 
             @load="onModelLoad()"
-            @ar-status="enAR = ($event.detail.status === 'session-started')">
-            
+            @ar-status="enAR = ['session-started', 'object-placed'].includes($event.detail.status)"> 
             <button slot="hotspot-dot-origin" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-height" style="display:none;" data-position="0 0 0"></button>
@@ -445,11 +444,9 @@
                 reproduciendo: false, enAR: false,
 
                 init() {
-                    // GARDAMOS O ESTADO INICIAL DO ANCHO
                     let esMovil = window.innerWidth <= 768;
                     window.addEventListener('resize', () => {
                         const ahoraEsMovil = window.innerWidth <= 768;
-                        // SÓ CAMBIA O MENÚ SE PASA DE PC A MÓBIL OU VICEVERSA
                         if (esMovil !== ahoraEsMovil) {
                             this.mostrarDashboard = !ahoraEsMovil;
                             esMovil = ahoraEsMovil;
