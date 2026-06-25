@@ -60,12 +60,21 @@
 
         .btn-custom {
             background-color: var(--olive-base); border: none; color: white; font-weight: 800;
-            border-radius: 10px; padding: 12px; text-transform: uppercase; box-shadow: 0 4px 0 #4a5023;
-            transition: all 0.1s; width: 100%;
+            border-radius: 10px; padding: 10px; text-transform: uppercase; box-shadow: 0 4px 0 #4a5023;
+            transition: all 0.1s; width: 100%; font-size: 0.875rem;
         }
-        .btn-custom:hover { background-color: #727b36; transform: translateY(1px); box-shadow: 0 3px 0 #4a5023; }
+        .btn-custom:hover { background-color: #727b36;; transform: translateY(1px); box-shadow: 0 3px 0 #4a5023; }
         .btn-custom:active { transform: translateY(4px); box-shadow: 0 0 0 #4a5023; }
         .btn-custom:disabled { background-color: #888; box-shadow: 0 4px 0 #666; opacity: 0.6; }
+
+        .exit-custom {
+            background-color: #ffffff; border: none; color: black; font-weight: 800; bottom: 5%;
+            border-radius: 10px; padding: 10px; text-transform: uppercase; box-shadow: 0 4px 0 #4a5023;
+            transition: all 0.1s; width: 100% ; font-size: 0.875rem;
+        }
+        .exit-custom:hover { background-color: #727b36; transform: translateY(1px); box-shadow: 0 3px 0 #4a5023; }
+        .exit-custom:active { transform: translateY(4px); box-shadow: 0 0 0 #4a5023; }
+        .exit-custom:disabled { background-color: #888; box-shadow: 0 4px 0 #666; opacity: 0.6; }
 
         /* --- ÁREA DE CONTIDO (GRID) --- */
         .main-content { flex-grow: 1; height: 100%; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
@@ -176,7 +185,7 @@
                 <input type="text" id="repoInput" class="form-control mb-3" placeholder="Tecnoloxía e Dixitalización - 1º ESO">
                 <div class="d-grid gap-2">
                     <button class="btn btn-custom btn-sm" onclick="saveRepoName()">Gardar Repositorio</button>
-                    <button class="btn btn-link text-white-50 text-decoration-none btn-sm" onclick="clearRepoName()">Borrar Nombre</button>
+
                 </div>
             </div>
 
@@ -197,13 +206,13 @@
 
                 <button id="btnSave" class="btn btn-custom" disabled>Gardar</button>
             </div>
-
+            <div style="bottom:5%"><button class="btn exit-custom btn-sm" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button></div>   
             <div class="mt-auto pt-4 text-center">
                 <button onclick="deleteAllModels()" class="btn btn-link text-white-50 text-decoration-none btn-sm" style="font-size: 0.65rem;">Resetear Memoria Local</button>
-                <input type="button" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'"; cursor="pointer"; value="🚪 Saír"/>
             </div>
             
-        </div>
+        </div> 
+        
         <div style="font-size: 0.7rem; color: #fff ; opacity: 0.5; letter-spacing:0.1em; position: fixed; bottom: 5%; left: 1%;">V0.18 // r4m0s</div>
     </aside>
 

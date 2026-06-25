@@ -211,7 +211,7 @@
                     <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">CARGAR FICHEIRO LOCAL (.GLB):</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:10px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Proxecto - Aspanaes</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Tecnoloxía - Motor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/flor.glb">Bioloxía - Flor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/castelo.glb">Historia - Castelo</option>
@@ -238,7 +238,7 @@
                         <input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%;">
                     </div>
                     <div x-show="materialActivo" style="margin-bottom:15px;">
-                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDADE:</label>
+                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDAD:</label>
                         <input type="range" min="0" max="100" x-model="opacidadValue" @input="aplicarOpacidad()" style="width:100%;">
                     </div>
                     <div x-show="listaAnimaciones.length > 0" style="padding:12px; background:var(--primary-soft); border-radius:12px;">
@@ -256,13 +256,13 @@
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s4')"><span class="section-title">4. Ferramentas de Medición</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s4" style="padding:15px;">
-                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? 'Ocultar cotas xerais do modelo' : 'Activar cotas xerais do modelo'"></button>
+                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? '📏 Ocultar cotas xerais do modelo' : '📏 Activar cotas xerais do modelo'"></button>
                     <select x-model="unidad" @change="cambiarUnidades()" style="margin-top:10px;" x-show="verCotas || medidasLibres.length > 0">
                         <option value="mm">Milímetros (mm)</option><option value="cm">Centímetros (cm)</option><option value="m">Metros (m)</option>
                     </select>
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
-                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleMidiendoLibre()">
-                        <span x-text="midiendoLibre ? '🛑 Deter medición' : '📏 Medición entre puntos'"></span>
+                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--primary-soft); color:var(--primary)'" @click="toggleMidiendoLibre()">
+                        <span x-text="midiendoLibre ? '🛑 Deter medición' : '📐 Medición entre puntos'"></span>
                     </button>
                     <p x-show="midiendoLibre" style="font-size:10.5px; color:var(--danger); text-align:center; font-weight:bold; margin-top:8px;" x-text="puntoTemp ? '📍 Selecciona o segundo punto' : '📍 Selecciona o primeiro punto'"></p>
                     <div x-show="medidasLibres.length > 0" style="margin-top:10px;">
@@ -348,9 +348,10 @@
                     <input type="button" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'"; cursor="pointer"; value="🚪 Saír"/>
                 </div> 
         </div>-->
+        <button class="btn-main" style="background:var(--success); top: 90%; color:white; margin-bottom:15px;" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
         </div>
+        <button class="btn-main" style="background:var(--success); margin-left: 3%; color:white; margin-bottom:15px;" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
         <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%;">V0.18 // r4m0s</div>
-        <input type="button" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'"; cursor="pointer"; value="Saír", style="position: fixed; bottom: 4%; left: 3%; width: 94%;"/>
     </div>
 
     <div class="global-overlay-fixed" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
