@@ -21,24 +21,26 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            min-height: 100vh;
+            height: 100vh; /* Forzamos a que ocupe exactamente la pantalla */
             background-color: var(--bg-page);
             color: var(--moss-base);
             font-family: 'Segoe UI', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden; /* Desactivamos por completo el scroll */
         }
 
+        /* --- CONTENEDOR PRINCIPAL --- */
         .main-container {
             display: flex;
             flex-direction: column;
             position: relative;
             width: 100%;
-            min-height: 100vh;
+            height: 100vh; /* Ajustado a la altura de la pantalla */
             padding: 5%;
             box-sizing: border-box;
             z-index: 10;
         }
 
+        /* --- TÍTULO --- */
         .top-title {
             text-align: right;
             width: 100%;
@@ -61,10 +63,11 @@
             margin-top: 5px;
         }
 
+        /* --- MODELO 3D DE FONDO (PC) --- */
         .bg-model-container {
             position: absolute;
             top: 50%;
-            right: -10%; 
+            right: 0%; /* Ajustado de -10% a 0% para moverlo un 10% a la izquierda */
             transform: translateY(-50%);
             width: 70%;
             height: 80%;
@@ -79,6 +82,7 @@
             --progress-bar-height: 0px;
         }
 
+        /* --- MENÚ DE OPCIONES / ERRO --- */
         .options-container {
             display: flex;
             flex-direction: column;
@@ -162,8 +166,12 @@
             z-index: 10;
         }
 
+        /* --- ADAPTACIÓN MÓVIL --- */
         @media (max-width: 768px) {
-            .main-container { padding: 8% 5%; }
+            .main-container { 
+                padding: 5% 5%; 
+                justify-content: space-between;
+            }
             .top-title { text-align: center; order: 1; }
             .bg-model-container {
                 position: relative;
@@ -171,13 +179,17 @@
                 right: auto;
                 transform: none;
                 width: 100%;
-                height: 45vh; 
-                min-height: 350px;
+                height: 35vh; /* Reducido ligeramente para evitar scroll en móviles */
+                min-height: 250px;
                 order: 2; 
-                margin: 10px 0 20px 0;
+                margin: 10px 0;
                 z-index: 10;
             }
-            .options-container { max-width: 100%; margin: 0 0 30px 0; order: 3; }
+            .options-container { 
+                max-width: 100%; 
+                margin: 0 0 15px 0; 
+                order: 3; 
+            }
             .version-info { text-align: center; order: 4; }
             .option-card:hover { transform: translateY(-2px); }
         }
@@ -213,7 +225,7 @@
                 <p>A páxina que buscas non existe ou foi movida de sitio. O noso robot colapsou intentando atopala.</p>
             </div>
 
-            <a href="https:www.r4m0s.github.io/visor-3d-dicactico/selector.html" class="option-card">
+            <a href="index.html" class="option-card">
                 <span class="option-label">Sistema</span>
                 <h2 class="option-title">Volver ao Inicio</h2>
                 <p class="option-desc">Regresa ao menú principal do visor 3D didáctico.</p>
@@ -232,17 +244,14 @@
             
             const checkAnimation = () => {
                 const duration = modelViewer.duration;
-                // Ampliamos un pouco a marxe (0.15s) para detelo ANTES de que reinicie o bucle por si só
                 if (duration > 0 && modelViewer.currentTime >= duration - 0.15) {
                     modelViewer.pause(); 
-                    // Aseguramos que se quede cravado visualmente no fotograma do final
                     modelViewer.currentTime = duration - 0.001; 
                     
-                    // Agardamos os 2 segundos
                     setTimeout(() => {
-                        modelViewer.currentTime = 0; // Volvemos arriba de todo
-                        modelViewer.play(); // Arrincamos de novo
-                        requestAnimationFrame(checkAnimation); // Retomamos a vixilancia
+                        modelViewer.currentTime = 0; 
+                        modelViewer.play(); 
+                        requestAnimationFrame(checkAnimation); 
                     }, 5000);
                 } else {
                     requestAnimationFrame(checkAnimation);
