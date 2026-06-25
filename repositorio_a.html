@@ -27,7 +27,7 @@
         /* --- LAYOUT ESTRUCTURAL --- */
         .app-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; position: relative; }
 
-        /* BARRA LATERAL */
+        /* BARRA LATERAL (Estructura Flex para fijar el pie de página) */
         .sidebar {
             width: var(--sidebar-width); flex-shrink: 0; height: 100%;
             background-color: var(--sidebar-bg); transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -43,38 +43,49 @@
             box-shadow: 5px 0 10px rgba(0,0,0,0.1);
         }
 
-        .sidebar-content { padding: 25px; overflow-y: auto; flex-grow: 1; }
-        .sidebar h4 { color: white; font-weight: 800; text-align: center; margin-bottom: 25px; text-transform: uppercase; }
+        /* Contenido compacto para evitar scroll */
+        .sidebar-content { padding: 20px 20px 5px 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; }
+        .sidebar h4 { color: white; font-weight: 800; text-align: center; margin-bottom: 15px; text-transform: uppercase; font-size: 1.15rem; }
 
         .section-header {
-            background: rgba(255,255,255,0.08); color: white; padding: 12px 15px;
+            background: rgba(255,255,255,0.08); color: white; padding: 10px 12px;
             border-radius: 8px; cursor: pointer; margin-bottom: 5px; font-weight: 700;
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem;
         }
-        .section-body { overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.3s; max-height: 1000px; opacity: 1; margin-bottom: 20px; padding: 10px 5px; }
+        .section-body { overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.3s; max-height: 1000px; opacity: 1; margin-bottom: 12px; padding: 5px 0; }
         .section-body.closed { max-height: 0; opacity: 0; margin-bottom: 0; padding: 0; }
 
-        .form-label { color: #dee2d3; font-weight: 700; font-size: 0.7rem; margin-top: 10px; text-transform: uppercase; }
-        .form-control { background-color: var(--white) !important; border: 2px solid var(--border-olive); color: #333 !important; border-radius: 8px; }
+        .form-label { color: #dee2d3; font-weight: 700; font-size: 0.65rem; margin-top: 6px; margin-bottom: 3px; text-transform: uppercase; }
+        .form-control { background-color: var(--white) !important; border: 2px solid var(--border-olive); color: #333 !important; border-radius: 8px; padding: 6px 10px; font-size: 0.85rem; }
 
         .btn-custom {
             background-color: var(--olive-base); border: none; color: white; font-weight: 800;
-            border-radius: 10px; padding: 10px; text-transform: uppercase; box-shadow: 0 4px 0 #4a5023;
-            transition: all 0.1s; width: 100%; font-size: 0.875rem;
+            border-radius: 10px; padding: 8px; text-transform: uppercase; box-shadow: 0 3px 0 #4a5023;
+            transition: all 0.1s; width: 100%; font-size: 0.8rem;
         }
-        .btn-custom:hover { background-color: #727b36;; transform: translateY(1px); box-shadow: 0 3px 0 #4a5023; }
-        .btn-custom:active { transform: translateY(4px); box-shadow: 0 0 0 #4a5023; }
-        .btn-custom:disabled { background-color: #888; box-shadow: 0 4px 0 #666; opacity: 0.6; }
+        .btn-custom:hover { background-color: #727b36;; transform: translateY(1px); box-shadow: 0 2px 0 #4a5023; }
+        .btn-custom:active { transform: translateY(3px); box-shadow: 0 0 0 #4a5023; }
+        .btn-custom:disabled { background-color: #888; box-shadow: 0 3px 0 #666; opacity: 0.6; }
 
         .exit-custom {
-            background-color: #ffffff; border: none; color: black; font-weight: 800; bottom: 5%;
-            border-radius: 10px; padding: 10px; text-transform: uppercase; box-shadow: 0 4px 0 #4a5023;
-            transition: all 0.1s; width: 100% ; font-size: 0.875rem;
+            background-color: #ffffff; border: none; color: black; font-weight: 800;
+            border-radius: 10px; padding: 8px; text-transform: uppercase; box-shadow: 0 3px 0 #4a5023;
+            transition: all 0.1s; width: 100% ; font-size: 0.8rem;
         }
-        .exit-custom:hover { background-color: #727b36; transform: translateY(1px); box-shadow: 0 3px 0 #4a5023; }
-        .exit-custom:active { transform: translateY(4px); box-shadow: 0 0 0 #4a5023; }
-        .exit-custom:disabled { background-color: #888; box-shadow: 0 4px 0 #666; opacity: 0.6; }
+        .exit-custom:hover { background-color: #727b36; transform: translateY(1px); box-shadow: 0 2px 0 #4a5023; }
+        .exit-custom:active { transform: translateY(3px); box-shadow: 0 0 0 #4a5023; }
+        .exit-custom:disabled { background-color: #888; box-shadow: 0 3px 0 #666; opacity: 0.6; }
+
+        /* Altura controlada para el visor previo lateral */
+        .preview-box { width: 100%; height: 130px; background: #2a2d21; border-radius: 12px; margin-top: 5px; margin-bottom: 5px; border: 2px solid var(--border-olive); overflow: hidden; }
+        
+        /* Pie de página de la barra lateral ajustado */
+        .sidebar-footer {
+            font-size: 0.7rem; color: #fff ; opacity: 0.5; letter-spacing:0.1em;
+            padding: 12px 20px; text-align: left; background-color: var(--sidebar-bg);
+            border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;
+        }
 
         /* --- ÁREA DE CONTENIDO (GRID) --- */
         .main-content { flex-grow: 1; height: 100%; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
@@ -95,7 +106,6 @@
             display: grid; 
             gap: 15px; 
             flex-grow: 1; 
-            /* En escritorio mantiene 6x5 */
             grid-template-columns: repeat(6, 1fr); 
             grid-template-rows: repeat(5, 1fr); 
             min-height: 0;
@@ -131,14 +141,12 @@
         }
         .grid-slot.filled:hover .btn-remove { display: flex; }
 
-        .preview-box { width: 100%; height: 100%; background: #2a2d21; border-radius: 12px; margin-top: 10px; border: 2px solid var(--border-olive); overflow: hidden; }
-
         /* --- ESTILOS DEL VISOR MODAL --- */
         #modal-viewer-container { position: relative; width: 100%; height: 75vh; }
         model-viewer#modal-viewer { width: 100%; height: 100%; background: #fdfdfd; }
         
         #visor-info-display {
-            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95);
+            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 25 class="autor-linea" 55, 0.95);
             padding: 15px 25px; border-radius: 15px; z-index: 10; pointer-events: none;
             box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05);
             display: none; flex-direction: column; align-items: flex-end; gap: 4px;
@@ -174,7 +182,6 @@
         @media (max-width: 1024px) {
             .grid-scroll-area { overflow-y: auto; }
             .grid-container {
-                /* Se rompe el 6x5 estricto para hacer auto-ajuste de columnas y permitir scroll hacia abajo */
                 grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
                 grid-auto-rows: 150px;
                 grid-template-rows: none;
@@ -183,40 +190,20 @@
         }
 
         @media (max-width: 768px) {
-            /* Hacer que la barra lateral flote (Offcanvas) en móviles */
             .sidebar {
                 position: absolute;
                 height: 100vh;
                 box-shadow: 10px 0 20px rgba(0,0,0,0.3);
             }
-            
-            /* Evitar que el botón de menú pise el diseño */
-            .grid-header {
-                padding-left: 50px; 
-                justify-content: center;
-                padding-right: 15px;
-            }
-
-            #repoDisplay {
-                font-size: 0.75rem;
-                padding: 6px 12px;
-            }
-
-            /* Ajustar información dentro del visor 3D en móvil */
-            #visor-info-display {
-                top: 10px; right: 10px;
-                padding: 10px 15px;
-            }
+            .grid-header { padding-left: 50px; justify-content: center; padding-right: 15px; }
+            #repoDisplay { font-size: 0.75rem; padding: 6px 12px; }
+            #visor-info-display { top: 10px; right: 10px; padding: 10px 15px; }
             #visor-info-display h2 { font-size: 1em; }
             .autor-linea { font-size: 0.75em; }
         }
 
         @media (max-width: 480px) {
-            /* En teléfonos muy pequeños, forzar a 2 columnas */
-            .grid-container { 
-                grid-template-columns: repeat(2, 1fr); 
-                grid-auto-rows: 130px;
-            }
+            .grid-container { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
             .grid-scroll-area { padding: 10px; }
         }
     </style>
@@ -235,10 +222,9 @@
             </div>
             <div id="repoSection" class="section-body">
                 <label class="form-label">Nome do Repositorio</label>
-                <input type="text" id="repoInput" class="form-control mb-3" placeholder="Tecnoloxía e Dixitalización - 1º ESO">
+                <input type="text" id="repoInput" class="form-control mb-2" placeholder="Tecnoloxía e Dixitalización - 1º ESO">
                 <div class="d-grid gap-2">
                     <button class="btn btn-custom btn-sm" onclick="saveRepoName()">Gardar Repositorio</button>
-
                 </div>
             </div>
 
@@ -248,25 +234,28 @@
             </div>
             <div id="modelSection" class="section-body">
                 <div class="preview-box">
-                    <model-viewer id="side-preview" auto-rotate camera-controls shadow-intensity="1" camera-target="auto" bounds="tight"></model-viewer>
+                    <model-viewer id="side-preview" auto-rotate camera-controls shadow-intensity="1" camera-target="auto" bounds="tight" style="width:100%; height:100%;"></model-viewer>
                 </div>
                 
                 <label class="form-label">Ficheiro .JSON</label>
                 <input type="file" id="jsonInput" class="form-control mb-2" accept=".json">
 
                 <label class="form-label">Título do REA</label>
-                <input type="text" id="titleInput" class="form-control mb-3" placeholder="Sobrescribe o título...">
+                <input type="text" id="titleInput" class="form-control mb-2" placeholder="Sobrescribe o título...">
 
-                <button id="btnSave" class="btn btn-custom" disabled>Gardar</button>
-            </div>
-            <div style="bottom:5%"><button class="btn exit-custom btn-sm" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button></div>   
-            <div class="mt-auto pt-4 text-center">
-                <button onclick="deleteAllModels()" class="btn btn-link text-white-50 text-decoration-none btn-sm" style="font-size: 0.65rem;">Resetear Memoria Local</button>
+                <button id="btnSave" class="btn btn-custom btn-sm" disabled>Gardar</button>
             </div>
             
+            <div class="mt-2">
+                <button class="btn exit-custom btn-sm" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
+            </div>   
+            
+            <div class="text-center mt-auto pt-3">
+                <button onclick="deleteAllModels()" class="btn btn-link text-white-50 text-decoration-none btn-sm" style="font-size: 0.65rem;">Resetear Memoria Local</button>
+            </div>
         </div> 
         
-        <div style="font-size: 0.7rem; color: #fff ; opacity: 0.5; letter-spacing:0.1em; position: fixed; bottom: 5%; left: 1%;">V0.18 // r4m0s</div>
+        <div class="sidebar-footer">V0.18 // r4m0s</div>
     </aside>
 
     <main class="main-content">
@@ -333,7 +322,7 @@
     const viewModalElement = document.getElementById('viewModal');
 
     let modelsCollection = [];
-    let currentParsedData = null; // Almacena o JSON crudo temporalmente
+    let currentParsedData = null; 
     const STORAGE_KEY = 'studio_olive_full_data_v1';
 
     function init() {
@@ -343,7 +332,6 @@
         const savedModels = localStorage.getItem(STORAGE_KEY);
         if (savedModels) modelsCollection = JSON.parse(savedModels);
         
-        // Hago que por defecto en dispositivos móviles la barra esté plegada para mayor limpieza
         if(window.innerWidth <= 768) {
             sidebar.classList.add('collapsed');
             toggleSidebarBtn.innerText = '▶';
