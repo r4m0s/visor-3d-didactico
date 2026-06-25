@@ -56,6 +56,11 @@
         .menu-btn:hover { background: rgba(255, 197, 197, 0.12); transform: translateX(4px); }
         .menu-btn.active { background: var(--primary); border-color: var(--primary-soft); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
 
+        /* CONTENEDOR INFERIOR DE LA BARRA LATERAL */
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
         .exit-btn {
             width: 90%; margin: 14px auto; padding: 14px 18px; background: var(--white);
             border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
@@ -102,7 +107,7 @@
 
         /* MODO RESPONSIVE PARA DISPOSITIVOS MÓBILES */
         @media (max-width: 768px) {
-            body, html { overflow: visible; height: auto; }
+            body, html { overflow: hidden; height: 100%; }
             .app-container { flex-direction: column; height: 100vh; }
             
             .sidebar {
@@ -124,14 +129,29 @@
             }
             .menu-btn:hover { transform: none; }
             
+            /* FIJAR BOTÓN Y FOOTER EN LA PARTE INFERIOR */
+            .sidebar-bottom {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: var(--sidebar-bg);
+                z-index: 30;
+                box-shadow: 0 -4px 10px rgba(0,0,0,0.15);
+            }
+
             .exit-btn { 
-                width: calc(100% - 30px); margin: 0 auto 10px auto; 
+                width: calc(100% - 30px); margin: 10px auto; 
             }
             .exit-btn:hover { transform: none; }
 
             .sidebar-footer { padding: 10px; text-align: center; }
 
-            .main-content { padding: 20px 15px; overflow-y: auto; }
+            .main-content { 
+                /* Padding inferior aumentado (110px) para que el texto no quede tapado por los botones fijos */
+                padding: 20px 15px 110px 15px; 
+                overflow-y: auto; 
+            }
             .section-title { font-size: 1.4rem; }
             .subtitle { font-size: 0.95rem; }
             .card-ui { padding: 15px; }
@@ -166,11 +186,14 @@
                     <span></span> 3. Visor 3D
                 </button>
             </nav>
-            <button class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
-                <span></span> Saír
-            </button>
-            <div class="sidebar-footer">
-                V0.18 // r4m0s
+            
+            <div class="sidebar-bottom">
+                <button class="exit-btn" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">
+                    <span></span> Saír
+                </button>
+                <div class="sidebar-footer">
+                    V0.18 // r4m0s
+                </div>
             </div>
         </aside>
 
