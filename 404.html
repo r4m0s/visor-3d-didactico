@@ -22,11 +22,12 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100vh; 
+            min-height: 100dvh; /* Adaptación a iOS/iPadOS */
             background-color: var(--bg-page);
             color: var(--moss-base);
             font-family: 'Segoe UI', sans-serif;
-            overflow: hidden; 
+            overflow-x: hidden; 
+            overflow-y: auto; /* Permite facer scroll se o contido é máis alto que a pantalla */
         }
 
         /* --- CONTEDOR PRINCIPAL --- */
@@ -35,7 +36,7 @@
             flex-direction: column;
             position: relative;
             width: 100%;
-            height: 100vh; 
+            min-height: 100dvh; /* Adaptación a iOS/iPadOS */
             padding: 5%;
             box-sizing: border-box;
             z-index: 10;
@@ -168,10 +169,23 @@
         }
 
         /* --- DESEÑO RESPONSIVE --- */
+        
+        /* Ajuste específico para Tabletas (iPads en horizontal e vertical) */
+        @media (max-width: 1024px) {
+            .bg-model-container {
+                width: 55%; /* Reducimos o ancho do modelo para que non pise o texto */
+            }
+            .options-container {
+                max-width: 40%; /* Adaptamos o menú ao espazo libre */
+            }
+        }
+
+        /* Ajuste para móbiles */
         @media (max-width: 768px) {
             .main-container { 
                 padding: 5% 5%; 
                 justify-content: space-between;
+                min-height: 100dvh;
             }
             .top-title { text-align: center; order: 1; }
             .bg-model-container {
@@ -180,7 +194,7 @@
                 right: auto;
                 transform: none;
                 width: 100%;
-                height: 35vh; 
+                height: 35dvh; 
                 min-height: 250px;
                 order: 2; 
                 margin: 10px 0;
@@ -191,7 +205,7 @@
                 margin: 0 0 15px 0; 
                 order: 3; 
             }
-            .version-info { text-align: center; order: 4; }
+            .version-info { text-align: center; order: 4; padding-bottom: 20px; }
             .option-card:hover { transform: translateY(-2px); }
         }
     </style>
