@@ -2,10 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Configurador RA - V3DD</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <!-- Creado por Rubén Ramos Loureiro - Mestrado Universitario en Profesorado de ESO e Bacharelato, F.P. e Ensino de Idiomas - Universidade da Coruña - 2026 -->
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -29,39 +27,15 @@
         #contenedor-principal { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
         model-viewer { width: 100%; height: 100%; background: transparent; }
 
-        /* MENU MÓVIL E OVERLAY */
-        #btn-mobile-menu {
-            display: none; position: fixed; top: 15px; left: 15px; z-index: 3000;
-            background: var(--primary); color: white; border: none; padding: 10px 15px;
-            border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .mobile-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 3500; backdrop-filter: blur(2px);
-        }
-
         /* DASHBOARD */
         #dashboard {
-            position: fixed; top: 15px; left: 15px; width: 360px; 
-            height: calc(100vh - 30px); 
-            height: calc(100dvh - 30px); 
+            position: fixed; top: 15px; left: 15px; width: 360px; height: calc(100vh - 30px);
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 4000; display: flex; flex-direction: column;
             border: 1px solid var(--primary-soft); overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .header-main { 
-            padding: 18px; background: var(--primary); color: var(--bg-page); 
-            text-align: center; font-weight: bold; flex-shrink: 0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .btn-close-menu {
-            display: none; background: none; border: none; color: white; 
-            font-size: 20px; font-weight: bold; cursor: pointer; padding: 0;
-        }
-
+        .header-main { padding: 18px; background: var(--primary); color: var(--bg-page); text-align: center; font-weight: bold; flex-shrink: 0; }
         .title-strip { background: #fff; padding: 10px 18px; border-bottom: 1px solid var(--primary-soft); font-size: 13px; color: var(--primary); font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
         .scroll-area { padding: 12px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
         
@@ -73,10 +47,7 @@
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--primary-soft); border-radius: 8px; margin-bottom: 5px; font-size: 13px; font-family: inherit; color: var(--dark); }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        
-        /* Modificado para que no se encoja en iPad */
-        .exit-main { width: 93%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
-        
+        .exit-main { width: 93%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-mini { padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
 
         /* SELECTORES CIRCULARES */
@@ -101,24 +72,24 @@
 
         /* BOTÓNS FLOTANTES */
         #btn-ar-universal {
-            position: fixed; bottom: 25px; right: 25px; z-index: 2000;
+            position: fixed; bottom: 25px; right: 25px; z-index: 90000;
             background-color: white; border: 2px solid var(--primary); color: var(--primary);
             padding: 14px 28px; border-radius: 40px; font-weight: bold; cursor: pointer;
             box-shadow: 0 6px 25px rgba(0,0,0,0.15); transition: 0.2s;
         }
         #btn-ar-universal:hover { background-color: var(--primary); color: white; }
 
-        /* DEPURACIÓN */
+        /* DEPURACIÖN */
         .scrubber { width: 100%; height: 6px; background: var(--primary-soft); border-radius: 10px; appearance: none; outline: none; margin: 10px 0; }
         .scrubber::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: var(--primary); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* CAPAS AR PARA WEBXR */
-        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2500; }
+        /* CAPAS AR / MODALES OPTIMIZADOS PARA WEBXR */
+        #ar-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999; }
         .ar-controls { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: auto; }
         .ar-btn { padding: 15px 30px; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; }
         
         .global-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); pointer-events: auto; }
-        .global-overlay-fixed { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); z-index: 5000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); pointer-events: auto; }
+        .global-overlay-fixed { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 46, 19, 0.7); z-index: 100000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); pointer-events: auto; }
         .viewer-card { background: white; width: 92%; max-width: 500px; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.5); pointer-events: auto; }
         .v-body { padding: 25px; overflow-y: auto; max-height: 70vh; color: var(--dark); pointer-events: auto;}
 
@@ -131,56 +102,11 @@
         #visor-info-display h2 { margin: 0; font-size: 1.4em; color: var(--dark); font-weight: 800; }
         .autor-linea { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.9em; color: var(--primary-light); font-weight: 600; }
         .autor-linea img { height: 20px; }
-
-        /* MODELOS 3D RESPONSIVE */
-        @media (max-width: 768px) {
-            #btn-mobile-menu { display: block; }
-            .mobile-overlay.active { display: block; }
-            .btn-close-menu { display: block; }
-
-            #dashboard {
-                top: 0; left: 0;
-                height: 100%;
-                height: 100dvh;
-                width: 90vw;
-                max-width: 380px;
-                border-radius: 0 20px 20px 0;
-                border: none;
-                background: #ffffff;
-                backdrop-filter: none;
-                transform: translateX(-100%);
-            }
-            #dashboard.open {
-                transform: translateX(0);
-            }
-
-            #btn-ar-universal {
-                bottom: 15px; right: 15px; padding: 12px 20px; font-size: 14px;
-            }
-
-            .ar-controls {
-                width: 90%; flex-direction: column; bottom: 80px; gap: 10px;
-            }
-            .ar-btn { width: 100%; font-size: 14px; padding: 12px 20px; }
-
-            #visor-info-display {
-                top: 15px; right: 15px;
-                padding: 10px 15px;
-            }
-            #visor-info-display h2 { font-size: 1.1em; }
-            
-            .global-overlay .viewer-card, .global-overlay-fixed .viewer-card {
-                width: 95%; max-height: 85vh;
-            }
-        }
     </style>
 </head>
 <body x-data="editorPro()">
 
-    <button id="btn-mobile-menu" @click="mostrarDashboard = true" x-show="!mostrarDashboard" x-cloak>☰ Menú</button>
     <button id="btn-ar-universal" @click="activarAR()">🚀 Realidade Aumentada</button>
-
-    <div class="mobile-overlay" :class="{ 'active': mostrarDashboard && window.innerWidth <= 768 }" @click="mostrarDashboard = false"></div>
 
     <div id="contenedor-principal">
         <model-viewer id="visor" 
@@ -192,7 +118,7 @@
             shadow-intensity="1.5" 
             @click="colocarPunto($event)" 
             @load="onModelLoad()"
-            @ar-status="enAR = ['session-started', 'object-placed'].includes($event.detail.status)"> 
+            @ar-status="enAR = ($event.detail.status === 'session-started')">
             
             <button slot="hotspot-dot-origin" style="display:none;" data-position="0 0 0"></button>
             <button slot="hotspot-dot-width" style="display:none;" data-position="0 0 0"></button>
@@ -268,11 +194,8 @@
             </model-viewer>
     </div>
 
-    <div id="dashboard" :class="{ 'open': mostrarDashboard }">
-        <div class="header-main">
-            <span>CONFIGURADOR RA - v3DD</span>
-            <button class="btn-close-menu" @click="mostrarDashboard = false">✕</button>
-        </div>
+    <div id="dashboard">
+        <div class="header-main">CONFIGURADOR RA - v3DD</div>
 
         <div class="scroll-area">
             <div class="card-ui">
@@ -289,7 +212,7 @@
                     <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">CARGAR FICHEIRO LOCAL (.GLB):</label>
                     <input type="file" accept=".glb" @change="subirLocal">
                     <select @change="cargarPrecargado($event.target.value)" style="margin-top:10px;">
-                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Proxecto Aspanaes - Coche</option>
+                        <option value="https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb">Coche Aspanaes</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/motor.glb">Tecnoloxía - Motor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/flor.glb">Bioloxía - Flor</option>
                         <option value="https://r4m0s.github.io/visor-3d-didactico/assets/castelo.glb">Historia - Castelo</option>
@@ -316,7 +239,7 @@
                         <input type="range" min="0" max="100" x-model="reflectValue" @input="aplicarReflectividad()" style="width:100%;">
                     </div>
                     <div x-show="materialActivo" style="margin-bottom:15px;">
-                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDADE:</label>
+                        <label style="font-size:10px; font-weight:bold; color:var(--primary-light);">OPACIDAD:</label>
                         <input type="range" min="0" max="100" x-model="opacidadValue" @input="aplicarOpacidad()" style="width:100%;">
                     </div>
                     <div x-show="listaAnimaciones.length > 0" style="padding:12px; background:var(--primary-soft); border-radius:12px;">
@@ -334,13 +257,13 @@
             <div class="card-ui">
                 <div class="section-header" @click="toggleMenu('s4')"><span class="section-title">4. Ferramentas de Medición</span><span x-text="menu.s4 ? '▲' : '▼'"></span></div>
                 <div class="section-content" x-show="menu.s4" style="padding:15px;">
-                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? 'Ocultar cotas xerais do modelo' : 'Activar cotas xerais do modelo'"></button>
+                    <button class="btn-main" :style="verCotas ? 'background:var(--primary); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleCotas()" x-text="verCotas ? '📏 Ocultar cotas xerais do modelo' : '📏 Activar cotas xerais do modelo'"></button>
                     <select x-model="unidad" @change="cambiarUnidades()" style="margin-top:10px;" x-show="verCotas || medidasLibres.length > 0">
                         <option value="mm">Milímetros (mm)</option><option value="cm">Centímetros (cm)</option><option value="m">Metros (m)</option>
                     </select>
                     <hr style="border:none; border-top:1px solid var(--primary-soft); margin:15px 0;">
-                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--bg-page); color:var(--primary)'" @click="toggleMidiendoLibre()">
-                        <span x-text="midiendoLibre ? 'Deter medición' : 'Medición entre puntos'"></span>
+                    <button class="btn-main" :style="midiendoLibre ? 'background:var(--danger); color:white' : 'background:var(--primary-soft); color:var(--primary)'" @click="toggleMidiendoLibre()">
+                        <span x-text="midiendoLibre ? '🛑 Deter medición' : '📐 Medición entre puntos'"></span>
                     </button>
                     <p x-show="midiendoLibre" style="font-size:10.5px; color:var(--danger); text-align:center; font-weight:bold; margin-top:8px;" x-text="puntoTemp ? '📍 Selecciona o segundo punto' : '📍 Selecciona o primeiro punto'"></p>
                     <div x-show="medidasLibres.length > 0" style="margin-top:10px;">
@@ -420,9 +343,15 @@
                     </div>
                 </div>
             </div>
+<!--            <div class="card-ui">
+                <div class="section-header" @click="toggleMenu('s9')"><span class="section-title">9. Sair ao menú principal</span><span x-text="menu.s9 ? '▲' : '▼'"></span></div>
+                <div class="section-content" x-show="menu.s9" style="padding:15px;">
+                    <input type="button" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'"; cursor="pointer"; value="🚪 Saír"/>
+                </div> 
+        </div>-->
         </div>
         <button class="exit-main" style="background:var(--success); margin-left: 3%; color:white; margin-bottom:15px;" onclick="location.href='https://r4m0s.github.io/visor-3d-didactico/selector.html'">Saír</button>
-        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%; flex-shrink: 0;">V0.18 // r4m0s</div>
+        <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 1px; margin-bottom: 5%; margin-left: 5%;">V0.18 // r4m0s</div>
     </div>
 
     <div class="global-overlay-fixed" x-show="mostrarQR" x-cloak @click.self="mostrarQR = false">
@@ -436,7 +365,6 @@
     <script>
         function editorPro() {
             return {
-                mostrarDashboard: window.innerWidth > 768,
                 modeloUrl: 'https://r4m0s.github.io/visor-3d-didactico/assets/coche_aspanaes.glb',
                 menu: { s1:false, s2:false, s3:false, s4:false, s5:false, s6:false, s7:false, s8:false, s9:false },
                 inputTitulo: '', tituloGuardado: '', inputAutor: '', autorGuardado: '', licenciaSel: 'by', licenciaImgGuardada: '',
@@ -449,17 +377,6 @@
                 listaAnimaciones: [], animacionActiva: '', animDuracion: 0, animTiempo: 0, scannerId: null, iframeCodigo: '',
                 formatoCaptura: 'image/png',
                 reproduciendo: false, enAR: false,
-
-                init() {
-                    let esMovil = window.innerWidth <= 768;
-                    window.addEventListener('resize', () => {
-                        const ahoraEsMovil = window.innerWidth <= 768;
-                        if (esMovil !== ahoraEsMovil) {
-                            this.mostrarDashboard = !ahoraEsMovil;
-                            esMovil = ahoraEsMovil;
-                        }
-                    });
-                },
 
                 toggleMenu(key) { this.menu[key] = !this.menu[key]; },
                 formatMeasure(val) { if (!val) return '0'; return `${(val * this.factorUnidad).toFixed(this.unidad==='m'?2:1)} ${this.unidad}`; },
@@ -479,7 +396,7 @@
                                 }
                                 if (conf.opacidad !== undefined) {
                                     a = conf.opacidad / 100;
-                                    mat.setAlphaMode('BLEND');
+                                    mat.setAlphaMode('BLEND'); // Crucial para transparencia
                                 }
                                     mat.pbrMetallicRoughness.setBaseColorFactor([r,g,b,1.0]);
                                                               
@@ -536,7 +453,7 @@
                     this.materialesModificados[this.materialActivo].opacidad = this.opacidadValue;
                     const mat = document.querySelector('#visor').model.materials.find(m => m.name === this.materialActivo);
                     if (mat) { 
-                        mat.setAlphaMode('BLEND');
+                        mat.setAlphaMode('BLEND'); // Obliga al motor a permitir el paso de luz
                         const rgba = mat.pbrMetallicRoughness.baseColorFactor;
                         mat.pbrMetallicRoughness.setBaseColorFactor([rgba[0], rgba[1], rgba[2], this.opacidadValue / 100]); 
                     }
